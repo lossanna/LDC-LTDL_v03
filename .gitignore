@@ -5,8 +5,6 @@
 *.RData
 RData/
 data/LDC-points
-data/raw/downloaded
-data/raw/LDC
-data/raw/Treatment_Info_R.csv
+data/raw
 data/versions-from-R
 data/GIS-exports
