@@ -24,7 +24,7 @@ aero.aim.raw <- read_xlsx("data/raw/AERO/2026-03-12_AIM-and-LMF.xlsx",
                           sheet = "2026-03-12_summary_AIM_OUT")
 aero.lmf.raw <- read_xlsx("data/raw/AERO/2026-03-12_AIM-and-LMF.xlsx",
                           sheet = "2026-03-12_summary_LMF_OUT")
-ldc.003.sj <- read_csv("data/GIS-exports/004_LDC003-Eco3-MLRA_SpatialJoin _export.csv")
+ldc.003.sj <- read_csv("data/GIS-exports/004_LDC003-Eco3-MLRA-SpatialJoin_export.csv")
 
 
 # Data wrangling ----------------------------------------------------------
