@@ -1,7 +1,6 @@
 # Created: 2026-03-30
 # Updated: 2026-03-30
 
-
 # Purpose: Assign land history (treatment + wildfire info) to each LDC point.
 #   Same as 06.3.R from Project v02 (but sans parts about LDC point grouping variables).
 
