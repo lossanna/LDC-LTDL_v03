@@ -14,10 +14,10 @@ trtid.fix <- read_csv("data/data-wrangling-intermediate/01_treatment-info_fix-ro
 # Data wrangling ----------------------------------------------------------
 
 # Fix rows that need replacement in Treatment_Info_R.csv
-treatment.info <- treatment.info.raw %>% 
+treatment.info <- treatment.info.raw |> 
   filter(!Trt_ID %in% trtid.fix$Trt_ID)
-treatment.info <- treatment.info %>% 
-  bind_rows(trtid.fix) %>% 
+treatment.info <- treatment.info |> 
+  bind_rows(trtid.fix) |> 
   arrange(Trt_ID)
 
 

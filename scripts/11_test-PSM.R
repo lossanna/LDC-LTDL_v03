@@ -2,9 +2,9 @@
 # Updated: 2026-04-13
 
 # Purpose: Trial run of propensity score matching based on Ron's code (restoration_psm_analysis_20250910.R)
-#   with SPEI data (also from Ron) as substitute for CETWI (while we wait to recieve CETWI). 
+#   with SPEI data (also from Ron) as substitute for CETWI (while we wait to recieve CETWI).
 
-# https://kosukeimai.github.io/MatchIt/articles/MatchIt.html 
+# https://kosukeimai.github.io/MatchIt/articles/MatchIt.html
 
 library(tidyverse)
 library(MatchIt)
@@ -19,43 +19,45 @@ spei.raw <- read_csv("from-Ron/spei1yr_data.csv")
 # Data wrangling ----------------------------------------------------------
 
 # Create binary col for treatment and fire
-ldc.006 <- ldc.006.raw %>% 
+ldc.006 <- ldc.006.raw |>
   mutate(trt_binary = if_else(is.na(Trt_Type_Sub), 0, 1))
 
 # Join SPEI
-ldc.006 <- ldc.006 %>% 
+ldc.006 <- ldc.006 |>
   left_join(spei.raw)
 
 # Natural log transformation of horizontal flux (q) when greater than 0
-ldc.006 <- ldc.006 %>% 
-  mutate(ln_q = if_else(horizontal_flux_total_MD == 0, 0, log(horizontal_flux_total_MD)), 
-         .after = horizontal_flux_total_MD)
+ldc.006 <- ldc.006 |>
+  mutate(
+    ln_q = if_else(horizontal_flux_total_MD == 0, 0, log(horizontal_flux_total_MD)),
+    .after = horizontal_flux_total_MD
+  )
 
 
 # Check for NAs
 apply(ldc.006, 2, anyNA)
 
 #   Check which is missing gap data
-ldc.006 %>% 
+ldc.006 |>
   filter(is.na(Gap100plus)) # only one treated missing gap data, in a category with 65, so dropping one is fine
 
 #   Drop points without gap data
-ldc.006 <- ldc.006 %>% 
+ldc.006 <- ldc.006 |>
   filter(!is.na(Gap100plus))
 
 
 # Recalculate Treatment_count
-treatment.count <- ldc.006 %>% 
-  group_by(EcoLvl3, Category) %>% 
-  count(Trt_Type_Sub) %>% 
+treatment.count <- ldc.006 |>
+  group_by(EcoLvl3, Category) |>
+  count(Trt_Type_Sub) |>
   rename(Treatment_count = n)
 
 #   Remove old Treatment_count col
-ldc.006 <- ldc.006 %>% 
-  select(-Treatment_count) 
+ldc.006 <- ldc.006 |>
+  select(-Treatment_count)
 
 #   Rejoin
-ldc.006 <- treatment.count %>% 
+ldc.006 <- treatment.count |>
   left_join(ldc.006)
 
 
@@ -72,22 +74,23 @@ sort(unique(ldc.006$EcoLvl3))
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-anm.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+anm.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Arizona/New Mexico Mountains")
 
 # PSM
 anm.prescribed.burn.psm <- matchit(
-  data = anm.prescribed.burn.dat, 
+  data = anm.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 anm.prescribed.burn.psm
 summary(anm.prescribed.burn.psm)
 
@@ -129,34 +132,39 @@ plot(anm.prescribed.burn.psm, type = "qq")
 anm.prescribed.burn.matched <- match_data(anm.prescribed.burn.psm)
 
 # Create trt_control variable
-anm.prescribed.burn.matched <- anm.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+anm.prescribed.burn.matched <- anm.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-anm.prescribed.burn.matched <- anm.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+anm.prescribed.burn.matched <- anm.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-anm.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+anm.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = anm.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 anm.prescribed.burn.pred <- avg_predictions(
   model = anm.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 anm.prescribed.burn.pred
 
 #   Table version
@@ -165,25 +173,31 @@ anm.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 anm.prescribed.burn.pred.df
 
 # Plot
-anm.prescribed.burn.plot <- ggplot(data = anm.prescribed.burn.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+anm.prescribed.burn.plot <- anm.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 anm.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-anm.prescribed.burn.comp <- avg_comparisons(model = anm.prescribed.burn.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+anm.prescribed.burn.comp <- avg_comparisons(
+  model = anm.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 anm.prescribed.burn.comp
 
 
@@ -194,22 +208,23 @@ anm.prescribed.burn.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-anp.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+anp.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Arizona/New Mexico Plateau")
 
 # PSM
 anp.herbicide.psm <- matchit(
-  data = anp.herbicide.dat, 
+  data = anp.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 anp.herbicide.psm
 summary(anp.herbicide.psm)
 
@@ -251,34 +266,39 @@ plot(anp.herbicide.psm, type = "qq")
 anp.herbicide.matched <- match_data(anp.herbicide.psm)
 
 # Create trt_control variable
-anp.herbicide.matched <- anp.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+anp.herbicide.matched <- anp.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-anp.herbicide.matched <- anp.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+anp.herbicide.matched <- anp.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-anp.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+anp.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = anp.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 anp.herbicide.pred <- avg_predictions(
   model = anp.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 anp.herbicide.pred
 
 #   Table version
@@ -287,25 +307,31 @@ anp.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 anp.herbicide.pred.df
 
 # Plot
-anp.herbicide.plot <- ggplot(data = anp.herbicide.pred.df, 
-                             aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+anp.herbicide.plot <- anp.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 anp.herbicide.plot
 
-# Estimation of average treatment effect 
-anp.herbicide.comp <- avg_comparisons(model = anp.herbicide.lm,
-                                      variables = "trt_control",
-                                      vcov = ~subclass)
+# Estimation of average treatment effect
+anp.herbicide.comp <- avg_comparisons(
+  model = anp.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 anp.herbicide.comp
 
 
@@ -313,22 +339,23 @@ anp.herbicide.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-anp.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+anp.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Arizona/New Mexico Plateau")
 
 # PSM
 anp.prescribed.burn.psm <- matchit(
-  data = anp.prescribed.burn.dat, 
+  data = anp.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 anp.prescribed.burn.psm
 summary(anp.prescribed.burn.psm)
 
@@ -370,34 +397,39 @@ plot(anp.prescribed.burn.psm, type = "qq")
 anp.prescribed.burn.matched <- match_data(anp.prescribed.burn.psm)
 
 # Create trt_control variable
-anp.prescribed.burn.matched <- anp.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+anp.prescribed.burn.matched <- anp.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-anp.prescribed.burn.matched <- anp.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+anp.prescribed.burn.matched <- anp.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-anp.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+anp.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = anp.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 anp.prescribed.burn.pred <- avg_predictions(
   model = anp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 anp.prescribed.burn.pred
 
 #   Table version
@@ -406,25 +438,31 @@ anp.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 anp.prescribed.burn.pred.df
 
 # Plot
-anp.prescribed.burn.plot <- ggplot(data = anp.prescribed.burn.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+anp.prescribed.burn.plot <- anp.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 anp.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-anp.prescribed.burn.comp <- avg_comparisons(model = anp.prescribed.burn.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+anp.prescribed.burn.comp <- avg_comparisons(
+  model = anp.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 anp.prescribed.burn.comp
 
 
@@ -432,22 +470,23 @@ anp.prescribed.burn.comp
 ## Seeding ----------------------------------------------------------------
 
 # Filter data
-anp.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+anp.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Arizona/New Mexico Plateau")
 
 # PSM
 anp.seeding.psm <- matchit(
-  data = anp.seeding.dat, 
+  data = anp.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 anp.seeding.psm
 summary(anp.seeding.psm)
 
@@ -489,34 +528,39 @@ plot(anp.seeding.psm, type = "qq")
 anp.seeding.matched <- match_data(anp.seeding.psm)
 
 # Create trt_control variable
-anp.seeding.matched <- anp.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Seeding", "Not Treated")) %>%
+anp.seeding.matched <- anp.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Seeding")))
 
 # Center and scale numeric variables
-anp.seeding.matched <- anp.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+anp.seeding.matched <- anp.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-anp.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+anp.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = anp.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 anp.seeding.pred <- avg_predictions(
   model = anp.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 anp.seeding.pred
 
 #   Table version
@@ -525,25 +569,31 @@ anp.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 anp.seeding.pred.df
 
 # Plot
-anp.seeding.plot <- ggplot(data = anp.seeding.pred.df, 
-                           aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+anp.seeding.plot <- anp.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 anp.seeding.plot
 
-# Estimation of average treatment effect 
-anp.seeding.comp <- avg_comparisons(model = anp.seeding.lm,
-                                    variables = "trt_control",
-                                    vcov = ~subclass)
+# Estimation of average treatment effect
+anp.seeding.comp <- avg_comparisons(
+  model = anp.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 anp.seeding.comp
 
 
@@ -551,22 +601,23 @@ anp.seeding.comp
 ## Soil Disturbance -------------------------------------------------------
 
 # Filter data
-anp.soil.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Soil Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+anp.soil.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Soil Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Arizona/New Mexico Plateau")
 
 # PSM
 anp.soil.disturbance.psm <- matchit(
-  data = anp.soil.disturbance.dat, 
+  data = anp.soil.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 anp.soil.disturbance.psm
 summary(anp.soil.disturbance.psm)
 
@@ -608,34 +659,39 @@ plot(anp.soil.disturbance.psm, type = "qq")
 anp.soil.disturbance.matched <- match_data(anp.soil.disturbance.psm)
 
 # Create trt_control variable
-anp.soil.disturbance.matched <- anp.soil.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Soil Disturbance", "Not Treated")) %>%
+anp.soil.disturbance.matched <- anp.soil.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Soil Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Soil Disturbance")))
 
 # Center and scale numeric variables
-anp.soil.disturbance.matched <- anp.soil.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+anp.soil.disturbance.matched <- anp.soil.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-anp.soil.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+anp.soil.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = anp.soil.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 anp.soil.disturbance.pred <- avg_predictions(
   model = anp.soil.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 anp.soil.disturbance.pred
 
 #   Table version
@@ -644,25 +700,31 @@ anp.soil.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Soil Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 anp.soil.disturbance.pred.df
 
 # Plot
-anp.soil.disturbance.plot <- ggplot(data = anp.soil.disturbance.pred.df, 
-                                    aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+anp.soil.disturbance.plot <- anp.soil.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 anp.soil.disturbance.plot
 
-# Estimation of average treatment effect 
-anp.soil.disturbance.comp <- avg_comparisons(model = anp.soil.disturbance.lm,
-                                             variables = "trt_control",
-                                             vcov = ~subclass)
+# Estimation of average treatment effect
+anp.soil.disturbance.comp <- avg_comparisons(
+  model = anp.soil.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 anp.soil.disturbance.comp
 
 
@@ -673,22 +735,23 @@ anp.soil.disturbance.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-bm.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+bm.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Blue Mountains")
 
 # PSM
 bm.herbicide.psm <- matchit(
-  data = bm.herbicide.dat, 
+  data = bm.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 bm.herbicide.psm
 summary(bm.herbicide.psm)
 
@@ -730,34 +793,39 @@ plot(bm.herbicide.psm, type = "qq")
 bm.herbicide.matched <- match_data(bm.herbicide.psm)
 
 # Create trt_control variable
-bm.herbicide.matched <- bm.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+bm.herbicide.matched <- bm.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-bm.herbicide.matched <- bm.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+bm.herbicide.matched <- bm.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-bm.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+bm.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = bm.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 bm.herbicide.pred <- avg_predictions(
   model = bm.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 bm.herbicide.pred
 
 #   Table version
@@ -766,25 +834,31 @@ bm.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 bm.herbicide.pred.df
 
 # Plot
-bm.herbicide.plot <- ggplot(data = bm.herbicide.pred.df, 
-                            aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+bm.herbicide.plot <- bm.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 bm.herbicide.plot
 
-# Estimation of average treatment effect 
-bm.herbicide.comp <- avg_comparisons(model = bm.herbicide.lm,
-                                     variables = "trt_control",
-                                     vcov = ~subclass)
+# Estimation of average treatment effect
+bm.herbicide.comp <- avg_comparisons(
+  model = bm.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 bm.herbicide.comp
 
 
@@ -792,22 +866,23 @@ bm.herbicide.comp
 ## Vegetation Disturbance -------------------------------------------------
 
 # Filter data
-bm.veg.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Vegetation Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+bm.veg.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Vegetation Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Blue Mountains")
 
 # PSM
 bm.veg.disturbance.psm <- matchit(
-  data = bm.veg.disturbance.dat, 
+  data = bm.veg.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 bm.veg.disturbance.psm
 summary(bm.veg.disturbance.psm)
 
@@ -849,34 +924,39 @@ plot(bm.veg.disturbance.psm, type = "qq")
 bm.veg.disturbance.matched <- match_data(bm.veg.disturbance.psm)
 
 # Create trt_control variable
-bm.veg.disturbance.matched <- bm.veg.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) %>%
+bm.veg.disturbance.matched <- bm.veg.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Vegetation Disturbance")))
 
 # Center and scale numeric variables
-bm.veg.disturbance.matched <- bm.veg.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+bm.veg.disturbance.matched <- bm.veg.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-bm.veg.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+bm.veg.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = bm.veg.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 bm.veg.disturbance.pred <- avg_predictions(
   model = bm.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 bm.veg.disturbance.pred
 
 #   Table version
@@ -885,25 +965,31 @@ bm.veg.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 bm.veg.disturbance.pred.df
 
 # Plot
-bm.veg.disturbance.plot <- ggplot(data = bm.veg.disturbance.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+bm.veg.disturbance.plot <- bm.veg.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 bm.veg.disturbance.plot
 
-# Estimation of average treatment effect 
-bm.veg.disturbance.comp <- avg_comparisons(model = bm.veg.disturbance.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+bm.veg.disturbance.comp <- avg_comparisons(
+  model = bm.veg.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 bm.veg.disturbance.comp
 
 
@@ -911,22 +997,23 @@ bm.veg.disturbance.comp
 ## Post-burn Herbicide ----------------------------------------------------
 
 # Filter data
-bm.pb.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+bm.pb.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Blue Mountains")
 
 # PSM
 bm.pb.herbicide.psm <- matchit(
-  data = bm.pb.herbicide.dat, 
+  data = bm.pb.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 bm.pb.herbicide.psm
 summary(bm.pb.herbicide.psm)
 
@@ -968,34 +1055,39 @@ plot(bm.pb.herbicide.psm, type = "qq")
 bm.pb.herbicide.matched <- match_data(bm.pb.herbicide.psm)
 
 # Create trt_control variable
-bm.pb.herbicide.matched <- bm.pb.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+bm.pb.herbicide.matched <- bm.pb.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-bm.pb.herbicide.matched <- bm.pb.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+bm.pb.herbicide.matched <- bm.pb.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-bm.pb.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+bm.pb.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = bm.pb.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 bm.pb.herbicide.pred <- avg_predictions(
   model = bm.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 bm.pb.herbicide.pred
 
 #   Table version
@@ -1004,25 +1096,31 @@ bm.pb.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 bm.pb.herbicide.pred.df
 
 # Plot
-bm.pb.herbicide.plot <- ggplot(data = bm.pb.herbicide.pred.df, 
-                               aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+bm.pb.herbicide.plot <- bm.pb.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 bm.pb.herbicide.plot
 
-# Estimation of average treatment effect 
-bm.pb.herbicide.comp <- avg_comparisons(model = bm.pb.herbicide.lm,
-                                        variables = "trt_control",
-                                        vcov = ~subclass)
+# Estimation of average treatment effect
+bm.pb.herbicide.comp <- avg_comparisons(
+  model = bm.pb.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 bm.pb.herbicide.comp
 
 
@@ -1033,22 +1131,23 @@ bm.pb.herbicide.comp
 ## Aerial seeding ---------------------------------------------------------
 
 # Filter data
-cbr.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never burned")) %>% 
+cbr.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never burned")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.aerial.seeding.psm <- matchit(
-  data = cbr.aerial.seeding.dat, 
+  data = cbr.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.aerial.seeding.psm
 summary(cbr.aerial.seeding.psm)
 
@@ -1090,34 +1189,39 @@ plot(cbr.aerial.seeding.psm, type = "qq")
 cbr.aerial.seeding.matched <- match_data(cbr.aerial.seeding.psm)
 
 # Create trt_control variable
-cbr.aerial.seeding.matched <- cbr.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+cbr.aerial.seeding.matched <- cbr.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-cbr.aerial.seeding.matched <- cbr.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.aerial.seeding.matched <- cbr.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.aerial.seeding.pred <- avg_predictions(
   model = cbr.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.aerial.seeding.pred
 
 #   Table version
@@ -1126,25 +1230,31 @@ cbr.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.aerial.seeding.pred.df
 
 # Plot
-cbr.aerial.seeding.plot <- ggplot(data = cbr.aerial.seeding.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.aerial.seeding.plot <- cbr.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-cbr.aerial.seeding.comp <- avg_comparisons(model = cbr.aerial.seeding.lm,
-                                variables = "trt_control",
-                                vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.aerial.seeding.comp <- avg_comparisons(
+  model = cbr.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.aerial.seeding.comp
 
 
@@ -1152,22 +1262,23 @@ cbr.aerial.seeding.comp
 ## Drill Seeding, Soil Disturbance ----------------------------------------
 
 # Filter data
-cbr.drill.soil.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding, Soil Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never burned")) %>% 
+cbr.drill.soil.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding, Soil Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never burned")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.drill.soil.psm <- matchit(
-  data = cbr.drill.soil.dat, 
+  data = cbr.drill.soil.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.drill.soil.psm
 summary(cbr.drill.soil.psm)
 
@@ -1209,34 +1320,39 @@ plot(cbr.drill.soil.psm, type = "qq")
 cbr.drill.soil.matched <- match_data(cbr.drill.soil.psm)
 
 # Create trt_control variable
-cbr.drill.soil.matched <- cbr.drill.soil.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding, Soil Disturbance", "Not Treated")) %>%
+cbr.drill.soil.matched <- cbr.drill.soil.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding, Soil Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding, Soil Disturbance")))
 
 # Center and scale numeric variables
-cbr.drill.soil.matched <- cbr.drill.soil.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.drill.soil.matched <- cbr.drill.soil.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.drill.soil.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.drill.soil.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.drill.soil.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.drill.soil.pred <- avg_predictions(
   model = cbr.drill.soil.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.drill.soil.pred
 
 #   Table version
@@ -1245,25 +1361,31 @@ cbr.drill.soil.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.drill.soil.pred.df
 
 # Plot
-cbr.drill.soil.plot <- ggplot(data = cbr.drill.soil.pred.df, 
-                              aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.drill.soil.plot <- cbr.drill.soil.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.drill.soil.plot
 
-# Estimation of average treatment effect 
-cbr.drill.soil.comp <- avg_comparisons(model = cbr.drill.soil.lm,
-                                       variables = "trt_control",
-                                       vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.drill.soil.comp <- avg_comparisons(
+  model = cbr.drill.soil.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.drill.soil.comp
 
 
@@ -1271,22 +1393,23 @@ cbr.drill.soil.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-cbr.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never burned")) %>% 
+cbr.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never burned")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.prescribed.burn.psm <- matchit(
-  data = cbr.prescribed.burn.dat, 
+  data = cbr.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.prescribed.burn.psm
 summary(cbr.prescribed.burn.psm)
 
@@ -1328,34 +1451,39 @@ plot(cbr.prescribed.burn.psm, type = "qq")
 cbr.prescribed.burn.matched <- match_data(cbr.prescribed.burn.psm)
 
 # Create trt_control variable
-cbr.prescribed.burn.matched <- cbr.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+cbr.prescribed.burn.matched <- cbr.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-cbr.prescribed.burn.matched <- cbr.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.prescribed.burn.matched <- cbr.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.prescribed.burn.pred <- avg_predictions(
   model = cbr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.prescribed.burn.pred
 
 #   Table version
@@ -1364,25 +1492,31 @@ cbr.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.prescribed.burn.pred.df
 
 # Plot
-cbr.prescribed.burn.plot <- ggplot(data = cbr.prescribed.burn.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.prescribed.burn.plot <- cbr.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-cbr.prescribed.burn.comp <- avg_comparisons(model = cbr.prescribed.burn.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.prescribed.burn.comp <- avg_comparisons(
+  model = cbr.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.prescribed.burn.comp
 
 
@@ -1390,22 +1524,23 @@ cbr.prescribed.burn.comp
 ## Vegetation Disturbance -------------------------------------------------
 
 # Filter data
-cbr.veg.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Vegetation Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never burned")) %>% 
+cbr.veg.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Vegetation Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never burned")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.veg.disturbance.psm <- matchit(
-  data = cbr.veg.disturbance.dat, 
+  data = cbr.veg.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.veg.disturbance.psm
 summary(cbr.veg.disturbance.psm)
 
@@ -1447,34 +1582,39 @@ plot(cbr.veg.disturbance.psm, type = "qq")
 cbr.veg.disturbance.matched <- match_data(cbr.veg.disturbance.psm)
 
 # Create trt_control variable
-cbr.veg.disturbance.matched <- cbr.veg.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) %>%
+cbr.veg.disturbance.matched <- cbr.veg.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Vegetation Disturbance")))
 
 # Center and scale numeric variables
-cbr.veg.disturbance.matched <- cbr.veg.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.veg.disturbance.matched <- cbr.veg.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.veg.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.veg.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.veg.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.veg.disturbance.pred <- avg_predictions(
   model = cbr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.veg.disturbance.pred
 
 #   Table version
@@ -1483,25 +1623,31 @@ cbr.veg.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.veg.disturbance.pred.df
 
 # Plot
-cbr.veg.disturbance.plot <- ggplot(data = cbr.veg.disturbance.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.veg.disturbance.plot <- cbr.veg.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.veg.disturbance.plot
 
-# Estimation of average treatment effect 
-cbr.veg.disturbance.comp <- avg_comparisons(model = cbr.veg.disturbance.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.veg.disturbance.comp <- avg_comparisons(
+  model = cbr.veg.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.veg.disturbance.comp
 
 
@@ -1509,22 +1655,23 @@ cbr.veg.disturbance.comp
 ## Post-burn Aerial Seeding -----------------------------------------------
 
 # Filter data
-cbr.pb.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post-burn")) %>% 
+cbr.pb.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post-burn")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.pb.aerial.seeding.psm <- matchit(
-  data = cbr.pb.aerial.seeding.dat, 
+  data = cbr.pb.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.pb.aerial.seeding.psm
 summary(cbr.pb.aerial.seeding.psm)
 
@@ -1566,34 +1713,39 @@ plot(cbr.pb.aerial.seeding.psm, type = "qq")
 cbr.pb.aerial.seeding.matched <- match_data(cbr.pb.aerial.seeding.psm)
 
 # Create trt_control variable
-cbr.pb.aerial.seeding.matched <- cbr.pb.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+cbr.pb.aerial.seeding.matched <- cbr.pb.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-cbr.pb.aerial.seeding.matched <- cbr.pb.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.pb.aerial.seeding.matched <- cbr.pb.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.pb.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.pb.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.pb.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.pb.aerial.seeding.pred <- avg_predictions(
   model = cbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.pb.aerial.seeding.pred
 
 #   Table version
@@ -1602,25 +1754,31 @@ cbr.pb.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.pb.aerial.seeding.pred.df
 
 # Plot
-cbr.pb.aerial.seeding.plot <- ggplot(data = cbr.pb.aerial.seeding.pred.df, 
-                                     aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.pb.aerial.seeding.plot <- cbr.pb.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.pb.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-cbr.pb.aerial.seeding.comp <- avg_comparisons(model = cbr.pb.aerial.seeding.lm,
-                                              variables = "trt_control",
-                                              vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.pb.aerial.seeding.comp <- avg_comparisons(
+  model = cbr.pb.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.pb.aerial.seeding.comp
 
 
@@ -1628,22 +1786,23 @@ cbr.pb.aerial.seeding.comp
 ## Post-burn Drill Seeding ------------------------------------------------
 
 # Filter data
-cbr.pb.drill.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post-burn")) %>% 
+cbr.pb.drill.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post-burn")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.pb.drill.seeding.psm <- matchit(
-  data = cbr.pb.drill.seeding.dat, 
+  data = cbr.pb.drill.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.pb.drill.seeding.psm
 summary(cbr.pb.drill.seeding.psm)
 
@@ -1685,34 +1844,39 @@ plot(cbr.pb.drill.seeding.psm, type = "qq")
 cbr.pb.drill.seeding.matched <- match_data(cbr.pb.drill.seeding.psm)
 
 # Create trt_control variable
-cbr.pb.drill.seeding.matched <- cbr.pb.drill.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) %>%
+cbr.pb.drill.seeding.matched <- cbr.pb.drill.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding")))
 
 # Center and scale numeric variables
-cbr.pb.drill.seeding.matched <- cbr.pb.drill.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.pb.drill.seeding.matched <- cbr.pb.drill.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.pb.drill.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.pb.drill.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.pb.drill.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.pb.drill.seeding.pred <- avg_predictions(
   model = cbr.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.pb.drill.seeding.pred
 
 #   Table version
@@ -1721,25 +1885,31 @@ cbr.pb.drill.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.pb.drill.seeding.pred.df
 
 # Plot
-cbr.pb.drill.seeding.plot <- ggplot(data = cbr.pb.drill.seeding.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.pb.drill.seeding.plot <- cbr.pb.drill.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.pb.drill.seeding.plot
 
-# Estimation of average treatment effect 
-cbr.pb.drill.seeding.comp <- avg_comparisons(model = cbr.pb.drill.seeding.lm,
-                                variables = "trt_control",
-                                vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.pb.drill.seeding.comp <- avg_comparisons(
+  model = cbr.pb.drill.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.pb.drill.seeding.comp
 
 
@@ -1747,22 +1917,23 @@ cbr.pb.drill.seeding.comp
 ## Post-burn Ground Seeding -----------------------------------------------
 
 # Filter data
-cbr.pb.ground.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Ground Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post-burn")) %>% 
+cbr.pb.ground.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Ground Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post-burn")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.pb.ground.seeding.psm <- matchit(
-  data = cbr.pb.ground.seeding.dat, 
+  data = cbr.pb.ground.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.pb.ground.seeding.psm
 summary(cbr.pb.ground.seeding.psm)
 
@@ -1804,34 +1975,39 @@ plot(cbr.pb.ground.seeding.psm, type = "qq")
 cbr.pb.ground.seeding.matched <- match_data(cbr.pb.ground.seeding.psm)
 
 # Create trt_control variable
-cbr.pb.ground.seeding.matched <- cbr.pb.ground.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Ground Seeding", "Not Treated")) %>%
+cbr.pb.ground.seeding.matched <- cbr.pb.ground.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Ground Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Ground Seeding")))
 
 # Center and scale numeric variables
-cbr.pb.ground.seeding.matched <- cbr.pb.ground.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.pb.ground.seeding.matched <- cbr.pb.ground.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.pb.ground.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.pb.ground.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.pb.ground.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.pb.ground.seeding.pred <- avg_predictions(
   model = cbr.pb.ground.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.pb.ground.seeding.pred
 
 #   Table version
@@ -1840,25 +2016,31 @@ cbr.pb.ground.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Ground Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.pb.ground.seeding.pred.df
 
 # Plot
-cbr.pb.ground.seeding.plot <- ggplot(data = cbr.pb.ground.seeding.pred.df, 
-                                     aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.pb.ground.seeding.plot <- cbr.pb.ground.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.pb.ground.seeding.plot
 
-# Estimation of average treatment effect 
-cbr.pb.ground.seeding.comp <- avg_comparisons(model = cbr.pb.ground.seeding.lm,
-                                              variables = "trt_control",
-                                              vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.pb.ground.seeding.comp <- avg_comparisons(
+  model = cbr.pb.ground.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.pb.ground.seeding.comp
 
 
@@ -1866,22 +2048,23 @@ cbr.pb.ground.seeding.comp
 ## Post-burn Herbicide ----------------------------------------------------
 
 # Filter data
-cbr.pb.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post-burn")) %>% 
+cbr.pb.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post-burn")) |>
   filter(EcoLvl3 == "Central Basin and Range")
 
 # PSM
 cbr.pb.herbicide.psm <- matchit(
-  data = cbr.pb.herbicide.dat, 
+  data = cbr.pb.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cbr.pb.herbicide.psm
 summary(cbr.pb.herbicide.psm)
 
@@ -1923,34 +2106,39 @@ plot(cbr.pb.herbicide.psm, type = "qq")
 cbr.pb.herbicide.matched <- match_data(cbr.pb.herbicide.psm)
 
 # Create trt_control variable
-cbr.pb.herbicide.matched <- cbr.pb.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+cbr.pb.herbicide.matched <- cbr.pb.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-cbr.pb.herbicide.matched <- cbr.pb.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cbr.pb.herbicide.matched <- cbr.pb.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cbr.pb.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cbr.pb.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cbr.pb.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cbr.pb.herbicide.pred <- avg_predictions(
   model = cbr.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cbr.pb.herbicide.pred
 
 #   Table version
@@ -1959,25 +2147,31 @@ cbr.pb.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cbr.pb.herbicide.pred.df
 
 # Plot
-cbr.pb.herbicide.plot <- ggplot(data = cbr.pb.herbicide.pred.df, 
-                                aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cbr.pb.herbicide.plot <- cbr.pb.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cbr.pb.herbicide.plot
 
-# Estimation of average treatment effect 
-cbr.pb.herbicide.comp <- avg_comparisons(model = cbr.pb.herbicide.lm,
-                                         variables = "trt_control",
-                                         vcov = ~subclass)
+# Estimation of average treatment effect
+cbr.pb.herbicide.comp <- avg_comparisons(
+  model = cbr.pb.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cbr.pb.herbicide.comp
 
 
@@ -1988,22 +2182,23 @@ cbr.pb.herbicide.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-cd.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+cd.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Chihuahuan Desert")
 
 # PSM
 cd.herbicide.psm <- matchit(
-  data = cd.herbicide.dat, 
+  data = cd.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cd.herbicide.psm
 summary(cd.herbicide.psm)
 
@@ -2045,34 +2240,39 @@ plot(cd.herbicide.psm, type = "qq")
 cd.herbicide.matched <- match_data(cd.herbicide.psm)
 
 # Create trt_control variable
-cd.herbicide.matched <- cd.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+cd.herbicide.matched <- cd.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-cd.herbicide.matched <- cd.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cd.herbicide.matched <- cd.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cd.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cd.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cd.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cd.herbicide.pred <- avg_predictions(
   model = cd.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cd.herbicide.pred
 
 #   Table version
@@ -2081,25 +2281,31 @@ cd.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cd.herbicide.pred.df
 
 # Plot
-cd.herbicide.plot <- ggplot(data = cd.herbicide.pred.df, 
-                            aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cd.herbicide.plot <- cd.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cd.herbicide.plot
 
-# Estimation of average treatment effect 
-cd.herbicide.comp <- avg_comparisons(model = cd.herbicide.lm,
-                                     variables = "trt_control",
-                                     vcov = ~subclass)
+# Estimation of average treatment effect
+cd.herbicide.comp <- avg_comparisons(
+  model = cd.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cd.herbicide.comp
 
 
@@ -2110,22 +2316,23 @@ cd.herbicide.comp
 ## Aerial Seeding, Soil Disturbance ---------------------------------------
 
 # Filter data
-cp.aerial.soil.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding, Soil Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never burned")) %>% 
+cp.aerial.soil.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding, Soil Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never burned")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.aerial.soil.psm <- matchit(
-  data = cp.aerial.soil.dat, 
+  data = cp.aerial.soil.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.aerial.soil.psm
 summary(cp.aerial.soil.psm)
 
@@ -2167,34 +2374,39 @@ plot(cp.aerial.soil.psm, type = "qq")
 cp.aerial.soil.matched <- match_data(cp.aerial.soil.psm)
 
 # Create trt_control variable
-cp.aerial.soil.matched <- cp.aerial.soil.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Soil Disturbance", "Not Treated")) %>%
+cp.aerial.soil.matched <- cp.aerial.soil.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Soil Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding, Soil Disturbance")))
 
 # Center and scale numeric variables
-cp.aerial.soil.matched <- cp.aerial.soil.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.aerial.soil.matched <- cp.aerial.soil.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.aerial.soil.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.aerial.soil.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.aerial.soil.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.aerial.soil.pred <- avg_predictions(
   model = cp.aerial.soil.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.aerial.soil.pred
 
 #   Table version
@@ -2203,25 +2415,31 @@ cp.aerial.soil.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.aerial.soil.pred.df
 
 # Plot
-cp.aerial.soil.plot <- ggplot(data = cp.aerial.soil.pred.df, 
-                              aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.aerial.soil.plot <- cp.aerial.soil.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.aerial.soil.plot
 
-# Estimation of average treatment effect 
-cp.aerial.soil.comp <- avg_comparisons(model = cp.aerial.soil.lm,
-                                       variables = "trt_control",
-                                       vcov = ~subclass)
+# Estimation of average treatment effect
+cp.aerial.soil.comp <- avg_comparisons(
+  model = cp.aerial.soil.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.aerial.soil.comp
 
 
@@ -2229,22 +2447,23 @@ cp.aerial.soil.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-cp.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+cp.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.herbicide.psm <- matchit(
-  data = cp.herbicide.dat, 
+  data = cp.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.herbicide.psm
 summary(cp.herbicide.psm)
 
@@ -2286,34 +2505,39 @@ plot(cp.herbicide.psm, type = "qq")
 cp.herbicide.matched <- match_data(cp.herbicide.psm)
 
 # Create trt_control variable
-cp.herbicide.matched <- cp.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+cp.herbicide.matched <- cp.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-cp.herbicide.matched <- cp.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.herbicide.matched <- cp.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.herbicide.pred <- avg_predictions(
   model = cp.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.herbicide.pred
 
 #   Table version
@@ -2322,25 +2546,31 @@ cp.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.herbicide.pred.df
 
 # Plot
-cp.herbicide.plot <- ggplot(data = cp.herbicide.pred.df, 
-                            aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.herbicide.plot <- cp.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.herbicide.plot
 
-# Estimation of average treatment effect 
-cp.herbicide.comp <- avg_comparisons(model = cp.herbicide.lm,
-                                     variables = "trt_control",
-                                     vcov = ~subclass)
+# Estimation of average treatment effect
+cp.herbicide.comp <- avg_comparisons(
+  model = cp.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.herbicide.comp
 
 
@@ -2348,22 +2578,23 @@ cp.herbicide.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-cp.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+cp.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.prescribed.burn.psm <- matchit(
-  data = cp.prescribed.burn.dat, 
+  data = cp.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.prescribed.burn.psm
 summary(cp.prescribed.burn.psm)
 
@@ -2405,34 +2636,39 @@ plot(cp.prescribed.burn.psm, type = "qq")
 cp.prescribed.burn.matched <- match_data(cp.prescribed.burn.psm)
 
 # Create trt_control variable
-cp.prescribed.burn.matched <- cp.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+cp.prescribed.burn.matched <- cp.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-cp.prescribed.burn.matched <- cp.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.prescribed.burn.matched <- cp.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.prescribed.burn.pred <- avg_predictions(
   model = cp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.prescribed.burn.pred
 
 #   Table version
@@ -2441,25 +2677,31 @@ cp.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.prescribed.burn.pred.df
 
 # Plot
-cp.prescribed.burn.plot <- ggplot(data = cp.prescribed.burn.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.prescribed.burn.plot <- cp.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-cp.prescribed.burn.comp <- avg_comparisons(model = cp.prescribed.burn.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+cp.prescribed.burn.comp <- avg_comparisons(
+  model = cp.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.prescribed.burn.comp
 
 
@@ -2467,22 +2709,23 @@ cp.prescribed.burn.comp
 ## Soil Disturbance -------------------------------------------------------
 
 # Filter data
-cp.soil.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Soil Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+cp.soil.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Soil Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.soil.disturbance.psm <- matchit(
-  data = cp.soil.disturbance.dat, 
+  data = cp.soil.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.soil.disturbance.psm
 summary(cp.soil.disturbance.psm)
 
@@ -2524,34 +2767,39 @@ plot(cp.soil.disturbance.psm, type = "qq")
 cp.soil.disturbance.matched <- match_data(cp.soil.disturbance.psm)
 
 # Create trt_control variable
-cp.soil.disturbance.matched <- cp.soil.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Soil Disturbance", "Not Treated")) %>%
+cp.soil.disturbance.matched <- cp.soil.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Soil Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Soil Disturbance")))
 
 # Center and scale numeric variables
-cp.soil.disturbance.matched <- cp.soil.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.soil.disturbance.matched <- cp.soil.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.soil.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.soil.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.soil.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.soil.disturbance.pred <- avg_predictions(
   model = cp.soil.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.soil.disturbance.pred
 
 #   Table version
@@ -2560,25 +2808,31 @@ cp.soil.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Soil Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.soil.disturbance.pred.df
 
 # Plot
-cp.soil.disturbance.plot <- ggplot(data = cp.soil.disturbance.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.soil.disturbance.plot <- cp.soil.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.soil.disturbance.plot
 
-# Estimation of average treatment effect 
-cp.soil.disturbance.comp <- avg_comparisons(model = cp.soil.disturbance.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+cp.soil.disturbance.comp <- avg_comparisons(
+  model = cp.soil.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.soil.disturbance.comp
 
 
@@ -2586,22 +2840,23 @@ cp.soil.disturbance.comp
 ## Vegetation Disturbance -------------------------------------------------
 
 # Filter data
-cp.veg.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Vegetation Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+cp.veg.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Vegetation Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.veg.disturbance.psm <- matchit(
-  data = cp.veg.disturbance.dat, 
+  data = cp.veg.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.veg.disturbance.psm
 summary(cp.veg.disturbance.psm)
 
@@ -2643,34 +2898,39 @@ plot(cp.veg.disturbance.psm, type = "qq")
 cp.veg.disturbance.matched <- match_data(cp.veg.disturbance.psm)
 
 # Create trt_control variable
-cp.veg.disturbance.matched <- cp.veg.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) %>%
+cp.veg.disturbance.matched <- cp.veg.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Vegetation Disturbance")))
 
 # Center and scale numeric variables
-cp.veg.disturbance.matched <- cp.veg.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.veg.disturbance.matched <- cp.veg.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.veg.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.veg.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.veg.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.veg.disturbance.pred <- avg_predictions(
   model = cp.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.veg.disturbance.pred
 
 #   Table version
@@ -2679,25 +2939,31 @@ cp.veg.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.veg.disturbance.pred.df
 
 # Plot
-cp.veg.disturbance.plot <- ggplot(data = cp.veg.disturbance.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.veg.disturbance.plot <- cp.veg.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.veg.disturbance.plot
 
-# Estimation of average treatment effect 
-cp.veg.disturbance.comp <- avg_comparisons(model = cp.veg.disturbance.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+cp.veg.disturbance.comp <- avg_comparisons(
+  model = cp.veg.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.veg.disturbance.comp
 
 
@@ -2705,22 +2971,23 @@ cp.veg.disturbance.comp
 ## Post-burn Aerial Seeding -----------------------------------------------
 
 # Filter data
-cp.pb.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+cp.pb.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Colorado Plateaus")
 
 # PSM
 cp.pb.aerial.seeding.psm <- matchit(
-  data = cp.pb.aerial.seeding.dat, 
+  data = cp.pb.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 cp.pb.aerial.seeding.psm
 summary(cp.pb.aerial.seeding.psm)
 
@@ -2762,34 +3029,39 @@ plot(cp.pb.aerial.seeding.psm, type = "qq")
 cp.pb.aerial.seeding.matched <- match_data(cp.pb.aerial.seeding.psm)
 
 # Create trt_control variable
-cp.pb.aerial.seeding.matched <- cp.pb.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+cp.pb.aerial.seeding.matched <- cp.pb.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-cp.pb.aerial.seeding.matched <- cp.pb.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+cp.pb.aerial.seeding.matched <- cp.pb.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-cp.pb.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+cp.pb.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = cp.pb.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 cp.pb.aerial.seeding.pred <- avg_predictions(
   model = cp.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 cp.pb.aerial.seeding.pred
 
 #   Table version
@@ -2798,25 +3070,31 @@ cp.pb.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 cp.pb.aerial.seeding.pred.df
 
 # Plot
-cp.pb.aerial.seeding.plot <- ggplot(data = cp.pb.aerial.seeding.pred.df, 
-                                    aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+cp.pb.aerial.seeding.plot <- cp.pb.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 cp.pb.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-cp.pb.aerial.seeding.comp <- avg_comparisons(model = cp.pb.aerial.seeding.lm,
-                                             variables = "trt_control",
-                                             vcov = ~subclass)
+# Estimation of average treatment effect
+cp.pb.aerial.seeding.comp <- avg_comparisons(
+  model = cp.pb.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 cp.pb.aerial.seeding.comp
 
 
@@ -2827,22 +3105,23 @@ cp.pb.aerial.seeding.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-mr.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+mr.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Middle Rockies")
 
 # PSM
 mr.herbicide.psm <- matchit(
-  data = mr.herbicide.dat, 
+  data = mr.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 mr.herbicide.psm
 summary(mr.herbicide.psm)
 
@@ -2884,34 +3163,39 @@ plot(mr.herbicide.psm, type = "qq")
 mr.herbicide.matched <- match_data(mr.herbicide.psm)
 
 # Create trt_control variable
-mr.herbicide.matched <- mr.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+mr.herbicide.matched <- mr.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-mr.herbicide.matched <- mr.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+mr.herbicide.matched <- mr.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-mr.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+mr.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = mr.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 mr.herbicide.pred <- avg_predictions(
   model = mr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 mr.herbicide.pred
 
 #   Table version
@@ -2920,25 +3204,31 @@ mr.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 mr.herbicide.pred.df
 
 # Plot
-mr.herbicide.plot <- ggplot(data = mr.herbicide.pred.df, 
-                            aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+mr.herbicide.plot <- mr.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 mr.herbicide.plot
 
-# Estimation of average treatment effect 
-mr.herbicide.comp <- avg_comparisons(model = mr.herbicide.lm,
-                                     variables = "trt_control",
-                                     vcov = ~subclass)
+# Estimation of average treatment effect
+mr.herbicide.comp <- avg_comparisons(
+  model = mr.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 mr.herbicide.comp
 
 
@@ -2949,22 +3239,23 @@ mr.herbicide.comp
 ## Post-burn Aerial Seeding -----------------------------------------------
 
 # Filter data
-mbr.pb.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+mbr.pb.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Mojave Basin and Range")
 
 # PSM
 mbr.pb.aerial.seeding.psm <- matchit(
-  data = mbr.pb.aerial.seeding.dat, 
+  data = mbr.pb.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 mbr.pb.aerial.seeding.psm
 summary(mbr.pb.aerial.seeding.psm)
 
@@ -3006,34 +3297,39 @@ plot(mbr.pb.aerial.seeding.psm, type = "qq")
 mbr.pb.aerial.seeding.matched <- match_data(mbr.pb.aerial.seeding.psm)
 
 # Create trt_control variable
-mbr.pb.aerial.seeding.matched <- mbr.pb.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+mbr.pb.aerial.seeding.matched <- mbr.pb.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-mbr.pb.aerial.seeding.matched <- mbr.pb.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+mbr.pb.aerial.seeding.matched <- mbr.pb.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-mbr.pb.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+mbr.pb.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = mbr.pb.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 mbr.pb.aerial.seeding.pred <- avg_predictions(
   model = mbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 mbr.pb.aerial.seeding.pred
 
 #   Table version
@@ -3042,25 +3338,31 @@ mbr.pb.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 mbr.pb.aerial.seeding.pred.df
 
 # Plot
-mbr.pb.aerial.seeding.plot <- ggplot(data = mbr.pb.aerial.seeding.pred.df, 
-                                     aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+mbr.pb.aerial.seeding.plot <- mbr.pb.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 mbr.pb.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-mbr.pb.aerial.seeding.comp <- avg_comparisons(model = mbr.pb.aerial.seeding.lm,
-                                              variables = "trt_control",
-                                              vcov = ~subclass)
+# Estimation of average treatment effect
+mbr.pb.aerial.seeding.comp <- avg_comparisons(
+  model = mbr.pb.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 mbr.pb.aerial.seeding.comp
 
 
@@ -3071,22 +3373,23 @@ mbr.pb.aerial.seeding.comp
 ## Drill Seeding ----------------------------------------------------------
 
 # Filter data
-nbr.drill.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+nbr.drill.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.drill.seeding.psm <- matchit(
-  data = nbr.drill.seeding.dat, 
+  data = nbr.drill.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.drill.seeding.psm
 summary(nbr.drill.seeding.psm)
 
@@ -3128,34 +3431,39 @@ plot(nbr.drill.seeding.psm, type = "qq")
 nbr.drill.seeding.matched <- match_data(nbr.drill.seeding.psm)
 
 # Create trt_control variable
-nbr.drill.seeding.matched <- nbr.drill.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) %>%
+nbr.drill.seeding.matched <- nbr.drill.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding")))
 
 # Center and scale numeric variables
-nbr.drill.seeding.matched <- nbr.drill.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.drill.seeding.matched <- nbr.drill.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.drill.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.drill.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.drill.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.drill.seeding.pred <- avg_predictions(
   model = nbr.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.drill.seeding.pred
 
 #   Table version
@@ -3164,25 +3472,31 @@ nbr.drill.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.drill.seeding.pred.df
 
 # Plot
-nbr.drill.seeding.plot <- ggplot(data = nbr.drill.seeding.pred.df, 
-                                 aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.drill.seeding.plot <- nbr.drill.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.drill.seeding.plot
 
-# Estimation of average treatment effect 
-nbr.drill.seeding.comp <- avg_comparisons(model = nbr.drill.seeding.lm,
-                                          variables = "trt_control",
-                                          vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.drill.seeding.comp <- avg_comparisons(
+  model = nbr.drill.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.drill.seeding.comp
 
 
@@ -3190,22 +3504,23 @@ nbr.drill.seeding.comp
 ## Drill Seeding, Soil Disturbance ----------------------------------------
 
 # Filter data
-nbr.drill.soil.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding, Soil Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+nbr.drill.soil.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding, Soil Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.drill.soil.psm <- matchit(
-  data = nbr.drill.soil.dat, 
+  data = nbr.drill.soil.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.drill.soil.psm
 summary(nbr.drill.soil.psm)
 
@@ -3247,34 +3562,39 @@ plot(nbr.drill.soil.psm, type = "qq")
 nbr.drill.soil.matched <- match_data(nbr.drill.soil.psm)
 
 # Create trt_control variable
-nbr.drill.soil.matched <- nbr.drill.soil.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding, Soil Disturbance", "Not Treated")) %>%
+nbr.drill.soil.matched <- nbr.drill.soil.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding, Soil Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding, Soil Disturbance")))
 
 # Center and scale numeric variables
-nbr.drill.soil.matched <- nbr.drill.soil.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.drill.soil.matched <- nbr.drill.soil.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.drill.soil.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.drill.soil.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.drill.soil.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.drill.soil.pred <- avg_predictions(
   model = nbr.drill.soil.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.drill.soil.pred
 
 #   Table version
@@ -3283,25 +3603,31 @@ nbr.drill.soil.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.drill.soil.pred.df
 
 # Plot
-nbr.drill.soil.plot <- ggplot(data = nbr.drill.soil.pred.df, 
-                              aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.drill.soil.plot <- nbr.drill.soil.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.drill.soil.plot
 
-# Estimation of average treatment effect 
-nbr.drill.soil.comp <- avg_comparisons(model = nbr.drill.soil.lm,
-                                       variables = "trt_control",
-                                       vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.drill.soil.comp <- avg_comparisons(
+  model = nbr.drill.soil.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.drill.soil.comp
 
 
@@ -3309,22 +3635,23 @@ nbr.drill.soil.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-nbr.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+nbr.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.herbicide.psm <- matchit(
-  data = nbr.herbicide.dat, 
+  data = nbr.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.herbicide.psm
 summary(nbr.herbicide.psm)
 
@@ -3366,34 +3693,39 @@ plot(nbr.herbicide.psm, type = "qq")
 nbr.herbicide.matched <- match_data(nbr.herbicide.psm)
 
 # Create trt_control variable
-nbr.herbicide.matched <- nbr.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+nbr.herbicide.matched <- nbr.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-nbr.herbicide.matched <- nbr.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.herbicide.matched <- nbr.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.herbicide.pred <- avg_predictions(
   model = nbr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.herbicide.pred
 
 #   Table version
@@ -3402,25 +3734,31 @@ nbr.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.herbicide.pred.df
 
 # Plot
-nbr.herbicide.plot <- ggplot(data = nbr.herbicide.pred.df, 
-                             aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.herbicide.plot <- nbr.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.herbicide.plot
 
-# Estimation of average treatment effect 
-nbr.herbicide.comp <- avg_comparisons(model = nbr.herbicide.lm,
-                                      variables = "trt_control",
-                                      vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.herbicide.comp <- avg_comparisons(
+  model = nbr.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.herbicide.comp
 
 
@@ -3428,22 +3766,23 @@ nbr.herbicide.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-nbr.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+nbr.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.prescribed.burn.psm <- matchit(
-  data = nbr.prescribed.burn.dat, 
+  data = nbr.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.prescribed.burn.psm
 summary(nbr.prescribed.burn.psm)
 
@@ -3485,34 +3824,39 @@ plot(nbr.prescribed.burn.psm, type = "qq")
 nbr.prescribed.burn.matched <- match_data(nbr.prescribed.burn.psm)
 
 # Create trt_control variable
-nbr.prescribed.burn.matched <- nbr.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+nbr.prescribed.burn.matched <- nbr.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-nbr.prescribed.burn.matched <- nbr.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.prescribed.burn.matched <- nbr.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.prescribed.burn.pred <- avg_predictions(
   model = nbr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.prescribed.burn.pred
 
 #   Table version
@@ -3521,25 +3865,31 @@ nbr.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.prescribed.burn.pred.df
 
 # Plot
-nbr.prescribed.burn.plot <- ggplot(data = nbr.prescribed.burn.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.prescribed.burn.plot <- nbr.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-nbr.prescribed.burn.comp <- avg_comparisons(model = nbr.prescribed.burn.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.prescribed.burn.comp <- avg_comparisons(
+  model = nbr.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.prescribed.burn.comp
 
 
@@ -3547,22 +3897,23 @@ nbr.prescribed.burn.comp
 ## Vegetation Disturbance -------------------------------------------------
 
 # Filter data
-nbr.veg.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Vegetation Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+nbr.veg.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Vegetation Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.veg.disturbance.psm <- matchit(
-  data = nbr.veg.disturbance.dat, 
+  data = nbr.veg.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.veg.disturbance.psm
 summary(nbr.veg.disturbance.psm)
 
@@ -3604,34 +3955,39 @@ plot(nbr.veg.disturbance.psm, type = "qq")
 nbr.veg.disturbance.matched <- match_data(nbr.veg.disturbance.psm)
 
 # Create trt_control variable
-nbr.veg.disturbance.matched <- nbr.veg.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) %>%
+nbr.veg.disturbance.matched <- nbr.veg.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Vegetation Disturbance")))
 
 # Center and scale numeric variables
-nbr.veg.disturbance.matched <- nbr.veg.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.veg.disturbance.matched <- nbr.veg.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.veg.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.veg.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.veg.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.veg.disturbance.pred <- avg_predictions(
   model = nbr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.veg.disturbance.pred
 
 #   Table version
@@ -3640,25 +3996,31 @@ nbr.veg.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.veg.disturbance.pred.df
 
 # Plot
-nbr.veg.disturbance.plot <- ggplot(data = nbr.veg.disturbance.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.veg.disturbance.plot <- nbr.veg.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.veg.disturbance.plot
 
-# Estimation of average treatment effect 
-nbr.veg.disturbance.comp <- avg_comparisons(model = nbr.veg.disturbance.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.veg.disturbance.comp <- avg_comparisons(
+  model = nbr.veg.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.veg.disturbance.comp
 
 
@@ -3666,22 +4028,23 @@ nbr.veg.disturbance.comp
 ## Post-burn Aerial Seeding -----------------------------------------------
 
 # Filter data
-nbr.pb.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.aerial.seeding.psm <- matchit(
-  data = nbr.pb.aerial.seeding.dat, 
+  data = nbr.pb.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.aerial.seeding.psm
 summary(nbr.pb.aerial.seeding.psm)
 
@@ -3723,34 +4086,39 @@ plot(nbr.pb.aerial.seeding.psm, type = "qq")
 nbr.pb.aerial.seeding.matched <- match_data(nbr.pb.aerial.seeding.psm)
 
 # Create trt_control variable
-nbr.pb.aerial.seeding.matched <- nbr.pb.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+nbr.pb.aerial.seeding.matched <- nbr.pb.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-nbr.pb.aerial.seeding.matched <- nbr.pb.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.aerial.seeding.matched <- nbr.pb.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.aerial.seeding.pred <- avg_predictions(
   model = nbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.aerial.seeding.pred
 
 #   Table version
@@ -3759,25 +4127,31 @@ nbr.pb.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.aerial.seeding.pred.df
 
 # Plot
-nbr.pb.aerial.seeding.plot <- ggplot(data = nbr.pb.aerial.seeding.pred.df, 
-                                     aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.aerial.seeding.plot <- nbr.pb.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-nbr.pb.aerial.seeding.comp <- avg_comparisons(model = nbr.pb.aerial.seeding.lm,
-                                              variables = "trt_control",
-                                              vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.aerial.seeding.comp <- avg_comparisons(
+  model = nbr.pb.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.aerial.seeding.comp
 
 
@@ -3785,22 +4159,23 @@ nbr.pb.aerial.seeding.comp
 ## Post-burn Aerial Seeding, Drill Seeding --------------------------------
 
 # Filter data
-nbr.pb.aerial.drill.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding, Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.aerial.drill.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding, Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.aerial.drill.psm <- matchit(
-  data = nbr.pb.aerial.drill.dat, 
+  data = nbr.pb.aerial.drill.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.aerial.drill.psm
 summary(nbr.pb.aerial.drill.psm)
 
@@ -3842,34 +4217,39 @@ plot(nbr.pb.aerial.drill.psm, type = "qq")
 nbr.pb.aerial.drill.matched <- match_data(nbr.pb.aerial.drill.psm)
 
 # Create trt_control variable
-nbr.pb.aerial.drill.matched <- nbr.pb.aerial.drill.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Drill Seeding", "Not Treated")) %>%
+nbr.pb.aerial.drill.matched <- nbr.pb.aerial.drill.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding, Drill Seeding")))
 
 # Center and scale numeric variables
-nbr.pb.aerial.drill.matched <- nbr.pb.aerial.drill.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.aerial.drill.matched <- nbr.pb.aerial.drill.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.aerial.drill.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.aerial.drill.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.aerial.drill.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.aerial.drill.pred <- avg_predictions(
   model = nbr.pb.aerial.drill.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.aerial.drill.pred
 
 #   Table version
@@ -3878,25 +4258,31 @@ nbr.pb.aerial.drill.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding, Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.aerial.drill.pred.df
 
 # Plot
-nbr.pb.aerial.drill.plot <- ggplot(data = nbr.pb.aerial.drill.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.aerial.drill.plot <- nbr.pb.aerial.drill.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.aerial.drill.plot
 
-# Estimation of average treatment effect 
-nbr.pb.aerial.drill.comp <- avg_comparisons(model = nbr.pb.aerial.drill.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.aerial.drill.comp <- avg_comparisons(
+  model = nbr.pb.aerial.drill.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.aerial.drill.comp
 
 
@@ -3904,22 +4290,23 @@ nbr.pb.aerial.drill.comp
 ## Post-burn Closure ------------------------------------------------------
 
 # Filter data
-nbr.pb.closure.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Closure" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.closure.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Closure" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.closure.psm <- matchit(
-  data = nbr.pb.closure.dat, 
+  data = nbr.pb.closure.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.closure.psm
 summary(nbr.pb.closure.psm)
 
@@ -3961,34 +4348,39 @@ plot(nbr.pb.closure.psm, type = "qq")
 nbr.pb.closure.matched <- match_data(nbr.pb.closure.psm)
 
 # Create trt_control variable
-nbr.pb.closure.matched <- nbr.pb.closure.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Closure", "Not Treated")) %>%
+nbr.pb.closure.matched <- nbr.pb.closure.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Closure", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Closure")))
 
 # Center and scale numeric variables
-nbr.pb.closure.matched <- nbr.pb.closure.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.closure.matched <- nbr.pb.closure.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.closure.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.closure.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.closure.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.closure.pred <- avg_predictions(
   model = nbr.pb.closure.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.closure.pred
 
 #   Table version
@@ -3997,25 +4389,31 @@ nbr.pb.closure.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Closure"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.closure.pred.df
 
 # Plot
-nbr.pb.closure.plot <- ggplot(data = nbr.pb.closure.pred.df, 
-                              aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.closure.plot <- nbr.pb.closure.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.closure.plot
 
-# Estimation of average treatment effect 
-nbr.pb.closure.comp <- avg_comparisons(model = nbr.pb.closure.lm,
-                                       variables = "trt_control",
-                                       vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.closure.comp <- avg_comparisons(
+  model = nbr.pb.closure.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.closure.comp
 
 
@@ -4023,22 +4421,23 @@ nbr.pb.closure.comp
 ## Post-burn Drill Seeding ------------------------------------------------------
 
 # Filter data
-nbr.pb.drill.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.drill.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.drill.seeding.psm <- matchit(
-  data = nbr.pb.drill.seeding.dat, 
+  data = nbr.pb.drill.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.drill.seeding.psm
 summary(nbr.pb.drill.seeding.psm)
 
@@ -4080,34 +4479,39 @@ plot(nbr.pb.drill.seeding.psm, type = "qq")
 nbr.pb.drill.seeding.matched <- match_data(nbr.pb.drill.seeding.psm)
 
 # Create trt_control variable
-nbr.pb.drill.seeding.matched <- nbr.pb.drill.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) %>%
+nbr.pb.drill.seeding.matched <- nbr.pb.drill.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding")))
 
 # Center and scale numeric variables
-nbr.pb.drill.seeding.matched <- nbr.pb.drill.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.drill.seeding.matched <- nbr.pb.drill.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.drill.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.drill.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.drill.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.drill.seeding.pred <- avg_predictions(
   model = nbr.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.drill.seeding.pred
 
 #   Table version
@@ -4116,25 +4520,31 @@ nbr.pb.drill.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.drill.seeding.pred.df
 
 # Plot
-nbr.pb.drill.seeding.plot <- ggplot(data = nbr.pb.drill.seeding.pred.df, 
-                                    aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.drill.seeding.plot <- nbr.pb.drill.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.drill.seeding.plot
 
-# Estimation of average treatment effect 
-nbr.pb.drill.seeding.comp <- avg_comparisons(model = nbr.pb.drill.seeding.lm,
-                                             variables = "trt_control",
-                                             vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.drill.seeding.comp <- avg_comparisons(
+  model = nbr.pb.drill.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.drill.seeding.comp
 
 
@@ -4142,22 +4552,23 @@ nbr.pb.drill.seeding.comp
 ## Post-burn Herbicide ----------------------------------------------------
 
 # Filter data
-nbr.pb.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.herbicide.psm <- matchit(
-  data = nbr.pb.herbicide.dat, 
+  data = nbr.pb.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.herbicide.psm
 summary(nbr.pb.herbicide.psm)
 
@@ -4199,34 +4610,39 @@ plot(nbr.pb.herbicide.psm, type = "qq")
 nbr.pb.herbicide.matched <- match_data(nbr.pb.herbicide.psm)
 
 # Create trt_control variable
-nbr.pb.herbicide.matched <- nbr.pb.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+nbr.pb.herbicide.matched <- nbr.pb.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-nbr.pb.herbicide.matched <- nbr.pb.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.herbicide.matched <- nbr.pb.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.herbicide.pred <- avg_predictions(
   model = nbr.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.herbicide.pred
 
 #   Table version
@@ -4235,25 +4651,31 @@ nbr.pb.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.herbicide.pred.df
 
 # Plot
-nbr.pb.herbicide.plot <- ggplot(data = nbr.pb.herbicide.pred.df, 
-                                aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.herbicide.plot <- nbr.pb.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.herbicide.plot
 
-# Estimation of average treatment effect 
-nbr.pb.herbicide.comp <- avg_comparisons(model = nbr.pb.herbicide.lm,
-                                         variables = "trt_control",
-                                         vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.herbicide.comp <- avg_comparisons(
+  model = nbr.pb.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.herbicide.comp
 
 
@@ -4261,22 +4683,23 @@ nbr.pb.herbicide.comp
 ## Post-burn Seedling Planting --------------------------------------------
 
 # Filter data
-nbr.pb.seedling.planting.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Seedling Planting" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+nbr.pb.seedling.planting.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Seedling Planting" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Northern Basin and Range")
 
 # PSM
 nbr.pb.seedling.planting.psm <- matchit(
-  data = nbr.pb.seedling.planting.dat, 
+  data = nbr.pb.seedling.planting.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 nbr.pb.seedling.planting.psm
 summary(nbr.pb.seedling.planting.psm)
 
@@ -4318,34 +4741,39 @@ plot(nbr.pb.seedling.planting.psm, type = "qq")
 nbr.pb.seedling.planting.matched <- match_data(nbr.pb.seedling.planting.psm)
 
 # Create trt_control variable
-nbr.pb.seedling.planting.matched <- nbr.pb.seedling.planting.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Seedling Planting", "Not Treated")) %>%
+nbr.pb.seedling.planting.matched <- nbr.pb.seedling.planting.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Seedling Planting", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Seedling Planting")))
 
 # Center and scale numeric variables
-nbr.pb.seedling.planting.matched <- nbr.pb.seedling.planting.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+nbr.pb.seedling.planting.matched <- nbr.pb.seedling.planting.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-nbr.pb.seedling.planting.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+nbr.pb.seedling.planting.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = nbr.pb.seedling.planting.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 nbr.pb.seedling.planting.pred <- avg_predictions(
   model = nbr.pb.seedling.planting.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 nbr.pb.seedling.planting.pred
 
 #   Table version
@@ -4354,25 +4782,31 @@ nbr.pb.seedling.planting.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Seedling Planting"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 nbr.pb.seedling.planting.pred.df
 
 # Plot
-nbr.pb.seedling.planting.plot <- ggplot(data = nbr.pb.seedling.planting.pred.df, 
-                                    aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+nbr.pb.seedling.planting.plot <- nbr.pb.seedling.planting.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 nbr.pb.seedling.planting.plot
 
-# Estimation of average treatment effect 
-nbr.pb.seedling.planting.comp <- avg_comparisons(model = nbr.pb.seedling.planting.lm,
-                                             variables = "trt_control",
-                                             vcov = ~subclass)
+# Estimation of average treatment effect
+nbr.pb.seedling.planting.comp <- avg_comparisons(
+  model = nbr.pb.seedling.planting.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 nbr.pb.seedling.planting.comp
 
 
@@ -4383,22 +4817,23 @@ nbr.pb.seedling.planting.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-ngp.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+ngp.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Northwestern Great Plains")
 
 # PSM
 ngp.prescribed.burn.psm <- matchit(
-  data = ngp.prescribed.burn.dat, 
+  data = ngp.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 ngp.prescribed.burn.psm
 summary(ngp.prescribed.burn.psm)
 
@@ -4440,34 +4875,39 @@ plot(ngp.prescribed.burn.psm, type = "qq")
 ngp.prescribed.burn.matched <- match_data(ngp.prescribed.burn.psm)
 
 # Create trt_control variable
-ngp.prescribed.burn.matched <- ngp.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+ngp.prescribed.burn.matched <- ngp.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-ngp.prescribed.burn.matched <- ngp.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+ngp.prescribed.burn.matched <- ngp.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-ngp.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+ngp.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = ngp.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 ngp.prescribed.burn.pred <- avg_predictions(
   model = ngp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 ngp.prescribed.burn.pred
 
 #   Table version
@@ -4476,25 +4916,31 @@ ngp.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 ngp.prescribed.burn.pred.df
 
 # Plot
-ngp.prescribed.burn.plot <- ggplot(data = ngp.prescribed.burn.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+ngp.prescribed.burn.plot <- ngp.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 ngp.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-ngp.prescribed.burn.comp <- avg_comparisons(model = ngp.prescribed.burn.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+ngp.prescribed.burn.comp <- avg_comparisons(
+  model = ngp.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 ngp.prescribed.burn.comp
 
 
@@ -4505,22 +4951,23 @@ ngp.prescribed.burn.comp
 ## Post-burn Aerial Seeding -----------------------------------------------
 
 # Filter data
-srp.pb.aerial.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+srp.pb.aerial.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Snake River Plain")
 
 # PSM
 srp.pb.aerial.seeding.psm <- matchit(
-  data = srp.pb.aerial.seeding.dat, 
+  data = srp.pb.aerial.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 srp.pb.aerial.seeding.psm
 summary(srp.pb.aerial.seeding.psm)
 
@@ -4562,34 +5009,39 @@ plot(srp.pb.aerial.seeding.psm, type = "qq")
 srp.pb.aerial.seeding.matched <- match_data(srp.pb.aerial.seeding.psm)
 
 # Create trt_control variable
-srp.pb.aerial.seeding.matched <- srp.pb.aerial.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) %>%
+srp.pb.aerial.seeding.matched <- srp.pb.aerial.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding")))
 
 # Center and scale numeric variables
-srp.pb.aerial.seeding.matched <- srp.pb.aerial.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+srp.pb.aerial.seeding.matched <- srp.pb.aerial.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-srp.pb.aerial.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+srp.pb.aerial.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = srp.pb.aerial.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 srp.pb.aerial.seeding.pred <- avg_predictions(
   model = srp.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 srp.pb.aerial.seeding.pred
 
 #   Table version
@@ -4598,25 +5050,31 @@ srp.pb.aerial.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 srp.pb.aerial.seeding.pred.df
 
 # Plot
-srp.pb.aerial.seeding.plot <- ggplot(data = srp.pb.aerial.seeding.pred.df, 
-                                     aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+srp.pb.aerial.seeding.plot <- srp.pb.aerial.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 srp.pb.aerial.seeding.plot
 
-# Estimation of average treatment effect 
-srp.pb.aerial.seeding.comp <- avg_comparisons(model = srp.pb.aerial.seeding.lm,
-                                              variables = "trt_control",
-                                              vcov = ~subclass)
+# Estimation of average treatment effect
+srp.pb.aerial.seeding.comp <- avg_comparisons(
+  model = srp.pb.aerial.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 srp.pb.aerial.seeding.comp
 
 
@@ -4624,22 +5082,23 @@ srp.pb.aerial.seeding.comp
 ## Post-burn Aerial Seeding, Drill Seeding --------------------------------
 
 # Filter data
-srp.pb.aerial.drill.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Aerial Seeding, Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+srp.pb.aerial.drill.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Aerial Seeding, Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Snake River Plain")
 
 # PSM
 srp.pb.aerial.drill.psm <- matchit(
-  data = srp.pb.aerial.drill.dat, 
+  data = srp.pb.aerial.drill.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 srp.pb.aerial.drill.psm
 summary(srp.pb.aerial.drill.psm)
 
@@ -4681,34 +5140,39 @@ plot(srp.pb.aerial.drill.psm, type = "qq")
 srp.pb.aerial.drill.matched <- match_data(srp.pb.aerial.drill.psm)
 
 # Create trt_control variable
-srp.pb.aerial.drill.matched <- srp.pb.aerial.drill.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Drill Seeding", "Not Treated")) %>%
+srp.pb.aerial.drill.matched <- srp.pb.aerial.drill.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Aerial Seeding, Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Aerial Seeding, Drill Seeding")))
 
 # Center and scale numeric variables
-srp.pb.aerial.drill.matched <- srp.pb.aerial.drill.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+srp.pb.aerial.drill.matched <- srp.pb.aerial.drill.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-srp.pb.aerial.drill.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+srp.pb.aerial.drill.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = srp.pb.aerial.drill.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 srp.pb.aerial.drill.pred <- avg_predictions(
   model = srp.pb.aerial.drill.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 srp.pb.aerial.drill.pred
 
 #   Table version
@@ -4717,25 +5181,31 @@ srp.pb.aerial.drill.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Aerial Seeding, Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 srp.pb.aerial.drill.pred.df
 
 # Plot
-srp.pb.aerial.drill.plot <- ggplot(data = srp.pb.aerial.drill.pred.df, 
-                                   aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+srp.pb.aerial.drill.plot <- srp.pb.aerial.drill.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 srp.pb.aerial.drill.plot
 
-# Estimation of average treatment effect 
-srp.pb.aerial.drill.comp <- avg_comparisons(model = srp.pb.aerial.drill.lm,
-                                            variables = "trt_control",
-                                            vcov = ~subclass)
+# Estimation of average treatment effect
+srp.pb.aerial.drill.comp <- avg_comparisons(
+  model = srp.pb.aerial.drill.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 srp.pb.aerial.drill.comp
 
 
@@ -4743,22 +5213,23 @@ srp.pb.aerial.drill.comp
 ## Post-burn Closure ------------------------------------------------------
 
 # Filter data
-srp.pb.closure.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Closure" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+srp.pb.closure.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Closure" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Snake River Plain")
 
 # PSM
 srp.pb.closure.psm <- matchit(
-  data = srp.pb.closure.dat, 
+  data = srp.pb.closure.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 srp.pb.closure.psm
 summary(srp.pb.closure.psm)
 
@@ -4800,34 +5271,39 @@ plot(srp.pb.closure.psm, type = "qq")
 srp.pb.closure.matched <- match_data(srp.pb.closure.psm)
 
 # Create trt_control variable
-srp.pb.closure.matched <- srp.pb.closure.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Closure", "Not Treated")) %>%
+srp.pb.closure.matched <- srp.pb.closure.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Closure", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Closure")))
 
 # Center and scale numeric variables
-srp.pb.closure.matched <- srp.pb.closure.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+srp.pb.closure.matched <- srp.pb.closure.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-srp.pb.closure.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+srp.pb.closure.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = srp.pb.closure.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 srp.pb.closure.pred <- avg_predictions(
   model = srp.pb.closure.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 srp.pb.closure.pred
 
 #   Table version
@@ -4836,25 +5312,31 @@ srp.pb.closure.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Closure"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 srp.pb.closure.pred.df
 
 # Plot
-srp.pb.closure.plot <- ggplot(data = srp.pb.closure.pred.df, 
-                              aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+srp.pb.closure.plot <- srp.pb.closure.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 srp.pb.closure.plot
 
-# Estimation of average treatment effect 
-srp.pb.closure.comp <- avg_comparisons(model = srp.pb.closure.lm,
-                                       variables = "trt_control",
-                                       vcov = ~subclass)
+# Estimation of average treatment effect
+srp.pb.closure.comp <- avg_comparisons(
+  model = srp.pb.closure.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 srp.pb.closure.comp
 
 
@@ -4862,22 +5344,23 @@ srp.pb.closure.comp
 ## Post-burn Drill Seeding ------------------------------------------------------
 
 # Filter data
-srp.pb.drill.seeding.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Drill Seeding" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+srp.pb.drill.seeding.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Drill Seeding" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Snake River Plain")
 
 # PSM
 srp.pb.drill.seeding.psm <- matchit(
-  data = srp.pb.drill.seeding.dat, 
+  data = srp.pb.drill.seeding.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 srp.pb.drill.seeding.psm
 summary(srp.pb.drill.seeding.psm)
 
@@ -4919,34 +5402,39 @@ plot(srp.pb.drill.seeding.psm, type = "qq")
 srp.pb.drill.seeding.matched <- match_data(srp.pb.drill.seeding.psm)
 
 # Create trt_control variable
-srp.pb.drill.seeding.matched <- srp.pb.drill.seeding.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) %>%
+srp.pb.drill.seeding.matched <- srp.pb.drill.seeding.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Drill Seeding", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Drill Seeding")))
 
 # Center and scale numeric variables
-srp.pb.drill.seeding.matched <- srp.pb.drill.seeding.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+srp.pb.drill.seeding.matched <- srp.pb.drill.seeding.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-srp.pb.drill.seeding.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+srp.pb.drill.seeding.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = srp.pb.drill.seeding.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 srp.pb.drill.seeding.pred <- avg_predictions(
   model = srp.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 srp.pb.drill.seeding.pred
 
 #   Table version
@@ -4955,25 +5443,31 @@ srp.pb.drill.seeding.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 srp.pb.drill.seeding.pred.df
 
 # Plot
-srp.pb.drill.seeding.plot <- ggplot(data = srp.pb.drill.seeding.pred.df, 
-                                    aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+srp.pb.drill.seeding.plot <- srp.pb.drill.seeding.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 srp.pb.drill.seeding.plot
 
-# Estimation of average treatment effect 
-srp.pb.drill.seeding.comp <- avg_comparisons(model = srp.pb.drill.seeding.lm,
-                                             variables = "trt_control",
-                                             vcov = ~subclass)
+# Estimation of average treatment effect
+srp.pb.drill.seeding.comp <- avg_comparisons(
+  model = srp.pb.drill.seeding.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 srp.pb.drill.seeding.comp
 
 
@@ -4981,22 +5475,23 @@ srp.pb.drill.seeding.comp
 ## Post-burn Herbicide ----------------------------------------------------
 
 # Filter data
-srp.pb.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "post")) %>% 
+srp.pb.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "post")) |>
   filter(EcoLvl3 == "Snake River Plain")
 
 # PSM
 srp.pb.herbicide.psm <- matchit(
-  data = srp.pb.herbicide.dat, 
+  data = srp.pb.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 srp.pb.herbicide.psm
 summary(srp.pb.herbicide.psm)
 
@@ -5038,34 +5533,39 @@ plot(srp.pb.herbicide.psm, type = "qq")
 srp.pb.herbicide.matched <- match_data(srp.pb.herbicide.psm)
 
 # Create trt_control variable
-srp.pb.herbicide.matched <- srp.pb.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+srp.pb.herbicide.matched <- srp.pb.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-srp.pb.herbicide.matched <- srp.pb.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+srp.pb.herbicide.matched <- srp.pb.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-srp.pb.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+srp.pb.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = srp.pb.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 srp.pb.herbicide.pred <- avg_predictions(
   model = srp.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 srp.pb.herbicide.pred
 
 #   Table version
@@ -5074,25 +5574,31 @@ srp.pb.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 srp.pb.herbicide.pred.df
 
 # Plot
-srp.pb.herbicide.plot <- ggplot(data = srp.pb.herbicide.pred.df, 
-                                aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+srp.pb.herbicide.plot <- srp.pb.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 srp.pb.herbicide.plot
 
-# Estimation of average treatment effect 
-srp.pb.herbicide.comp <- avg_comparisons(model = srp.pb.herbicide.lm,
-                                         variables = "trt_control",
-                                         vcov = ~subclass)
+# Estimation of average treatment effect
+srp.pb.herbicide.comp <- avg_comparisons(
+  model = srp.pb.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 srp.pb.herbicide.comp
 
 
@@ -5103,22 +5609,23 @@ srp.pb.herbicide.comp
 ## Herbicide --------------------------------------------------------------
 
 # Filter data
-sr.herbicide.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Herbicide" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+sr.herbicide.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Herbicide" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Southern Rockies")
 
 # PSM
 sr.herbicide.psm <- matchit(
-  data = sr.herbicide.dat, 
+  data = sr.herbicide.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 sr.herbicide.psm
 summary(sr.herbicide.psm)
 
@@ -5160,34 +5667,39 @@ plot(sr.herbicide.psm, type = "qq")
 sr.herbicide.matched <- match_data(sr.herbicide.psm)
 
 # Create trt_control variable
-sr.herbicide.matched <- sr.herbicide.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) %>%
+sr.herbicide.matched <- sr.herbicide.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Herbicide", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Herbicide")))
 
 # Center and scale numeric variables
-sr.herbicide.matched <- sr.herbicide.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+sr.herbicide.matched <- sr.herbicide.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-sr.herbicide.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+sr.herbicide.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = sr.herbicide.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 sr.herbicide.pred <- avg_predictions(
   model = sr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 sr.herbicide.pred
 
 #   Table version
@@ -5196,25 +5708,31 @@ sr.herbicide.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 sr.herbicide.pred.df
 
 # Plot
-sr.herbicide.plot <- ggplot(data = sr.herbicide.pred.df, 
-                            aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+sr.herbicide.plot <- sr.herbicide.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 sr.herbicide.plot
 
-# Estimation of average treatment effect 
-sr.herbicide.comp <- avg_comparisons(model = sr.herbicide.lm,
-                                     variables = "trt_control",
-                                     vcov = ~subclass)
+# Estimation of average treatment effect
+sr.herbicide.comp <- avg_comparisons(
+  model = sr.herbicide.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 sr.herbicide.comp
 
 
@@ -5222,22 +5740,23 @@ sr.herbicide.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-sr.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+sr.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Southern Rockies")
 
 # PSM
 sr.prescribed.burn.psm <- matchit(
-  data = sr.prescribed.burn.dat, 
+  data = sr.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 sr.prescribed.burn.psm
 summary(sr.prescribed.burn.psm)
 
@@ -5279,34 +5798,39 @@ plot(sr.prescribed.burn.psm, type = "qq")
 sr.prescribed.burn.matched <- match_data(sr.prescribed.burn.psm)
 
 # Create trt_control variable
-sr.prescribed.burn.matched <- sr.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+sr.prescribed.burn.matched <- sr.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-sr.prescribed.burn.matched <- sr.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+sr.prescribed.burn.matched <- sr.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-sr.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+sr.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = sr.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 sr.prescribed.burn.pred <- avg_predictions(
   model = sr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 sr.prescribed.burn.pred
 
 #   Table version
@@ -5315,25 +5839,31 @@ sr.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 sr.prescribed.burn.pred.df
 
 # Plot
-sr.prescribed.burn.plot <- ggplot(data = sr.prescribed.burn.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+sr.prescribed.burn.plot <- sr.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 sr.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-sr.prescribed.burn.comp <- avg_comparisons(model = sr.prescribed.burn.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+sr.prescribed.burn.comp <- avg_comparisons(
+  model = sr.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 sr.prescribed.burn.comp
 
 
@@ -5341,22 +5871,23 @@ sr.prescribed.burn.comp
 ## Vegetation Disturbance -------------------------------------------------
 
 # Filter data
-sr.veg.disturbance.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Vegetation Disturbance" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+sr.veg.disturbance.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Vegetation Disturbance" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Southern Rockies")
 
 # PSM
 sr.veg.disturbance.psm <- matchit(
-  data = sr.veg.disturbance.dat, 
+  data = sr.veg.disturbance.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 sr.veg.disturbance.psm
 summary(sr.veg.disturbance.psm)
 
@@ -5398,34 +5929,39 @@ plot(sr.veg.disturbance.psm, type = "qq")
 sr.veg.disturbance.matched <- match_data(sr.veg.disturbance.psm)
 
 # Create trt_control variable
-sr.veg.disturbance.matched <- sr.veg.disturbance.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) %>%
+sr.veg.disturbance.matched <- sr.veg.disturbance.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Vegetation Disturbance", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Vegetation Disturbance")))
 
 # Center and scale numeric variables
-sr.veg.disturbance.matched <- sr.veg.disturbance.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+sr.veg.disturbance.matched <- sr.veg.disturbance.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-sr.veg.disturbance.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+sr.veg.disturbance.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = sr.veg.disturbance.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 sr.veg.disturbance.pred <- avg_predictions(
   model = sr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 sr.veg.disturbance.pred
 
 #   Table version
@@ -5434,25 +5970,31 @@ sr.veg.disturbance.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 sr.veg.disturbance.pred.df
 
 # Plot
-sr.veg.disturbance.plot <- ggplot(data = sr.veg.disturbance.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+sr.veg.disturbance.plot <- sr.veg.disturbance.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 sr.veg.disturbance.plot
 
-# Estimation of average treatment effect 
-sr.veg.disturbance.comp <- avg_comparisons(model = sr.veg.disturbance.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+sr.veg.disturbance.comp <- avg_comparisons(
+  model = sr.veg.disturbance.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 sr.veg.disturbance.comp
 
 
@@ -5463,22 +6005,23 @@ sr.veg.disturbance.comp
 ## Prescribed Burn --------------------------------------------------------
 
 # Filter data
-wb.prescribed.burn.dat <- ldc.006 %>% 
-  filter(Trt_Type_Sub == "Prescribed Burn" | 
-           is.na(Trt_Type_Sub)) %>% 
-  filter(str_detect(Category, "never")) %>% 
+wb.prescribed.burn.dat <- ldc.006 |>
+  filter(Trt_Type_Sub == "Prescribed Burn" |
+    is.na(Trt_Type_Sub)) |>
+  filter(str_detect(Category, "never")) |>
   filter(EcoLvl3 == "Wyoming Basin")
 
 # PSM
 wb.prescribed.burn.psm <- matchit(
-  data = wb.prescribed.burn.dat, 
+  data = wb.prescribed.burn.dat,
   formula = trt_binary ~ MLRARSYM + BareSoil_FH + TotalFoliarCover + ForbCover_AH +
     GramCover_AH + ShrubCover_AH + Gap100plus + spei1yr,
   distance = "glm",
   link = "logit",
   method = "nearest",
   caliper = 0.2,
-  ratio = 2)
+  ratio = 2
+)
 wb.prescribed.burn.psm
 summary(wb.prescribed.burn.psm)
 
@@ -5520,34 +6063,39 @@ plot(wb.prescribed.burn.psm, type = "qq")
 wb.prescribed.burn.matched <- match_data(wb.prescribed.burn.psm)
 
 # Create trt_control variable
-wb.prescribed.burn.matched <- wb.prescribed.burn.matched %>% 
-  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) %>%
+wb.prescribed.burn.matched <- wb.prescribed.burn.matched |>
+  mutate(trt_control = if_else(trt_binary == 1, "Prescribed Burn", "Not Treated")) |>
   mutate(trt_control = factor(trt_control, levels = c("Not Treated", "Prescribed Burn")))
 
 # Center and scale numeric variables
-wb.prescribed.burn.matched <- wb.prescribed.burn.matched %>% 
-  mutate(BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
-         TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
-         ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
-         GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
-         ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
-         Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
-         spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1])
+wb.prescribed.burn.matched <- wb.prescribed.burn.matched |>
+  mutate(
+    BareSoil_FH_scaled = scale(BareSoil_FH, center = TRUE, scale = TRUE)[, 1],
+    TotalFoliarCover_scaled = scale(TotalFoliarCover, center = TRUE, scale = TRUE)[, 1],
+    ForbCover_AH_scaled = scale(ForbCover_AH, center = TRUE, scale = TRUE)[, 1],
+    GramCover_AH_scaled = scale(GramCover_AH, center = TRUE, scale = TRUE)[, 1],
+    ShrubCover_AH_scaled = scale(ShrubCover_AH, center = TRUE, scale = TRUE)[, 1],
+    Gap100plus_scaled = scale(Gap100plus, center = TRUE, scale = TRUE)[, 1],
+    spei1yr_scaled = scale(spei1yr, center = TRUE, scale = TRUE)[, 1]
+  )
 
 
 # Linear model with covariates
-wb.prescribed.burn.lm <- lm(ln_q ~ trt_control * (
-  BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
-    ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
+wb.prescribed.burn.lm <- lm(
+  ln_q ~ trt_control * (
+    BareSoil_FH_scaled + TotalFoliarCover_scaled + ForbCover_AH_scaled + GramCover_AH_scaled +
+      ShrubCover_AH_scaled + Gap100plus_scaled + spei1yr_scaled),
   data = wb.prescribed.burn.matched,
-  weights = weights)
+  weights = weights
+)
 
 # G computation to estimate marginal effects
 wb.prescribed.burn.pred <- avg_predictions(
   model = wb.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass,
-  by = "trt_control")
+  by = "trt_control"
+)
 wb.prescribed.burn.pred
 
 #   Table version
@@ -5556,26 +6104,29 @@ wb.prescribed.burn.pred.df <- plot_predictions(
   by = "trt_control",
   newdata = datagrid(
     trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"),
+    grid_type = "counterfactual"
+  ),
   draw = FALSE,
-  vcov = ~subclass)
+  vcov = ~subclass
+)
 wb.prescribed.burn.pred.df
 
 # Plot
-wb.prescribed.burn.plot <- ggplot(data = wb.prescribed.burn.pred.df, 
-                                  aes(x = trt_control, y = estimate)) +
-  geom_point(shape = 18,
-             size = 4,
-             color = "red") +
+wb.prescribed.burn.plot <- wb.prescribed.burn.pred.df |>
+  ggplot(aes(x = trt_control, y = estimate)) +
+  geom_point(
+    shape = 18,
+    size = 4,
+    color = "red"
+  ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw()
 wb.prescribed.burn.plot
 
-# Estimation of average treatment effect 
-wb.prescribed.burn.comp <- avg_comparisons(model = wb.prescribed.burn.lm,
-                                           variables = "trt_control",
-                                           vcov = ~subclass)
+# Estimation of average treatment effect
+wb.prescribed.burn.comp <- avg_comparisons(
+  model = wb.prescribed.burn.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+)
 wb.prescribed.burn.comp
-
-
-

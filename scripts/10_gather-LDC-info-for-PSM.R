@@ -1,7 +1,7 @@
 # Created: 2026-04-01
 # Updated: 2026-04-01
 
-# Purpose: Gather veg cover columns needed for propensity score matching (PSM) 
+# Purpose: Gather veg cover columns needed for propensity score matching (PSM)
 #   from LDC geoindicators data.
 
 # To install terradactyl: remotes::install_github(repo = 'Landscape-Data-Commons/terradactyl')
@@ -111,44 +111,47 @@ col_rename_map <- c(
   "Long-Term Mean Soil Loss" = "LongTermMeanSoilLoss"
 )
 
-geoindicators <- geoindicators.raw %>% 
+geoindicators <- geoindicators.raw |>
   rename(!!!setNames(names(col_rename_map), col_rename_map))
 
 # Identify completely empty columns
-empty_cols <- geoindicators %>%
-  summarise(across(everything(), ~ all(is.na(.)))) %>%
-  pivot_longer(everything(), names_to = "column", values_to = "is_empty") %>%
-  filter(is_empty) %>%
+empty_cols <- geoindicators |>
+  summarise(across(everything(), ~ all(is.na(.)))) |>
+  pivot_longer(everything(), names_to = "column", values_to = "is_empty") |>
+  filter(is_empty) |>
   pull(column)
 
-geoindicators <- geoindicators %>% 
+geoindicators <- geoindicators |>
   select(-all_of(empty_cols))
 
 
 # Columns of interest -----------------------------------------------------
 
 # Gather columns of interest
-psm.col <- geoindicators %>% 
-  select(PrimaryKey, BareSoil_FH, TotalFoliarCover, 
-         ForbCover_AH, GramCover_AH, ShrubCover_AH, 
-         AnnForbCover_AH, AnnGramCover_AH, PerForbCover_AH, PerGramCover_AH,
-         Gap101_200, Gap200plus)
+psm.col <- geoindicators |>
+  select(
+    PrimaryKey, BareSoil_FH, TotalFoliarCover,
+    ForbCover_AH, GramCover_AH, ShrubCover_AH,
+    AnnForbCover_AH, AnnGramCover_AH, PerForbCover_AH, PerGramCover_AH,
+    Gap101_200, Gap200plus
+  )
 
 
 # Create column of gaps >100
-psm.col <- psm.col %>% 
+psm.col <- psm.col |>
   mutate(Gap100plus = Gap101_200 + Gap200plus)
 summary(psm.col$Gap100plus)
 
 
 # Combine -----------------------------------------------------------------
 
-ldc.006.psm <- ldc.006.raw %>% 
+ldc.006.psm <- ldc.006.raw |>
   left_join(psm.col)
 
 
 # Write to CSV ------------------------------------------------------------
 
 write_csv(ldc.006.psm,
-          file = "data/versions-from-R/10_LDC-with-PSM-cols_v006.csv",
-          na = "")
+  file = "data/versions-from-R/10_LDC-with-PSM-cols_v006.csv",
+  na = ""
+)

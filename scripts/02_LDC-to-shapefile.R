@@ -16,17 +16,22 @@ geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindica
 # Data wrangling ----------------------------------------------------------
 
 # Retain Primary Key and coordinate columns only
-geoindicators <- geoindicators.raw %>% 
-  rename(PrimaryKey = `Primary Key`,
-         Latitude_NAD1983 = `Latitude (decimal degrees, NAD83)`,
-         Longitude_NAD1983 = `Longitude (decimal degrees, NAD83)`) %>% 
+geoindicators <- geoindicators.raw |>
+  rename(
+    PrimaryKey = `Primary Key`,
+    Latitude_NAD1983 = `Latitude (decimal degrees, NAD83)`,
+    Longitude_NAD1983 = `Longitude (decimal degrees, NAD83)`
+  ) |>
   select(PrimaryKey, Latitude_NAD1983, Longitude_NAD1983)
 
 
 # Convert to shapefile ----------------------------------------------------
 
-ldc.points <- st_as_sf(geoindicators, coords = c("Longitude_NAD1983", "Latitude_NAD1983"),
-                       crs = 4269)
+ldc.points <- st_as_sf(geoindicators,
+  coords = c("Longitude_NAD1983", "Latitude_NAD1983"),
+  crs = 4269
+)
 
 st_write(ldc.points, "data/LDC-points/02_LDC-points.shp",
-         delete_layer = TRUE)
+  delete_layer = TRUE
+)
