@@ -36,7 +36,7 @@ apply(ldc.007, 2, anyNA)
 
 # Arizona/New Mexico Mountains --------------------------------------------
 
-## Prescribed Burn --------------------------------------------------------
+## 1. Prescribed Burn -----------------------------------------------------
 
 # Filter data
 anm.prescribed.burn.dat <- ldc.007 |>
@@ -173,7 +173,7 @@ anm.prescribed.burn.comp
 
 # Arizona/New Mexico Plateau ----------------------------------------------
 
-## Herbicide --------------------------------------------------------------
+## 2. Herbicide -----------------------------------------------------------
 
 # Filter data
 anp.herbicide.dat <- ldc.007 |>
@@ -307,7 +307,7 @@ anp.herbicide.comp
 
 
 
-## Prescribed Burn --------------------------------------------------------
+## 3. Prescribed Burn -----------------------------------------------------
 
 # Filter data
 anp.prescribed.burn.dat <- ldc.007 |>
@@ -441,7 +441,7 @@ anp.prescribed.burn.comp
 
 
 
-## Seeding ----------------------------------------------------------------
+## 4. Seeding -------------------------------------------------------------
 
 # Filter data
 anp.seeding.dat <- ldc.007 |>
@@ -575,7 +575,7 @@ anp.seeding.comp
 
 
 
-## Soil Disturbance -------------------------------------------------------
+## 5. Soil Disturbance ----------------------------------------------------
 
 # Filter data
 anp.soil.disturbance.dat <- ldc.007 |>
@@ -712,7 +712,7 @@ anp.soil.disturbance.comp
 
 # Blue Mountains ----------------------------------------------------------
 
-## Herbicide --------------------------------------------------------------
+## 6. Herbicide -----------------------------------------------------------
 
 # Filter data
 bm.herbicide.dat <- ldc.007 |>
@@ -846,7 +846,7 @@ bm.herbicide.comp
 
 
 
-## Vegetation Disturbance -------------------------------------------------
+## 7. Vegetation Disturbance ----------------------------------------------
 
 # Filter data
 bm.veg.disturbance.dat <- ldc.007 |>
@@ -980,7 +980,7 @@ bm.veg.disturbance.comp
 
 
 
-## Post-burn Herbicide ----------------------------------------------------
+## 8. Post-burn Herbicide -------------------------------------------------
 
 # Filter data
 bm.pb.herbicide.dat <- ldc.007 |>
@@ -1117,7 +1117,7 @@ bm.pb.herbicide.comp
 
 # Central Basin and Range -------------------------------------------------
 
-## Aerial seeding ---------------------------------------------------------
+## 9. Aerial seeding ------------------------------------------------------
 
 # Filter data
 cbr.aerial.seeding.dat <- ldc.007 |>
@@ -1251,7 +1251,7 @@ cbr.aerial.seeding.comp
 
 
 
-## Drill Seeding, Soil Disturbance ----------------------------------------
+## 10. Drill Seeding, Soil Disturbance ------------------------------------
 
 # Filter data
 cbr.drill.soil.dat <- ldc.007 |>
@@ -1385,7 +1385,7 @@ cbr.drill.soil.comp
 
 
 
-## Prescribed Burn --------------------------------------------------------
+## 11. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 cbr.prescribed.burn.dat <- ldc.007 |>
@@ -1519,7 +1519,7 @@ cbr.prescribed.burn.comp
 
 
 
-## Vegetation Disturbance -------------------------------------------------
+## 12. Vegetation Disturbance ---------------------------------------------
 
 # Filter data
 cbr.veg.disturbance.dat <- ldc.007 |>
@@ -1653,7 +1653,7 @@ cbr.veg.disturbance.comp
 
 
 
-## Post-burn Aerial Seeding -----------------------------------------------
+## 13. Post-burn Aerial Seeding -------------------------------------------
 
 # Filter data
 cbr.pb.aerial.seeding.dat <- ldc.007 |>
@@ -1787,7 +1787,7 @@ cbr.pb.aerial.seeding.comp
 
 
 
-## Post-burn Drill Seeding ------------------------------------------------
+## 14. Post-burn Drill Seeding --------------------------------------------
 
 # Filter data
 cbr.pb.drill.seeding.dat <- ldc.007 |>
@@ -1921,7 +1921,7 @@ cbr.pb.drill.seeding.comp
 
 
 
-## Post-burn Ground Seeding -----------------------------------------------
+## 15. Post-burn Ground Seeding -------------------------------------------
 
 # Filter data
 cbr.pb.ground.seeding.dat <- ldc.007 |>
@@ -2055,7 +2055,7 @@ cbr.pb.ground.seeding.comp
 
 
 
-## Post-burn Herbicide ----------------------------------------------------
+## 16. Post-burn Herbicide ------------------------------------------------
 
 # Filter data
 cbr.pb.herbicide.dat <- ldc.007 |>
@@ -2192,7 +2192,7 @@ cbr.pb.herbicide.comp
 
 # Chihuahuan Desert -------------------------------------------------------
 
-## Herbicide --------------------------------------------------------------
+## 17. Herbicide ----------------------------------------------------------
 
 # Filter data
 cd.herbicide.dat <- ldc.007 |>
@@ -2329,7 +2329,7 @@ cd.herbicide.comp
 
 # Colorado Plateaus -------------------------------------------------------
 
-## Aerial Seeding, Soil Disturbance ---------------------------------------
+## 18. Aerial Seeding, Soil Disturbance -----------------------------------
 
 # Filter data
 cp.aerial.soil.dat <- ldc.007 |>
@@ -2463,7 +2463,7 @@ cp.aerial.soil.comp
 
 
 
-## Herbicide --------------------------------------------------------------
+## 19. Herbicide ----------------------------------------------------------
 
 # Filter data
 cp.herbicide.dat <- ldc.007 |>
@@ -2597,7 +2597,7 @@ cp.herbicide.comp
 
 
 
-## Prescribed Burn --------------------------------------------------------
+## 20. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 cp.prescribed.burn.dat <- ldc.007 |>
@@ -2731,7 +2731,7 @@ cp.prescribed.burn.comp
 
 
 
-## Soil Disturbance -------------------------------------------------------
+## 21. Soil Disturbance ---------------------------------------------------
 
 # Filter data
 cp.soil.disturbance.dat <- ldc.007 |>
@@ -2865,7 +2865,7 @@ cp.soil.disturbance.comp
 
 
 
-## Vegetation Disturbance -------------------------------------------------
+## 22. Vegetation Disturbance ---------------------------------------------
 
 # Filter data
 cp.veg.disturbance.dat <- ldc.007 |>
@@ -2999,7 +2999,7 @@ cp.veg.disturbance.comp
 
 
 
-## Post-burn Aerial Seeding -----------------------------------------------
+## 23. Post-burn Aerial Seeding -------------------------------------------
 
 # Filter data
 cp.pb.aerial.seeding.dat <- ldc.007 |>
@@ -3136,7 +3136,7 @@ cp.pb.aerial.seeding.comp
 
 # Middle Rockies ----------------------------------------------------------
 
-## Herbicide --------------------------------------------------------------
+## 24. Herbicide ----------------------------------------------------------
 
 # Filter data
 mr.herbicide.dat <- ldc.007 |>
@@ -3273,7 +3273,7 @@ mr.herbicide.comp
 
 # Mojave Basin and Range --------------------------------------------------
 
-## Post-burn Aerial Seeding -----------------------------------------------
+## 25. Post-burn Aerial Seeding -------------------------------------------
 
 # Filter data
 mbr.pb.aerial.seeding.dat <- ldc.007 |>
@@ -3410,7 +3410,7 @@ mbr.pb.aerial.seeding.comp
 
 # Northern Basin and Range ------------------------------------------------
 
-## Drill Seeding ----------------------------------------------------------
+## 26. Drill Seeding ------------------------------------------------------
 
 # Filter data
 nbr.drill.seeding.dat <- ldc.007 |>
@@ -3544,7 +3544,7 @@ nbr.drill.seeding.comp
 
 
 
-## Drill Seeding, Soil Disturbance ----------------------------------------
+## 27. Drill Seeding, Soil Disturbance ------------------------------------
 
 # Filter data
 nbr.drill.soil.dat <- ldc.007 |>
@@ -3678,7 +3678,7 @@ nbr.drill.soil.comp
 
 
 
-## Herbicide --------------------------------------------------------------
+## 28. Herbicide ----------------------------------------------------------
 
 # Filter data
 nbr.herbicide.dat <- ldc.007 |>
@@ -3812,7 +3812,7 @@ nbr.herbicide.comp
 
 
 
-## Prescribed Burn --------------------------------------------------------
+## 29. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 nbr.prescribed.burn.dat <- ldc.007 |>
@@ -3946,7 +3946,7 @@ nbr.prescribed.burn.comp
 
 
 
-## Vegetation Disturbance -------------------------------------------------
+## 30. Vegetation Disturbance ---------------------------------------------
 
 # Filter data
 nbr.veg.disturbance.dat <- ldc.007 |>
@@ -4080,7 +4080,7 @@ nbr.veg.disturbance.comp
 
 
 
-## Post-burn Aerial Seeding -----------------------------------------------
+## 31. Post-burn Aerial Seeding -------------------------------------------
 
 # Filter data
 nbr.pb.aerial.seeding.dat <- ldc.007 |>
@@ -4214,7 +4214,7 @@ nbr.pb.aerial.seeding.comp
 
 
 
-## Post-burn Aerial Seeding, Drill Seeding --------------------------------
+## 32. Post-burn Aerial Seeding, Drill Seeding ----------------------------
 
 # Filter data
 nbr.pb.aerial.drill.dat <- ldc.007 |>
@@ -4348,7 +4348,7 @@ nbr.pb.aerial.drill.comp
 
 
 
-## Post-burn Closure ------------------------------------------------------
+## 33. Post-burn Closure --------------------------------------------------
 
 # Filter data
 nbr.pb.closure.dat <- ldc.007 |>
@@ -4482,7 +4482,7 @@ nbr.pb.closure.comp
 
 
 
-## Post-burn Drill Seeding ------------------------------------------------------
+## 34. Post-burn Drill Seeding --------------------------------------------------
 
 # Filter data
 nbr.pb.drill.seeding.dat <- ldc.007 |>
@@ -4616,7 +4616,7 @@ nbr.pb.drill.seeding.comp
 
 
 
-## Post-burn Herbicide ----------------------------------------------------
+## 35. Post-burn Herbicide ------------------------------------------------
 
 # Filter data
 nbr.pb.herbicide.dat <- ldc.007 |>
@@ -4750,7 +4750,7 @@ nbr.pb.herbicide.comp
 
 
 
-## Post-burn Seedling Planting --------------------------------------------
+## 36. Post-burn Seedling Planting ----------------------------------------
 
 # Filter data
 nbr.pb.seedling.planting.dat <- ldc.007 |>
@@ -4887,7 +4887,7 @@ nbr.pb.seedling.planting.comp
 
 # Northwestern Great Plains -----------------------------------------------
 
-## Prescribed Burn --------------------------------------------------------
+## 37. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 ngp.prescribed.burn.dat <- ldc.007 |>
@@ -5024,7 +5024,7 @@ ngp.prescribed.burn.comp
 
 # Snake River Plain -------------------------------------------------------
 
-## Post-burn Aerial Seeding -----------------------------------------------
+## 38. Post-burn Aerial Seeding -------------------------------------------
 
 # Filter data
 srp.pb.aerial.seeding.dat <- ldc.007 |>
@@ -5158,7 +5158,7 @@ srp.pb.aerial.seeding.comp
 
 
 
-## Post-burn Aerial Seeding, Drill Seeding --------------------------------
+## 39. Post-burn Aerial Seeding, Drill Seeding ----------------------------
 
 # Filter data
 srp.pb.aerial.drill.dat <- ldc.007 |>
@@ -5292,7 +5292,7 @@ srp.pb.aerial.drill.comp
 
 
 
-## Post-burn Closure ------------------------------------------------------
+## 40. Post-burn Closure --------------------------------------------------
 
 # Filter data
 srp.pb.closure.dat <- ldc.007 |>
@@ -5426,7 +5426,7 @@ srp.pb.closure.comp
 
 
 
-## Post-burn Drill Seeding ------------------------------------------------------
+## 41. Post-burn Drill Seeding --------------------------------------------------
 
 # Filter data
 srp.pb.drill.seeding.dat <- ldc.007 |>
@@ -5560,7 +5560,7 @@ srp.pb.drill.seeding.comp
 
 
 
-## Post-burn Herbicide ----------------------------------------------------
+## 42. Post-burn Herbicide ------------------------------------------------
 
 # Filter data
 srp.pb.herbicide.dat <- ldc.007 |>
@@ -5697,7 +5697,7 @@ srp.pb.herbicide.comp
 
 # Southern Rockies --------------------------------------------------------
 
-## Herbicide --------------------------------------------------------------
+## 43. Herbicide ----------------------------------------------------------
 
 # Filter data
 sr.herbicide.dat <- ldc.007 |>
@@ -5831,7 +5831,7 @@ sr.herbicide.comp
 
 
 
-## Prescribed Burn --------------------------------------------------------
+## 44. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 sr.prescribed.burn.dat <- ldc.007 |>
@@ -5965,7 +5965,7 @@ sr.prescribed.burn.comp
 
 
 
-## Vegetation Disturbance -------------------------------------------------
+## 45. Vegetation Disturbance ---------------------------------------------
 
 # Filter data
 sr.veg.disturbance.dat <- ldc.007 |>
@@ -6102,7 +6102,7 @@ sr.veg.disturbance.comp
 
 # Wyoming Basin -----------------------------------------------------------
 
-## Prescribed Burn --------------------------------------------------------
+## 46. Prescribed Burn ----------------------------------------------------
 
 # Filter data
 wb.prescribed.burn.dat <- ldc.007 |>
