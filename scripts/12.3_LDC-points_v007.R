@@ -8,6 +8,8 @@
 #   gap data were dropped.
 
 
+library(tidyverse)
+
 # Load data ---------------------------------------------------------------
 
 ldc.cetwi.solus.raw <- read_csv("data/versions-from-R/12.2_LDC-CETWI-SOLUS_v007.csv")
@@ -105,5 +107,8 @@ write_csv(eco3.trt30.all,
           file = "data/versions-from-R/12.3_LDC-points_v007.csv",
           na = ""
 )
+
+write_csv(level3.trt30,
+          file = "data/versions-from-R/12.3_eco3-trt30_count-table.csv")
 
 save.image("RData/12.3_LDC-points_v007.RData")
