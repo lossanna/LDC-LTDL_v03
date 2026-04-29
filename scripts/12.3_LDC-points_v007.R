@@ -1,16 +1,18 @@
 # Created: 2026-04-27
-# Updated: 2026-04-27
+# Updated: 2026-04-29
 
 # Purpose: Recalculate groups to find treatments per ecoregion with 30+ points, now that
-#   CETWI and SOLUS data have been added (and some LDC points therefore removed).
+#   CETWI, SOLUS, and geoindicators data have been added (and some LDC points therefore removed).
 
-# Result: Nothing with the treatment groups actually changed.
+# Result: Nothing with the treatment groups actually changed; only 18 points without
+#   gap data were dropped.
 
 
 # Load data ---------------------------------------------------------------
 
 ldc.cetwi.solus.raw <- read_csv("data/versions-from-R/12.2_LDC-CETWI-SOLUS_v007.csv")
-
+ldc.006.psm <- read_csv("data/versions-from-R/10_LDC-with-PSM-cols_v006.csv")
+  
 # Convert date columns ----------------------------------------------------
 
 # Convert relevant columns to date format
@@ -20,6 +22,29 @@ ldc.cetwi.solus <- ldc.cetwi.solus.raw |>
     MR_trt_comp = as.Date(MR_trt_comp, format = "%m/%d/%Y"),
     MR_wildfire = as.Date(MR_wildfire, format = "%m/%d/%Y")
   )
+
+
+# Add cols from geoindicators.csv -----------------------------------------
+
+# Add via ldc.006.psm (see 10.R script)
+ldc.006.psm.join <- ldc.006.psm |> 
+  select(LDCpointID, BareSoil_FH, TotalFoliarCover, ForbCover_AH, GramCover_AH,
+         ShrubCover_AH, Gap100plus)
+  
+ldc.cetwi.solus <- ldc.cetwi.solus |> 
+  left_join(ldc.006.psm.join)
+
+
+# Check for NAs
+apply(ldc.cetwi.solus, 2, anyNA)
+
+#   Check which is missing gap data
+ldc.cetwi.solus |>
+  filter(is.na(Gap100plus)) # only one treated missing gap data; Chihuahua herbicide
+
+# Drop points missing gap data
+ldc.cetwi.solus <- ldc.cetwi.solus |> 
+  filter(!is.na(Gap100plus))
 
 
 # LDC points by Ecoregion 3 -----------------------------------------------
@@ -64,11 +89,14 @@ eco3.trt30.all <- eco3.trt30 |>
     Trt_Type_Major, recent_trt_count, FirePolyID, USGS_Assigned_ID, MR_wildfire,
     Fire_freq, Fire_freq_post_trt,
     EcoLvl1, NA_L1KEY, EcoLvl2, NA_L2KEY, NA_L3KEY, MLRARSYM, MLRA_name,
-    horizontal_flux_total_MD, n_CETWI, CETWI, sandtotal_0_cm
+    horizontal_flux_total_MD, n_CETWI, CETWI, sandtotal_0_cm,
+    BareSoil_FH, TotalFoliarCover, ForbCover_AH, GramCover_AH, ShrubCover_AH, Gap100plus
   ) |>
   rename(Treatment_count = n) |>
   arrange(LDCpointID)
-nrow(eco3.trt30.all) / nrow(ldc.cetwi.solus.raw) # all points used; none dropped
+nrow(eco3.trt30.all) / nrow(ldc.cetwi.solus.raw) # 99.96% used
+nrow(eco3.trt30.all) == nrow(ldc.cetwi.solus) # only points that were dropped are ones without gap data
+
 
 
 # Write to CSV ------------------------------------------------------------
@@ -77,3 +105,5 @@ write_csv(eco3.trt30.all,
           file = "data/versions-from-R/12.3_LDC-points_v007.csv",
           na = ""
 )
+
+save.image("RData/12.3_LDC-points_v007.RData")
