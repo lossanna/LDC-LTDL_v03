@@ -133,24 +133,12 @@ anm.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 1, .before = trt_control) 
 anm.prescribed.burn.pred
 
-#   Table version
-anm.prescribed.burn.pred.df <- plot_predictions(
-  anm.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-anm.prescribed.burn.pred.df
-
 # Plot
-anm.prescribed.burn.plot <- anm.prescribed.burn.pred.df |>
+anm.prescribed.burn.plot <- anm.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -166,7 +154,8 @@ anm.prescribed.burn.comp <- avg_comparisons(
   model = anm.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 1, .before = term) 
 anm.prescribed.burn.comp
 
 
@@ -271,24 +260,12 @@ anp.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 2, .before = trt_control)
 anp.herbicide.pred
 
-#   Table version
-anp.herbicide.pred.df <- plot_predictions(
-  anp.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-anp.herbicide.pred.df
-
 # Plot
-anp.herbicide.plot <- anp.herbicide.pred.df |>
+anp.herbicide.plot <- anp.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -304,7 +281,8 @@ anp.herbicide.comp <- avg_comparisons(
   model = anp.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 2, .before = term)
 anp.herbicide.comp
 
 
@@ -406,24 +384,12 @@ anp.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 3, .before = trt_control)
 anp.prescribed.burn.pred
 
-#   Table version
-anp.prescribed.burn.pred.df <- plot_predictions(
-  anp.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-anp.prescribed.burn.pred.df
-
 # Plot
-anp.prescribed.burn.plot <- anp.prescribed.burn.pred.df |>
+anp.prescribed.burn.plot <- anp.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -439,7 +405,8 @@ anp.prescribed.burn.comp <- avg_comparisons(
   model = anp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 3, .before = term)
 anp.prescribed.burn.comp
 
 
@@ -541,24 +508,12 @@ anp.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 4, .before = trt_control)
 anp.seeding.pred
 
-#   Table version
-anp.seeding.pred.df <- plot_predictions(
-  anp.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-anp.seeding.pred.df
-
 # Plot
-anp.seeding.plot <- anp.seeding.pred.df |>
+anp.seeding.plot <- anp.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -574,7 +529,8 @@ anp.seeding.comp <- avg_comparisons(
   model = anp.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 4, .before = term)
 anp.seeding.comp
 
 
@@ -676,24 +632,12 @@ anp.soil.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 5, .before = trt_control)
 anp.soil.disturbance.pred
 
-#   Table version
-anp.soil.disturbance.pred.df <- plot_predictions(
-  anp.soil.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Soil Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-anp.soil.disturbance.pred.df
-
 # Plot
-anp.soil.disturbance.plot <- anp.soil.disturbance.pred.df |>
+anp.soil.disturbance.plot <- anp.soil.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -709,7 +653,8 @@ anp.soil.disturbance.comp <- avg_comparisons(
   model = anp.soil.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 5, .before = term)
 anp.soil.disturbance.comp
 
 
@@ -814,24 +759,12 @@ bm.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 6, .before = trt_control)
 bm.herbicide.pred
 
-#   Table version
-bm.herbicide.pred.df <- plot_predictions(
-  bm.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-bm.herbicide.pred.df
-
 # Plot
-bm.herbicide.plot <- bm.herbicide.pred.df |>
+bm.herbicide.plot <- bm.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -847,7 +780,8 @@ bm.herbicide.comp <- avg_comparisons(
   model = bm.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 6, .before = term)
 bm.herbicide.comp
 
 
@@ -949,24 +883,12 @@ bm.veg.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 7, .before = trt_control)
 bm.veg.disturbance.pred
 
-#   Table version
-bm.veg.disturbance.pred.df <- plot_predictions(
-  bm.veg.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-bm.veg.disturbance.pred.df
-
 # Plot
-bm.veg.disturbance.plot <- bm.veg.disturbance.pred.df |>
+bm.veg.disturbance.plot <- bm.veg.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -982,7 +904,8 @@ bm.veg.disturbance.comp <- avg_comparisons(
   model = bm.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 7, .before = term)
 bm.veg.disturbance.comp
 
 
@@ -1084,24 +1007,12 @@ bm.pb.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 8, .before = trt_control)
 bm.pb.herbicide.pred
 
-#   Table version
-bm.pb.herbicide.pred.df <- plot_predictions(
-  bm.pb.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-bm.pb.herbicide.pred.df
-
 # Plot
-bm.pb.herbicide.plot <- bm.pb.herbicide.pred.df |>
+bm.pb.herbicide.plot <- bm.pb.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1117,7 +1028,8 @@ bm.pb.herbicide.comp <- avg_comparisons(
   model = bm.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 8, .before = term)
 bm.pb.herbicide.comp
 
 
@@ -1222,24 +1134,12 @@ cbr.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 9, .before = trt_control)
 cbr.aerial.seeding.pred
 
-#   Table version
-cbr.aerial.seeding.pred.df <- plot_predictions(
-  cbr.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.aerial.seeding.pred.df
-
 # Plot
-cbr.aerial.seeding.plot <- cbr.aerial.seeding.pred.df |>
+cbr.aerial.seeding.plot <- cbr.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1255,7 +1155,8 @@ cbr.aerial.seeding.comp <- avg_comparisons(
   model = cbr.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 9, .before = term)
 cbr.aerial.seeding.comp
 
 
@@ -1357,24 +1258,12 @@ cbr.drill.soil.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 10, .before = trt_control)
 cbr.drill.soil.pred
 
-#   Table version
-cbr.drill.soil.pred.df <- plot_predictions(
-  cbr.drill.soil.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.drill.soil.pred.df
-
 # Plot
-cbr.drill.soil.plot <- cbr.drill.soil.pred.df |>
+cbr.drill.soil.plot <- cbr.drill.soil.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1390,7 +1279,8 @@ cbr.drill.soil.comp <- avg_comparisons(
   model = cbr.drill.soil.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 10, .before = term)
 cbr.drill.soil.comp
 
 
@@ -1492,24 +1382,12 @@ cbr.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 11, .before = trt_control)
 cbr.prescribed.burn.pred
 
-#   Table version
-cbr.prescribed.burn.pred.df <- plot_predictions(
-  cbr.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.prescribed.burn.pred.df
-
 # Plot
-cbr.prescribed.burn.plot <- cbr.prescribed.burn.pred.df |>
+cbr.prescribed.burn.plot <- cbr.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1525,7 +1403,8 @@ cbr.prescribed.burn.comp <- avg_comparisons(
   model = cbr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 11, .before = term)
 cbr.prescribed.burn.comp
 
 
@@ -1627,24 +1506,12 @@ cbr.veg.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 12, .before = trt_control)
 cbr.veg.disturbance.pred
 
-#   Table version
-cbr.veg.disturbance.pred.df <- plot_predictions(
-  cbr.veg.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.veg.disturbance.pred.df
-
 # Plot
-cbr.veg.disturbance.plot <- cbr.veg.disturbance.pred.df |>
+cbr.veg.disturbance.plot <- cbr.veg.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1660,7 +1527,8 @@ cbr.veg.disturbance.comp <- avg_comparisons(
   model = cbr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 12, .before = term)
 cbr.veg.disturbance.comp
 
 
@@ -1762,24 +1630,12 @@ cbr.pb.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 13, .before = trt_control)
 cbr.pb.aerial.seeding.pred
 
-#   Table version
-cbr.pb.aerial.seeding.pred.df <- plot_predictions(
-  cbr.pb.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.pb.aerial.seeding.pred.df
-
 # Plot
-cbr.pb.aerial.seeding.plot <- cbr.pb.aerial.seeding.pred.df |>
+cbr.pb.aerial.seeding.plot <- cbr.pb.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1795,7 +1651,8 @@ cbr.pb.aerial.seeding.comp <- avg_comparisons(
   model = cbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 13, .before = term)
 cbr.pb.aerial.seeding.comp
 
 
@@ -1897,24 +1754,12 @@ cbr.pb.drill.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 14, .before = trt_control)
 cbr.pb.drill.seeding.pred
 
-#   Table version
-cbr.pb.drill.seeding.pred.df <- plot_predictions(
-  cbr.pb.drill.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.pb.drill.seeding.pred.df
-
 # Plot
-cbr.pb.drill.seeding.plot <- cbr.pb.drill.seeding.pred.df |>
+cbr.pb.drill.seeding.plot <- cbr.pb.drill.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -1930,7 +1775,8 @@ cbr.pb.drill.seeding.comp <- avg_comparisons(
   model = cbr.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 14, .before = term)
 cbr.pb.drill.seeding.comp
 
 
@@ -2032,24 +1878,12 @@ cbr.pb.ground.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 15, .before = trt_control)
 cbr.pb.ground.seeding.pred
 
-#   Table version
-cbr.pb.ground.seeding.pred.df <- plot_predictions(
-  cbr.pb.ground.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Ground Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.pb.ground.seeding.pred.df
-
 # Plot
-cbr.pb.ground.seeding.plot <- cbr.pb.ground.seeding.pred.df |>
+cbr.pb.ground.seeding.plot <- cbr.pb.ground.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2065,7 +1899,8 @@ cbr.pb.ground.seeding.comp <- avg_comparisons(
   model = cbr.pb.ground.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 15, .before = term)
 cbr.pb.ground.seeding.comp
 
 
@@ -2167,24 +2002,12 @@ cbr.pb.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 16, .before = trt_control)
 cbr.pb.herbicide.pred
 
-#   Table version
-cbr.pb.herbicide.pred.df <- plot_predictions(
-  cbr.pb.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cbr.pb.herbicide.pred.df
-
 # Plot
-cbr.pb.herbicide.plot <- cbr.pb.herbicide.pred.df |>
+cbr.pb.herbicide.plot <- cbr.pb.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2200,7 +2023,8 @@ cbr.pb.herbicide.comp <- avg_comparisons(
   model = cbr.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |>
+  mutate(Model = 16, .before = term)
 cbr.pb.herbicide.comp
 
 
@@ -2305,24 +2129,12 @@ cd.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 17, .before = trt_control)
 cd.herbicide.pred
 
-#   Table version
-cd.herbicide.pred.df <- plot_predictions(
-  cd.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cd.herbicide.pred.df
-
 # Plot
-cd.herbicide.plot <- cd.herbicide.pred.df |>
+cd.herbicide.plot <- cd.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2338,7 +2150,8 @@ cd.herbicide.comp <- avg_comparisons(
   model = cd.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 17, .before = term)
 cd.herbicide.comp
 
 
@@ -2443,24 +2256,12 @@ cp.aerial.soil.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 18, .before = trt_control)
 cp.aerial.soil.pred
 
-#   Table version
-cp.aerial.soil.pred.df <- plot_predictions(
-  cp.aerial.soil.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.aerial.soil.pred.df
-
 # Plot
-cp.aerial.soil.plot <- cp.aerial.soil.pred.df |>
+cp.aerial.soil.plot <- cp.aerial.soil.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2476,7 +2277,8 @@ cp.aerial.soil.comp <- avg_comparisons(
   model = cp.aerial.soil.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 18, .before = term)
 cp.aerial.soil.comp
 
 
@@ -2578,24 +2380,12 @@ cp.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 19, .before = trt_control)
 cp.herbicide.pred
 
-#   Table version
-cp.herbicide.pred.df <- plot_predictions(
-  cp.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.herbicide.pred.df
-
 # Plot
-cp.herbicide.plot <- cp.herbicide.pred.df |>
+cp.herbicide.plot <- cp.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2611,7 +2401,8 @@ cp.herbicide.comp <- avg_comparisons(
   model = cp.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 19, .before = term)
 cp.herbicide.comp
 
 
@@ -2713,24 +2504,12 @@ cp.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 20, .before = trt_control)
 cp.prescribed.burn.pred
 
-#   Table version
-cp.prescribed.burn.pred.df <- plot_predictions(
-  cp.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.prescribed.burn.pred.df
-
 # Plot
-cp.prescribed.burn.plot <- cp.prescribed.burn.pred.df |>
+cp.prescribed.burn.plot <- cp.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2746,7 +2525,8 @@ cp.prescribed.burn.comp <- avg_comparisons(
   model = cp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 20, .before = term)
 cp.prescribed.burn.comp
 
 
@@ -2848,24 +2628,12 @@ cp.soil.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 21, .before = trt_control)
 cp.soil.disturbance.pred
 
-#   Table version
-cp.soil.disturbance.pred.df <- plot_predictions(
-  cp.soil.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Soil Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.soil.disturbance.pred.df
-
 # Plot
-cp.soil.disturbance.plot <- cp.soil.disturbance.pred.df |>
+cp.soil.disturbance.plot <- cp.soil.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -2881,7 +2649,8 @@ cp.soil.disturbance.comp <- avg_comparisons(
   model = cp.soil.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 21, .before = term)
 cp.soil.disturbance.comp
 
 
@@ -2983,24 +2752,12 @@ cp.veg.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 22, .before = trt_control)
 cp.veg.disturbance.pred
 
-#   Table version
-cp.veg.disturbance.pred.df <- plot_predictions(
-  cp.veg.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.veg.disturbance.pred.df
-
 # Plot
-cp.veg.disturbance.plot <- cp.veg.disturbance.pred.df |>
+cp.veg.disturbance.plot <- cp.veg.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3016,7 +2773,8 @@ cp.veg.disturbance.comp <- avg_comparisons(
   model = cp.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 22, .before = term)
 cp.veg.disturbance.comp
 
 
@@ -3118,24 +2876,12 @@ cp.pb.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 23, .before = trt_control)
 cp.pb.aerial.seeding.pred
 
-#   Table version
-cp.pb.aerial.seeding.pred.df <- plot_predictions(
-  cp.pb.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-cp.pb.aerial.seeding.pred.df
-
 # Plot
-cp.pb.aerial.seeding.plot <- cp.pb.aerial.seeding.pred.df |>
+cp.pb.aerial.seeding.plot <- cp.pb.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3151,7 +2897,8 @@ cp.pb.aerial.seeding.comp <- avg_comparisons(
   model = cp.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 23, .before = term)
 cp.pb.aerial.seeding.comp
 
 
@@ -3256,24 +3003,12 @@ mr.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 24, .before = trt_control)
 mr.herbicide.pred
 
-#   Table version
-mr.herbicide.pred.df <- plot_predictions(
-  mr.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-mr.herbicide.pred.df
-
 # Plot
-mr.herbicide.plot <- mr.herbicide.pred.df |>
+mr.herbicide.plot <- mr.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3289,7 +3024,8 @@ mr.herbicide.comp <- avg_comparisons(
   model = mr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 24, .before = term)
 mr.herbicide.comp
 
 
@@ -3394,24 +3130,12 @@ mbr.pb.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 25, .before = trt_control)
 mbr.pb.aerial.seeding.pred
 
-#   Table version
-mbr.pb.aerial.seeding.pred.df <- plot_predictions(
-  mbr.pb.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-mbr.pb.aerial.seeding.pred.df
-
 # Plot
-mbr.pb.aerial.seeding.plot <- mbr.pb.aerial.seeding.pred.df |>
+mbr.pb.aerial.seeding.plot <- mbr.pb.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3427,7 +3151,8 @@ mbr.pb.aerial.seeding.comp <- avg_comparisons(
   model = mbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 25, .before = term)
 mbr.pb.aerial.seeding.comp
 
 
@@ -3532,24 +3257,12 @@ nbr.drill.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 26, .before = trt_control)
 nbr.drill.seeding.pred
 
-#   Table version
-nbr.drill.seeding.pred.df <- plot_predictions(
-  nbr.drill.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.drill.seeding.pred.df
-
 # Plot
-nbr.drill.seeding.plot <- nbr.drill.seeding.pred.df |>
+nbr.drill.seeding.plot <- nbr.drill.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3565,7 +3278,8 @@ nbr.drill.seeding.comp <- avg_comparisons(
   model = nbr.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 26, .before = term)
 nbr.drill.seeding.comp
 
 
@@ -3667,24 +3381,12 @@ nbr.drill.soil.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 27, .before = trt_control)
 nbr.drill.soil.pred
 
-#   Table version
-nbr.drill.soil.pred.df <- plot_predictions(
-  nbr.drill.soil.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding, Soil Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.drill.soil.pred.df
-
 # Plot
-nbr.drill.soil.plot <- nbr.drill.soil.pred.df |>
+nbr.drill.soil.plot <- nbr.drill.soil.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3700,7 +3402,8 @@ nbr.drill.soil.comp <- avg_comparisons(
   model = nbr.drill.soil.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 27, .before = term)
 nbr.drill.soil.comp
 
 
@@ -3802,24 +3505,12 @@ nbr.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 28, .before = trt_control)
 nbr.herbicide.pred
 
-#   Table version
-nbr.herbicide.pred.df <- plot_predictions(
-  nbr.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.herbicide.pred.df
-
 # Plot
-nbr.herbicide.plot <- nbr.herbicide.pred.df |>
+nbr.herbicide.plot <- nbr.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3835,7 +3526,8 @@ nbr.herbicide.comp <- avg_comparisons(
   model = nbr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 28, .before = term)
 nbr.herbicide.comp
 
 
@@ -3937,24 +3629,12 @@ nbr.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 29, .before = trt_control)
 nbr.prescribed.burn.pred
 
-#   Table version
-nbr.prescribed.burn.pred.df <- plot_predictions(
-  nbr.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.prescribed.burn.pred.df
-
 # Plot
-nbr.prescribed.burn.plot <- nbr.prescribed.burn.pred.df |>
+nbr.prescribed.burn.plot <- nbr.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -3970,7 +3650,8 @@ nbr.prescribed.burn.comp <- avg_comparisons(
   model = nbr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 29, .before = term)
 nbr.prescribed.burn.comp
 
 
@@ -4072,24 +3753,12 @@ nbr.veg.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 30, .before = trt_control)
 nbr.veg.disturbance.pred
 
-#   Table version
-nbr.veg.disturbance.pred.df <- plot_predictions(
-  nbr.veg.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.veg.disturbance.pred.df
-
 # Plot
-nbr.veg.disturbance.plot <- nbr.veg.disturbance.pred.df |>
+nbr.veg.disturbance.plot <- nbr.veg.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4105,7 +3774,8 @@ nbr.veg.disturbance.comp <- avg_comparisons(
   model = nbr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 30, .before = term)
 nbr.veg.disturbance.comp
 
 
@@ -4207,24 +3877,12 @@ nbr.pb.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 31, .before = trt_control)
 nbr.pb.aerial.seeding.pred
 
-#   Table version
-nbr.pb.aerial.seeding.pred.df <- plot_predictions(
-  nbr.pb.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.aerial.seeding.pred.df
-
 # Plot
-nbr.pb.aerial.seeding.plot <- nbr.pb.aerial.seeding.pred.df |>
+nbr.pb.aerial.seeding.plot <- nbr.pb.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4240,7 +3898,8 @@ nbr.pb.aerial.seeding.comp <- avg_comparisons(
   model = nbr.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 31, .before = term)
 nbr.pb.aerial.seeding.comp
 
 
@@ -4342,24 +4001,12 @@ nbr.pb.aerial.drill.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 32, .before = trt_control)
 nbr.pb.aerial.drill.pred
 
-#   Table version
-nbr.pb.aerial.drill.pred.df <- plot_predictions(
-  nbr.pb.aerial.drill.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding, Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.aerial.drill.pred.df
-
 # Plot
-nbr.pb.aerial.drill.plot <- nbr.pb.aerial.drill.pred.df |>
+nbr.pb.aerial.drill.plot <- nbr.pb.aerial.drill.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4375,7 +4022,8 @@ nbr.pb.aerial.drill.comp <- avg_comparisons(
   model = nbr.pb.aerial.drill.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 32, .before = term)
 nbr.pb.aerial.drill.comp
 
 
@@ -4477,24 +4125,12 @@ nbr.pb.closure.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 33, .before = trt_control)
 nbr.pb.closure.pred
 
-#   Table version
-nbr.pb.closure.pred.df <- plot_predictions(
-  nbr.pb.closure.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Closure"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.closure.pred.df
-
 # Plot
-nbr.pb.closure.plot <- nbr.pb.closure.pred.df |>
+nbr.pb.closure.plot <- nbr.pb.closure.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4510,7 +4146,8 @@ nbr.pb.closure.comp <- avg_comparisons(
   model = nbr.pb.closure.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 33, .before = term)
 nbr.pb.closure.comp
 
 
@@ -4612,24 +4249,12 @@ nbr.pb.drill.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 34, .before = trt_control)
 nbr.pb.drill.seeding.pred
 
-#   Table version
-nbr.pb.drill.seeding.pred.df <- plot_predictions(
-  nbr.pb.drill.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.drill.seeding.pred.df
-
 # Plot
-nbr.pb.drill.seeding.plot <- nbr.pb.drill.seeding.pred.df |>
+nbr.pb.drill.seeding.plot <- nbr.pb.drill.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4645,7 +4270,8 @@ nbr.pb.drill.seeding.comp <- avg_comparisons(
   model = nbr.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 34, .before = term)
 nbr.pb.drill.seeding.comp
 
 
@@ -4747,24 +4373,12 @@ nbr.pb.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 35, .before = trt_control)
 nbr.pb.herbicide.pred
 
-#   Table version
-nbr.pb.herbicide.pred.df <- plot_predictions(
-  nbr.pb.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.herbicide.pred.df
-
 # Plot
-nbr.pb.herbicide.plot <- nbr.pb.herbicide.pred.df |>
+nbr.pb.herbicide.plot <- nbr.pb.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4780,7 +4394,8 @@ nbr.pb.herbicide.comp <- avg_comparisons(
   model = nbr.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 35, .before = term)
 nbr.pb.herbicide.comp
 
 
@@ -4882,24 +4497,12 @@ nbr.pb.seedling.planting.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 36, .before = trt_control)
 nbr.pb.seedling.planting.pred
 
-#   Table version
-nbr.pb.seedling.planting.pred.df <- plot_predictions(
-  nbr.pb.seedling.planting.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Seedling Planting"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-nbr.pb.seedling.planting.pred.df
-
 # Plot
-nbr.pb.seedling.planting.plot <- nbr.pb.seedling.planting.pred.df |>
+nbr.pb.seedling.planting.plot <- nbr.pb.seedling.planting.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -4915,7 +4518,8 @@ nbr.pb.seedling.planting.comp <- avg_comparisons(
   model = nbr.pb.seedling.planting.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 36, .before = term)
 nbr.pb.seedling.planting.comp
 
 
@@ -5020,24 +4624,12 @@ ngp.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 37, .before = trt_control)
 ngp.prescribed.burn.pred
 
-#   Table version
-ngp.prescribed.burn.pred.df <- plot_predictions(
-  ngp.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-ngp.prescribed.burn.pred.df
-
 # Plot
-ngp.prescribed.burn.plot <- ngp.prescribed.burn.pred.df |>
+ngp.prescribed.burn.plot <- ngp.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5053,7 +4645,8 @@ ngp.prescribed.burn.comp <- avg_comparisons(
   model = ngp.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 37, .before = term)
 ngp.prescribed.burn.comp
 
 
@@ -5158,24 +4751,12 @@ srp.pb.aerial.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 38, .before = trt_control)
 srp.pb.aerial.seeding.pred
 
-#   Table version
-srp.pb.aerial.seeding.pred.df <- plot_predictions(
-  srp.pb.aerial.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-srp.pb.aerial.seeding.pred.df
-
 # Plot
-srp.pb.aerial.seeding.plot <- srp.pb.aerial.seeding.pred.df |>
+srp.pb.aerial.seeding.plot <- srp.pb.aerial.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5191,7 +4772,8 @@ srp.pb.aerial.seeding.comp <- avg_comparisons(
   model = srp.pb.aerial.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 38, .before = term)
 srp.pb.aerial.seeding.comp
 
 
@@ -5293,24 +4875,12 @@ srp.pb.aerial.drill.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 39, .before = trt_control)
 srp.pb.aerial.drill.pred
 
-#   Table version
-srp.pb.aerial.drill.pred.df <- plot_predictions(
-  srp.pb.aerial.drill.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Aerial Seeding, Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-srp.pb.aerial.drill.pred.df
-
 # Plot
-srp.pb.aerial.drill.plot <- srp.pb.aerial.drill.pred.df |>
+srp.pb.aerial.drill.plot <- srp.pb.aerial.drill.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5326,7 +4896,8 @@ srp.pb.aerial.drill.comp <- avg_comparisons(
   model = srp.pb.aerial.drill.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 39, .before = term)
 srp.pb.aerial.drill.comp
 
 
@@ -5428,24 +4999,12 @@ srp.pb.closure.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 40, .before = trt_control)
 srp.pb.closure.pred
 
-#   Table version
-srp.pb.closure.pred.df <- plot_predictions(
-  srp.pb.closure.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Closure"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-srp.pb.closure.pred.df
-
 # Plot
-srp.pb.closure.plot <- srp.pb.closure.pred.df |>
+srp.pb.closure.plot <- srp.pb.closure.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5461,7 +5020,8 @@ srp.pb.closure.comp <- avg_comparisons(
   model = srp.pb.closure.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 40, .before = term)
 srp.pb.closure.comp
 
 
@@ -5563,24 +5123,12 @@ srp.pb.drill.seeding.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 41, .before = trt_control)
 srp.pb.drill.seeding.pred
 
-#   Table version
-srp.pb.drill.seeding.pred.df <- plot_predictions(
-  srp.pb.drill.seeding.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Drill Seeding"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-srp.pb.drill.seeding.pred.df
-
 # Plot
-srp.pb.drill.seeding.plot <- srp.pb.drill.seeding.pred.df |>
+srp.pb.drill.seeding.plot <- srp.pb.drill.seeding.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5596,7 +5144,8 @@ srp.pb.drill.seeding.comp <- avg_comparisons(
   model = srp.pb.drill.seeding.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 41, .before = term)
 srp.pb.drill.seeding.comp
 
 
@@ -5698,24 +5247,12 @@ srp.pb.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 42, .before = trt_control)
 srp.pb.herbicide.pred
 
-#   Table version
-srp.pb.herbicide.pred.df <- plot_predictions(
-  srp.pb.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-srp.pb.herbicide.pred.df
-
 # Plot
-srp.pb.herbicide.plot <- srp.pb.herbicide.pred.df |>
+srp.pb.herbicide.plot <- srp.pb.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5731,7 +5268,8 @@ srp.pb.herbicide.comp <- avg_comparisons(
   model = srp.pb.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 42, .before = term)
 srp.pb.herbicide.comp
 
 
@@ -5836,24 +5374,12 @@ sr.herbicide.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 43, .before = trt_control)
 sr.herbicide.pred
 
-#   Table version
-sr.herbicide.pred.df <- plot_predictions(
-  sr.herbicide.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Herbicide"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-sr.herbicide.pred.df
-
 # Plot
-sr.herbicide.plot <- sr.herbicide.pred.df |>
+sr.herbicide.plot <- sr.herbicide.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -5869,7 +5395,8 @@ sr.herbicide.comp <- avg_comparisons(
   model = sr.herbicide.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 43, .before = term)
 sr.herbicide.comp
 
 
@@ -5971,24 +5498,12 @@ sr.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 44, .before = trt_control)
 sr.prescribed.burn.pred
 
-#   Table version
-sr.prescribed.burn.pred.df <- plot_predictions(
-  sr.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-sr.prescribed.burn.pred.df
-
 # Plot
-sr.prescribed.burn.plot <- sr.prescribed.burn.pred.df |>
+sr.prescribed.burn.plot <- sr.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -6004,7 +5519,8 @@ sr.prescribed.burn.comp <- avg_comparisons(
   model = sr.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 44, .before = term)
 sr.prescribed.burn.comp
 
 
@@ -6106,24 +5622,12 @@ sr.veg.disturbance.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 45, .before = trt_control)
 sr.veg.disturbance.pred
 
-#   Table version
-sr.veg.disturbance.pred.df <- plot_predictions(
-  sr.veg.disturbance.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Vegetation Disturbance"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-sr.veg.disturbance.pred.df
-
 # Plot
-sr.veg.disturbance.plot <- sr.veg.disturbance.pred.df |>
+sr.veg.disturbance.plot <- sr.veg.disturbance.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -6139,7 +5643,8 @@ sr.veg.disturbance.comp <- avg_comparisons(
   model = sr.veg.disturbance.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 45, .before = term)
 sr.veg.disturbance.comp
 
 
@@ -6244,24 +5749,12 @@ wb.prescribed.burn.pred <- avg_predictions(
   variables = "trt_control",
   vcov = ~subclass,
   by = "trt_control"
-)
+) |> 
+  mutate(Model = 46, .before = trt_control)
 wb.prescribed.burn.pred
 
-#   Table version
-wb.prescribed.burn.pred.df <- plot_predictions(
-  wb.prescribed.burn.lm,
-  by = "trt_control",
-  newdata = datagrid(
-    trt_control = c("Not Treated", "Prescribed Burn"),
-    grid_type = "counterfactual"
-  ),
-  draw = FALSE,
-  vcov = ~subclass
-)
-wb.prescribed.burn.pred.df
-
 # Plot
-wb.prescribed.burn.plot <- wb.prescribed.burn.pred.df |>
+wb.prescribed.burn.plot <- wb.prescribed.burn.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
   geom_point(
     shape = 18,
@@ -6277,7 +5770,8 @@ wb.prescribed.burn.comp <- avg_comparisons(
   model = wb.prescribed.burn.lm,
   variables = "trt_control",
   vcov = ~subclass
-)
+) |> 
+  mutate(Model = 46, .before = term)
 wb.prescribed.burn.comp
 
 
