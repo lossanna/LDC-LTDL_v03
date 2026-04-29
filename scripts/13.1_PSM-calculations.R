@@ -61,7 +61,8 @@ summary(anm.prescribed.burn.psm) # 30 treated matched
 
 
 # Diagnostic love plot
-love.plot(anm.prescribed.burn.psm, stars = "std") +
+love.plot(anm.prescribed.burn.psm, stars = "std",
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "AZ/NM Mt: Prescribed Burn")
 
 # eCDF plots
@@ -198,7 +199,8 @@ summary(anp.herbicide.psm) # 49 treated matched
 
 
 # Diagnostic love plot
-love.plot(anp.herbicide.psm, stars = "std") +
+love.plot(anp.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "AZ/NM Plateau: Herbicide")
 
 # eCDF plots
@@ -332,7 +334,8 @@ summary(anp.prescribed.burn.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(anp.prescribed.burn.psm, stars = "std") +
+love.plot(anp.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "AZ/NM Plateau: Prescribed Burn")
 
 # eCDF plots
@@ -466,7 +469,8 @@ summary(anp.seeding.psm) # 34 treated matched
 
 
 # Diagnostic love plot
-love.plot(anp.seeding.psm, stars = "std") +
+love.plot(anp.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "AZ/NM Plateau: Seeding")
 
 # eCDF plots
@@ -600,7 +604,8 @@ summary(anp.soil.disturbance.psm) # 41 treated matched
 
 
 # Diagnostic love plot
-love.plot(anp.soil.disturbance.psm, stars = "std") +
+love.plot(anp.soil.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "AZ/NM Plateau: Soil Disturbance")
 
 # eCDF plots
@@ -737,7 +742,8 @@ summary(bm.herbicide.psm) # 96 treated matched
 
 
 # Diagnostic love plot
-love.plot(bm.herbicide.psm, stars = "std") +
+love.plot(bm.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Blue Mountains: Herbicide")
 
 # eCDF plots
@@ -871,7 +877,8 @@ summary(bm.veg.disturbance.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(bm.veg.disturbance.psm, stars = "std") +
+love.plot(bm.veg.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Blue Mountains: Vegetation Disturbance")
 
 # eCDF plots
@@ -1005,7 +1012,8 @@ summary(bm.pb.herbicide.psm) # 42 treated matched
 
 
 # Diagnostic love plot
-love.plot(bm.pb.herbicide.psm, stars = "std") +
+love.plot(bm.pb.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Blue Mountains: Herbicide")
 
 # eCDF plots
@@ -1142,7 +1150,8 @@ summary(cbr.aerial.seeding.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.aerial.seeding.psm, stars = "std") +
+love.plot(cbr.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Aerial seeding")
 
 # eCDF plots
@@ -1276,7 +1285,8 @@ summary(cbr.drill.soil.psm) # 36 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.drill.soil.psm, stars = "std") +
+love.plot(cbr.drill.soil.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Drill Seeding, Soil Disturbance")
 
 # eCDF plots
@@ -1410,7 +1420,8 @@ summary(cbr.prescribed.burn.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.prescribed.burn.psm, stars = "std") +
+love.plot(cbr.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Prescribed Burn")
 
 # eCDF plots
@@ -1544,7 +1555,8 @@ summary(cbr.veg.disturbance.psm) # 99 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.veg.disturbance.psm, stars = "std") +
+love.plot(cbr.veg.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Vegetation Disturbance")
 
 # eCDF plots
@@ -1678,7 +1690,8 @@ summary(cbr.pb.aerial.seeding.psm) # 345 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.pb.aerial.seeding.psm, stars = "std") +
+love.plot(cbr.pb.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Post-burn Aerial seeding")
 
 # eCDF plots
@@ -1812,7 +1825,8 @@ summary(cbr.pb.drill.seeding.psm) # 88 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.pb.drill.seeding.psm, stars = "std") +
+love.plot(cbr.pb.drill.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Post-burn Drill seeding")
 
 # eCDF plots
@@ -1946,7 +1960,8 @@ summary(cbr.pb.ground.seeding.psm) # 38 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.pb.ground.seeding.psm, stars = "std") +
+love.plot(cbr.pb.ground.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Post-burn Ground seeding")
 
 # eCDF plots
@@ -2080,7 +2095,8 @@ summary(cbr.pb.herbicide.psm) # 80 treated matched
 
 
 # Diagnostic love plot
-love.plot(cbr.pb.herbicide.psm, stars = "std") +
+love.plot(cbr.pb.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CBR: Post-burn Herbicide")
 
 # eCDF plots
@@ -2217,7 +2233,8 @@ summary(cd.herbicide.psm) # 64 treated matched
 
 
 # Diagnostic love plot
-love.plot(cd.herbicide.psm, stars = "std") +
+love.plot(cd.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Chihuahuan: Herbicide")
 
 # eCDF plots
@@ -2354,7 +2371,8 @@ summary(cp.aerial.soil.psm) # 60 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.aerial.soil.psm, stars = "std") +
+love.plot(cp.aerial.soil.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Aerial Seeding, Soil Disturbance")
 
 # eCDF plots
@@ -2488,7 +2506,8 @@ summary(cp.herbicide.psm) # 47 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.herbicide.psm, stars = "std") +
+love.plot(cp.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Herbicide")
 
 # eCDF plots
@@ -2622,7 +2641,8 @@ summary(cp.prescribed.burn.psm) # 76 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.prescribed.burn.psm, stars = "std") +
+love.plot(cp.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Prescribed Burn")
 
 # eCDF plots
@@ -2756,7 +2776,8 @@ summary(cp.soil.disturbance.psm) # 40 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.soil.disturbance.psm, stars = "std") +
+love.plot(cp.soil.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Soil Disturbance")
 
 # eCDF plots
@@ -2890,7 +2911,8 @@ summary(cp.veg.disturbance.psm) # 34 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.veg.disturbance.psm, stars = "std") +
+love.plot(cp.veg.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Vegetation Disturbance")
 
 # eCDF plots
@@ -3024,7 +3046,8 @@ summary(cp.pb.aerial.seeding.psm) # 58 treated matched
 
 
 # Diagnostic love plot
-love.plot(cp.pb.aerial.seeding.psm, stars = "std") +
+love.plot(cp.pb.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "CO Plateaus: Post-burn Aerial Seeding")
 
 # eCDF plots
@@ -3161,7 +3184,8 @@ summary(mr.herbicide.psm) # 33 treated matched
 
 
 # Diagnostic love plot
-love.plot(mr.herbicide.psm, stars = "std") +
+love.plot(mr.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Middle Rockies: Herbicide")
 
 # eCDF plots
@@ -3298,7 +3322,8 @@ summary(mbr.pb.aerial.seeding.psm) # 65 treated matched
 
 
 # Diagnostic love plot
-love.plot(mbr.pb.aerial.seeding.psm, stars = "std") +
+love.plot(mbr.pb.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Mojave: Aerial Seeding")
 
 # eCDF plots
@@ -3435,7 +3460,8 @@ summary(nbr.drill.seeding.psm) # 82 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.drill.seeding.psm, stars = "std") +
+love.plot(nbr.drill.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Drill Seeding")
 
 # eCDF plots
@@ -3569,7 +3595,8 @@ summary(nbr.drill.soil.psm) # 61 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.drill.soil.psm, stars = "std") +
+love.plot(nbr.drill.soil.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Drill Seeding, Soil Disturbance")
 
 # eCDF plots
@@ -3703,7 +3730,8 @@ summary(nbr.herbicide.psm) # 259 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.herbicide.psm, stars = "std") +
+love.plot(nbr.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Herbicide")
 
 # eCDF plots
@@ -3837,7 +3865,8 @@ summary(nbr.prescribed.burn.psm) # 158 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.prescribed.burn.psm, stars = "std") +
+love.plot(nbr.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Prescribed Burn")
 
 # eCDF plots
@@ -3971,7 +4000,8 @@ summary(nbr.veg.disturbance.psm) # 105 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.veg.disturbance.psm, stars = "std") +
+love.plot(nbr.veg.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Vegetation Disturbance")
 
 # eCDF plots
@@ -4105,7 +4135,8 @@ summary(nbr.pb.aerial.seeding.psm) # 542 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.aerial.seeding.psm, stars = "std") +
+love.plot(nbr.pb.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Aerial Seeding")
 
 # eCDF plots
@@ -4239,7 +4270,8 @@ summary(nbr.pb.aerial.drill.psm) # 88 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.aerial.drill.psm, stars = "std") +
+love.plot(nbr.pb.aerial.drill.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Aerial & Drill")
 
 # eCDF plots
@@ -4373,7 +4405,8 @@ summary(nbr.pb.closure.psm) # 151 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.closure.psm, stars = "std") +
+love.plot(nbr.pb.closure.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Closure")
 
 # eCDF plots
@@ -4507,7 +4540,8 @@ summary(nbr.pb.drill.seeding.psm) # 217 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.drill.seeding.psm, stars = "std") +
+love.plot(nbr.pb.drill.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Drill Seeding")
 
 # eCDF plots
@@ -4641,7 +4675,8 @@ summary(nbr.pb.herbicide.psm) # 370 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.herbicide.psm, stars = "std") +
+love.plot(nbr.pb.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Herbicide")
 
 # eCDF plots
@@ -4775,7 +4810,8 @@ summary(nbr.pb.seedling.planting.psm) # 56 treated matched
 
 
 # Diagnostic love plot
-love.plot(nbr.pb.seedling.planting.psm, stars = "std") +
+love.plot(nbr.pb.seedling.planting.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NBR: Post-burn Seedling Planting")
 
 # eCDF plots
@@ -4912,7 +4948,8 @@ summary(ngp.prescribed.burn.psm) # 51 treated matched
 
 
 # Diagnostic love plot
-love.plot(ngp.prescribed.burn.psm, stars = "std") +
+love.plot(ngp.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "NW Great Plains: Prescribed Burn")
 
 # eCDF plots
@@ -5049,7 +5086,8 @@ summary(srp.pb.aerial.seeding.psm) # 153 treated matched
 
 
 # Diagnostic love plot
-love.plot(srp.pb.aerial.seeding.psm, stars = "std") +
+love.plot(srp.pb.aerial.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Snake River: Post-burn Aerial Seeding")
 
 # eCDF plots
@@ -5183,7 +5221,8 @@ summary(srp.pb.aerial.drill.psm) # 77 treated matched
 
 
 # Diagnostic love plot
-love.plot(srp.pb.aerial.drill.psm, stars = "std") +
+love.plot(srp.pb.aerial.drill.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Snake River: Post-burn Aerial & Drill")
 
 # eCDF plots
@@ -5317,7 +5356,8 @@ summary(srp.pb.closure.psm) # 87 treated matched
 
 
 # Diagnostic love plot
-love.plot(srp.pb.closure.psm, stars = "std") +
+love.plot(srp.pb.closure.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Snake River: Post-burn Closure")
 
 # eCDF plots
@@ -5451,7 +5491,8 @@ summary(srp.pb.drill.seeding.psm) # 36 treated matched
 
 
 # Diagnostic love plot
-love.plot(srp.pb.drill.seeding.psm, stars = "std") +
+love.plot(srp.pb.drill.seeding.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Snake River: Post-burn Drill Seeding")
 
 # eCDF plots
@@ -5585,7 +5626,8 @@ summary(srp.pb.herbicide.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(srp.pb.herbicide.psm, stars = "std") +
+love.plot(srp.pb.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Snake River: Post-burn Herbicide")
 
 # eCDF plots
@@ -5722,7 +5764,8 @@ summary(sr.herbicide.psm) # 76 treated matched
 
 
 # Diagnostic love plot
-love.plot(sr.herbicide.psm, stars = "std") +
+love.plot(sr.herbicide.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Southern Rockies: Herbicide")
 
 # eCDF plots
@@ -5856,7 +5899,8 @@ summary(sr.prescribed.burn.psm) # 37 treated matched
 
 
 # Diagnostic love plot
-love.plot(sr.prescribed.burn.psm, stars = "std") +
+love.plot(sr.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Southern Rockies: Prescribed Burn")
 
 # eCDF plots
@@ -5990,7 +6034,8 @@ summary(sr.veg.disturbance.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(sr.veg.disturbance.psm, stars = "std") +
+love.plot(sr.veg.disturbance.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "Southern Rockies: Vegetation Disturbance")
 
 # eCDF plots
@@ -6127,7 +6172,8 @@ summary(wb.prescribed.burn.psm) # 37 treated matched
 
 
 # Diagnostic love plot
-love.plot(wb.prescribed.burn.psm, stars = "std") +
+love.plot(wb.prescribed.burn.psm, stars = "std",           
+          thresholds = c(m = 0.2, v = 2)) +
   labs(title = "WY Basin: Prescribed Burn")
 
 # eCDF plots
