@@ -1,7 +1,7 @@
 # Created: 2026-03-12
 # Updated: 2026-03-12
 
-# Purpose: Create LDC_v001, which is the most recent monitoring instance for each
+# Purpose: Create LDC points v001, which is the most recent monitoring instance for each
 #   unique point in space.
 
 # There are still the same issues with Project v02, where there are 22 points without a date visited,
