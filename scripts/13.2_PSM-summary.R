@@ -200,3 +200,40 @@ love.plot(wb.prescribed.burn.psm, stars = "std",
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "WY Basin: Prescribed Burn") # 46
 
+
+# G computation -----------------------------------------------------------
+
+# Bind rows
+pred.gcomp <- bind_rows(mget(ls(pattern = "\\.pred$")))
+
+# Add other cols
+pred.gcomp <- pred.gcomp |> 
+  left_join(count.table0)
+pred.gcomp <- pred.gcomp[, c(1, 11:13, 2:10)]
+
+# Add significance stars
+pred.gcomp <- pred.gcomp |> 
+  mutate(sig = case_when(
+    p.value < 0.001 ~ "***",
+    p.value < 0.01  ~ "**",
+    p.value < 0.05  ~ "*",
+    TRUE            ~ ""
+  ), .before = s.value)
+
+
+# Average treatment effect ------------------------------------------------
+
+avg.comp <- bind_rows(mget(ls(pattern = "\\.comp$")))
+
+# Add other cols
+avg.comp <- count.table0 |> 
+  left_join(avg.comp)
+
+# Add significance stars
+avg.comp <- avg.comp |> 
+  mutate(sig = case_when(
+    p.value < 0.001 ~ "***",
+    p.value < 0.01  ~ "**",
+    p.value < 0.05  ~ "*",
+    TRUE            ~ ""
+  ), .before = s.value)
