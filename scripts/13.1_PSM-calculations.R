@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-04-29
+# Updated: 2026-05-04
 
 # Purpose: First attempt at propensity score matching
 
@@ -5774,6 +5774,16 @@ wb.prescribed.burn.comp <- avg_comparisons(
   mutate(Model = 46, .before = term)
 wb.prescribed.burn.comp
 
+
+
+# Save matched data -------------------------------------------------------
+
+# Get names of objects ending in ".matched"
+objs <- ls(pattern = "\\.matched$")
+
+# Save them to a file
+save(list = ls(pattern = "\\.matched$"), 
+     file = "RData/13.1_matched-data.RData")
 
 
 save.image("RData/13.1_PSM-calculations.RData")
