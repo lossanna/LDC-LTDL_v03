@@ -9,6 +9,7 @@ library(tidyverse)
 library(MatchIt)
 library(cobalt)
 library(marginaleffects)
+library(ggsignif)
 
 # Load data ---------------------------------------------------------------
 
@@ -517,7 +518,7 @@ model04.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 4, .before = trt_control)
-model04.pred
+model04.pred # Seeding NS (not different from 0)
 
 # Plot
 model04.plot <- model04.pred |>
@@ -656,7 +657,11 @@ model05.plot <- model05.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "5. AZ/NM Plateau: Soil disturbance",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Control", "Soil disturbance")),
+    annotations = c("**")
+  )
 model05.plot
 
 # Estimation of average treatment effect
@@ -666,7 +671,7 @@ model05.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 5, .before = term)
-model05.comp
+model05.comp # p = 0.008
 
 
 
@@ -1279,7 +1284,7 @@ model10.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 10, .before = trt_control)
-model10.pred
+model10.pred # NS for both control & treate (not different from 0)
 
 # Plot
 model10.plot <- model10.pred |>
@@ -1544,7 +1549,11 @@ model12.plot <- model12.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "12. Central BR: Vegetation disturbance",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Control", "Vegetation disturbance")),
+    annotations = c("**")
+  )
 model12.plot
 
 # Estimation of average treatment effect
@@ -1554,7 +1563,7 @@ model12.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 12, .before = term)
-model12.comp
+model12.comp # p = 0.001
 
 
 
@@ -1783,7 +1792,7 @@ model14.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 14, .before = trt_control)
-model14.pred
+model14.pred # Control NS (not different from 0)
 
 # Plot
 model14.plot <- model14.pred |>
@@ -1796,7 +1805,11 @@ model14.plot <- model14.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "14. Central BR: Post-burn drill seeding",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn drill seeding")),
+    annotations = c("**")
+  )
 model14.plot
 
 # Estimation of average treatment effect
@@ -1806,7 +1819,7 @@ model14.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 14, .before = term)
-model14.comp
+model14.comp # p = 0.01
 
 
 
@@ -1909,7 +1922,7 @@ model15.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 15, .before = trt_control)
-model15.pred
+model15.pred # NS for both control & treated (not different from 0)
 
 # Plot
 model15.plot <- model15.pred |>
@@ -2035,7 +2048,7 @@ model16.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 16, .before = trt_control)
-model16.pred
+model16.pred # NS for both control & treated (not different from 0)
 
 # Plot
 model16.plot <- model16.pred |>
@@ -2164,7 +2177,7 @@ model17.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 17, .before = trt_control)
-model17.pred
+model17.pred # Herbicide NS (not different from 0)
 
 # Plot
 model17.plot <- model17.pred |>
@@ -2558,7 +2571,11 @@ model20.plot <- model20.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "20. CO Plateaus: Prescribed burn",
-       x = NULL)
+       x = NULL) + 
+  geom_signif(
+    comparisons = list(c("Control", "Prescribed burn")),
+    annotations = c("*")
+  )
 model20.plot
 
 # Estimation of average treatment effect
@@ -2568,7 +2585,7 @@ model20.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 20, .before = term)
-model20.comp
+model20.comp # p = 0.01
 
 
 
@@ -3194,7 +3211,11 @@ model25.plot <- model25.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "Mojave BR: Post-burn aerial seeding",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn aerial seeding")),
+    annotations = c("**")
+  )
 model25.plot
 
 # Estimation of average treatment effect
@@ -3204,7 +3225,7 @@ model25.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 25, .before = term)
-model25.comp
+model25.comp # p = 0.009
 
 
 
@@ -3827,7 +3848,11 @@ model30.plot <- model30.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "30. Northern BR: Vegetation disturbance",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Control", "Vegetation disturbance")),
+    annotations = c("**")
+  )
 model30.plot
 
 # Estimation of average treatment effect
@@ -3837,7 +3862,7 @@ model30.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 30, .before = term)
-model30.comp
+model30.comp # p = 0.003
 
 
 
@@ -4205,7 +4230,11 @@ model33.plot <- model33.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "33. Northern BR: Post-burn closure",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn closure")),
+    annotations = c("***")
+  )
 model33.plot
 
 # Estimation of average treatment effect
@@ -4215,7 +4244,7 @@ model33.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 33, .before = term)
-model33.comp
+model33.comp # p < 0.001
 
 
 
@@ -4583,7 +4612,11 @@ model36.plot <- model36.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "36. Northern BR: Post-burn seedling planting",
-       x = NULL)
+       x = NULL) + 
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn seedling planting")),
+    annotations = c("*")
+  )
 model36.plot
 
 # Estimation of average treatment effect
@@ -4593,7 +4626,7 @@ model36.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 36, .before = term)
-model36.comp
+model36.comp # p = 0.03
 
 
 
@@ -4712,7 +4745,11 @@ model37.plot <- model37.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "37. NW Great Plains: Prescribed burn",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Control", "Prescribed burn")),
+    annotations = c("***")
+  )
 model37.plot
 
 # Estimation of average treatment effect
@@ -4722,7 +4759,7 @@ model37.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 37, .before = term)
-model37.comp
+model37.comp # p < 0.001
 
 
 
@@ -4841,7 +4878,11 @@ model38.plot <- model38.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "38. Snake River Plain: Post-burn aerial seeding",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn aerial seeding")),
+    annotations = c("**")
+  )
 model38.plot
 
 # Estimation of average treatment effect
@@ -4851,7 +4892,7 @@ model38.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 38, .before = term)
-model38.comp
+model38.comp # p = 0.007
 
 
 
@@ -5046,8 +5087,8 @@ model40.matched <- match_data(model40.psm)
 
 # Create trt_control variable
 model40.matched <- model40.matched |>
-  mutate(trt_control = if_else(trt_binary == 1, "Post-burn closure", "Control")) |>
-  mutate(trt_control = factor(trt_control, levels = c("Control", "Post-burn closure")))
+  mutate(trt_control = if_else(trt_binary == 1, "Post-burn closure", "Post-burn control")) |>
+  mutate(trt_control = factor(trt_control, levels = c("Post-burn control", "Post-burn closure")))
 
 # Center and scale numeric variables
 model40.matched <- model40.matched |>
@@ -5093,7 +5134,11 @@ model40.plot <- model40.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "40. Snake River Plain: Post-burn closure",
-       x = NULL)
+       x = NULL) +
+  geom_signif(
+    comparisons = list(c("Post-burn control", "Post-burn closure")),
+    annotations = c("***")
+  )
 model40.plot
 
 # Estimation of average treatment effect
@@ -5103,7 +5148,7 @@ model40.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 40, .before = term)
-model40.comp
+model40.comp # p < 0.001
 
 
 
@@ -5589,6 +5634,15 @@ model44.pred <- avg_predictions(
   mutate(Model = 44, .before = trt_control)
 model44.pred
 
+# Estimation of average treatment effect
+model44.comp <- avg_comparisons(
+  model = model44.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 44, .before = term)
+model44.comp # p = 0.03
+
 # Plot
 model44.plot <- model44.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5600,17 +5654,12 @@ model44.plot <- model44.pred |>
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   labs(title = "Southern Rockies: Prescribed burn",
-       x = NULL)
+       x = NULL) + 
+  geom_signif(
+    comparisons = list(c("Control", "Prescribed burn")),
+    annotations = c("*")
+  )
 model44.plot
-
-# Estimation of average treatment effect
-model44.comp <- avg_comparisons(
-  model = model44.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 44, .before = term)
-model44.comp
 
 
 
@@ -5917,15 +5966,15 @@ count.table.psm <- count.table0 |>
 ## G computation ----------------------------------------------------------
 
 # Bind rows
-pred.gcomp <- bind_rows(mget(ls(pattern = "\\.pred$")))
+gcomp.pred <- bind_rows(mget(ls(pattern = "\\.pred$")))
 
 # Add other cols
-pred.gcomp <- pred.gcomp |> 
+gcomp.pred <- gcomp.pred |> 
   left_join(count.table0)
-pred.gcomp <- pred.gcomp[, c(1, 11:13, 2:10)]
+gcomp.pred <- gcomp.pred[, c(1, 11:13, 2:10)]
 
 # Add significance stars
-pred.gcomp <- pred.gcomp |> 
+gcomp.pred <- gcomp.pred |> 
   mutate(sig = case_when(
     p.value < 0.001 ~ "***",
     p.value < 0.01  ~ "**",
