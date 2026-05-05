@@ -139,6 +139,15 @@ model01.pred <- avg_predictions(
   mutate(Model = 1, .before = trt_control) 
 model01.pred
 
+# Estimation of average treatment effect
+model01.comp <- avg_comparisons(
+  model = model01.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 1, .before = term) 
+model01.comp
+
 # Plot
 model01.plot <- model01.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -152,15 +161,6 @@ model01.plot <- model01.pred |>
   labs(x = NULL,
        title = "1. AZ/NM Mountains: Prescribed burn")
 model01.plot
-
-# Estimation of average treatment effect
-model01.comp <- avg_comparisons(
-  model = model01.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 1, .before = term) 
-model01.comp
 
 
 
@@ -268,6 +268,15 @@ model02.pred <- avg_predictions(
   mutate(Model = 2, .before = trt_control)
 model02.pred
 
+# Estimation of average treatment effect
+model02.comp <- avg_comparisons(
+  model = model02.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 2, .before = term)
+model02.comp
+
 # Plot
 model02.plot <- model02.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -281,15 +290,6 @@ model02.plot <- model02.pred |>
   labs(x = NULL,
        title = "2. AZ/NM Plateau: Herbicide")
 model02.plot
-
-# Estimation of average treatment effect
-model02.comp <- avg_comparisons(
-  model = model02.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 2, .before = term)
-model02.comp
 
 
 
@@ -394,6 +394,15 @@ model03.pred <- avg_predictions(
   mutate(Model = 3, .before = trt_control)
 model03.pred
 
+# Estimation of average treatment effect
+model03.comp <- avg_comparisons(
+  model = model03.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 3, .before = term)
+model03.comp
+
 # Plot
 model03.plot <- model03.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -407,15 +416,6 @@ model03.plot <- model03.pred |>
   labs(title = "3. AZ/NM Plateau: Prescribed burn",
        x = NULL)
 model03.plot
-
-# Estimation of average treatment effect
-model03.comp <- avg_comparisons(
-  model = model03.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 3, .before = term)
-model03.comp
 
 
 
@@ -520,6 +520,15 @@ model04.pred <- avg_predictions(
   mutate(Model = 4, .before = trt_control)
 model04.pred # Seeding NS (not different from 0)
 
+# Estimation of average treatment effect
+model04.comp <- avg_comparisons(
+  model = model04.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 4, .before = term)
+model04.comp
+
 # Plot
 model04.plot <- model04.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -533,15 +542,6 @@ model04.plot <- model04.pred |>
   labs(title = "4. AZ/NM Plateau: Seeding",
        x = NULL)
 model04.plot
-
-# Estimation of average treatment effect
-model04.comp <- avg_comparisons(
-  model = model04.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 4, .before = term)
-model04.comp
 
 
 
@@ -646,6 +646,15 @@ model05.pred <- avg_predictions(
   mutate(Model = 5, .before = trt_control)
 model05.pred
 
+# Estimation of average treatment effect
+model05.comp <- avg_comparisons(
+  model = model05.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 5, .before = term)
+model05.comp # p = 0.008
+
 # Plot
 model05.plot <- model05.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -663,15 +672,6 @@ model05.plot <- model05.pred |>
     annotations = c("**")
   )
 model05.plot
-
-# Estimation of average treatment effect
-model05.comp <- avg_comparisons(
-  model = model05.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 5, .before = term)
-model05.comp # p = 0.008
 
 
 
@@ -779,6 +779,15 @@ model06.pred <- avg_predictions(
   mutate(Model = 6, .before = trt_control)
 model06.pred
 
+# Estimation of average treatment effect
+model06.comp <- avg_comparisons(
+  model = model06.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 6, .before = term)
+model06.comp
+
 # Plot
 model06.plot <- model06.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -792,15 +801,6 @@ model06.plot <- model06.pred |>
   labs(title = "6. Blue Mountains: Herbicide",
        x = NULL)
 model06.plot
-
-# Estimation of average treatment effect
-model06.comp <- avg_comparisons(
-  model = model06.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 6, .before = term)
-model06.comp
 
 
 
@@ -905,6 +905,15 @@ model07.pred <- avg_predictions(
   mutate(Model = 7, .before = trt_control)
 model07.pred
 
+# Estimation of average treatment effect
+model07.comp <- avg_comparisons(
+  model = model07.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 7, .before = term)
+model07.comp
+
 # Plot
 model07.plot <- model07.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -918,15 +927,6 @@ model07.plot <- model07.pred |>
   labs(title = "7. Blue Mountains: Vegetation disturbance",
        x = NULL)
 model07.plot
-
-# Estimation of average treatment effect
-model07.comp <- avg_comparisons(
-  model = model07.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 7, .before = term)
-model07.comp
 
 
 
@@ -1031,6 +1031,15 @@ model08.pred <- avg_predictions(
   mutate(Model = 8, .before = trt_control)
 model08.pred
 
+# Estimation of average treatment effect
+model08.comp <- avg_comparisons(
+  model = model08.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 8, .before = term)
+model08.comp
+
 # Plot
 model08.plot <- model08.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1044,15 +1053,6 @@ model08.plot <- model08.pred |>
   labs(title = "8. Blue Mountains: Post-burn herbicide",
        x = NULL)
 model08.plot
-
-# Estimation of average treatment effect
-model08.comp <- avg_comparisons(
-  model = model08.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 8, .before = term)
-model08.comp
 
 
 
@@ -1160,6 +1160,15 @@ model09.pred <- avg_predictions(
   mutate(Model = 9, .before = trt_control)
 model09.pred
 
+# Estimation of average treatment effect
+model09.comp <- avg_comparisons(
+  model = model09.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 9, .before = term)
+model09.comp
+
 # Plot
 model09.plot <- model09.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1173,15 +1182,6 @@ model09.plot <- model09.pred |>
   labs(title = "9. Central BR: Aerial seeding",
        x = NULL)
 model09.plot
-
-# Estimation of average treatment effect
-model09.comp <- avg_comparisons(
-  model = model09.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 9, .before = term)
-model09.comp
 
 
 
@@ -1286,6 +1286,15 @@ model10.pred <- avg_predictions(
   mutate(Model = 10, .before = trt_control)
 model10.pred # NS for both control & treate (not different from 0)
 
+# Estimation of average treatment effect
+model10.comp <- avg_comparisons(
+  model = model10.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 10, .before = term)
+model10.comp
+
 # Plot
 model10.plot <- model10.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1299,15 +1308,6 @@ model10.plot <- model10.pred |>
   labs(title = "10. Central BR: Drill seeding & soil disturbance",
        x = NULL)
 model10.plot
-
-# Estimation of average treatment effect
-model10.comp <- avg_comparisons(
-  model = model10.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 10, .before = term)
-model10.comp
 
 
 
@@ -1412,6 +1412,15 @@ model11.pred <- avg_predictions(
   mutate(Model = 11, .before = trt_control)
 model11.pred
 
+# Estimation of average treatment effect
+model11.comp <- avg_comparisons(
+  model = model11.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 11, .before = term)
+model11.comp
+
 # Plot
 model11.plot <- model11.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1425,15 +1434,6 @@ model11.plot <- model11.pred |>
   labs(title = "11. Central BR: Prescribed burn",
        x = NULL)
 model11.plot
-
-# Estimation of average treatment effect
-model11.comp <- avg_comparisons(
-  model = model11.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 11, .before = term)
-model11.comp
 
 
 
@@ -1538,6 +1538,15 @@ model12.pred <- avg_predictions(
   mutate(Model = 12, .before = trt_control)
 model12.pred
 
+# Estimation of average treatment effect
+model12.comp <- avg_comparisons(
+  model = model12.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 12, .before = term)
+model12.comp # p = 0.001
+
 # Plot
 model12.plot <- model12.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1555,15 +1564,6 @@ model12.plot <- model12.pred |>
     annotations = c("**")
   )
 model12.plot
-
-# Estimation of average treatment effect
-model12.comp <- avg_comparisons(
-  model = model12.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 12, .before = term)
-model12.comp # p = 0.001
 
 
 
@@ -1668,6 +1668,15 @@ model13.pred <- avg_predictions(
   mutate(Model = 13, .before = trt_control)
 model13.pred
 
+# Estimation of average treatment effect
+model13.comp <- avg_comparisons(
+  model = model13.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 13, .before = term)
+model13.comp
+
 # Plot
 model13.plot <- model13.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1681,15 +1690,6 @@ model13.plot <- model13.pred |>
   labs(title = "13. Central BR: Post-burn aerial seeding",
        x = NULL)
 model13.plot
-
-# Estimation of average treatment effect
-model13.comp <- avg_comparisons(
-  model = model13.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 13, .before = term)
-model13.comp
 
 
 
@@ -1794,6 +1794,15 @@ model14.pred <- avg_predictions(
   mutate(Model = 14, .before = trt_control)
 model14.pred # Control NS (not different from 0)
 
+# Estimation of average treatment effect
+model14.comp <- avg_comparisons(
+  model = model14.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 14, .before = term)
+model14.comp # p = 0.01
+
 # Plot
 model14.plot <- model14.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1811,15 +1820,6 @@ model14.plot <- model14.pred |>
     annotations = c("**")
   )
 model14.plot
-
-# Estimation of average treatment effect
-model14.comp <- avg_comparisons(
-  model = model14.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 14, .before = term)
-model14.comp # p = 0.01
 
 
 
@@ -1924,6 +1924,15 @@ model15.pred <- avg_predictions(
   mutate(Model = 15, .before = trt_control)
 model15.pred # NS for both control & treated (not different from 0)
 
+# Estimation of average treatment effect
+model15.comp <- avg_comparisons(
+  model = model15.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 15, .before = term)
+model15.comp
+
 # Plot
 model15.plot <- model15.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -1937,15 +1946,6 @@ model15.plot <- model15.pred |>
   labs(title = "15. Central BR: Post-burn ground seeding",
        x = NULL)
 model15.plot
-
-# Estimation of average treatment effect
-model15.comp <- avg_comparisons(
-  model = model15.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 15, .before = term)
-model15.comp
 
 
 
@@ -2050,6 +2050,15 @@ model16.pred <- avg_predictions(
   mutate(Model = 16, .before = trt_control)
 model16.pred # NS for both control & treated (not different from 0)
 
+# Estimation of average treatment effect
+model16.comp <- avg_comparisons(
+  model = model16.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |>
+  mutate(Model = 16, .before = term)
+model16.comp
+
 # Plot
 model16.plot <- model16.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2063,15 +2072,6 @@ model16.plot <- model16.pred |>
   labs(title = "16. Central BR: Post-burn herbicide",
        x = NULL)
 model16.plot
-
-# Estimation of average treatment effect
-model16.comp <- avg_comparisons(
-  model = model16.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |>
-  mutate(Model = 16, .before = term)
-model16.comp
 
 
 
@@ -2179,6 +2179,15 @@ model17.pred <- avg_predictions(
   mutate(Model = 17, .before = trt_control)
 model17.pred # Herbicide NS (not different from 0)
 
+# Estimation of average treatment effect
+model17.comp <- avg_comparisons(
+  model = model17.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 17, .before = term)
+model17.comp
+
 # Plot
 model17.plot <- model17.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2192,15 +2201,6 @@ model17.plot <- model17.pred |>
   labs(title = "17. Chihuahuan Desert: Herbicide",
        x = NULL)
 model17.plot
-
-# Estimation of average treatment effect
-model17.comp <- avg_comparisons(
-  model = model17.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 17, .before = term)
-model17.comp
 
 
 
@@ -2308,6 +2308,15 @@ model18.pred <- avg_predictions(
   mutate(Model = 18, .before = trt_control)
 model18.pred
 
+# Estimation of average treatment effect
+model18.comp <- avg_comparisons(
+  model = model18.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 18, .before = term)
+model18.comp
+
 # Plot
 model18.plot <- model18.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2321,15 +2330,6 @@ model18.plot <- model18.pred |>
   labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance",
        x = NULL)
 model18.plot
-
-# Estimation of average treatment effect
-model18.comp <- avg_comparisons(
-  model = model18.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 18, .before = term)
-model18.comp
 
 
 
@@ -2434,6 +2434,15 @@ model19.pred <- avg_predictions(
   mutate(Model = 19, .before = trt_control)
 model19.pred
 
+# Estimation of average treatment effect
+model19.comp <- avg_comparisons(
+  model = model19.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 19, .before = term)
+model19.comp
+
 # Plot
 model19.plot <- model19.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2447,15 +2456,6 @@ model19.plot <- model19.pred |>
   labs(title = "19. CO Plateaus: Herbicide",
        x = NULL)
 model19.plot
-
-# Estimation of average treatment effect
-model19.comp <- avg_comparisons(
-  model = model19.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 19, .before = term)
-model19.comp
 
 
 
@@ -2560,6 +2560,15 @@ model20.pred <- avg_predictions(
   mutate(Model = 20, .before = trt_control)
 model20.pred
 
+# Estimation of average treatment effect
+model20.comp <- avg_comparisons(
+  model = model20.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 20, .before = term)
+model20.comp # p = 0.01
+
 # Plot
 model20.plot <- model20.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2577,15 +2586,6 @@ model20.plot <- model20.pred |>
     annotations = c("*")
   )
 model20.plot
-
-# Estimation of average treatment effect
-model20.comp <- avg_comparisons(
-  model = model20.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 20, .before = term)
-model20.comp # p = 0.01
 
 
 
@@ -2690,6 +2690,15 @@ model21.pred <- avg_predictions(
   mutate(Model = 21, .before = trt_control)
 model21.pred
 
+# Estimation of average treatment effect
+model21.comp <- avg_comparisons(
+  model = model21.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 21, .before = term)
+model21.comp
+
 # Plot
 model21.plot <- model21.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2703,15 +2712,6 @@ model21.plot <- model21.pred |>
   labs(title = "21. CO Plateaus: Soil disturbance",
        x = NULL)
 model21.plot
-
-# Estimation of average treatment effect
-model21.comp <- avg_comparisons(
-  model = model21.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 21, .before = term)
-model21.comp
 
 
 
@@ -2816,6 +2816,15 @@ model22.pred <- avg_predictions(
   mutate(Model = 22, .before = trt_control)
 model22.pred
 
+# Estimation of average treatment effect
+model22.comp <- avg_comparisons(
+  model = model22.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 22, .before = term)
+model22.comp
+
 # Plot
 model22.plot <- model22.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2829,15 +2838,6 @@ model22.plot <- model22.pred |>
   labs(title = "22. CO Plateaus: Vegetation disturbance",
        x = NULL)
 model22.plot
-
-# Estimation of average treatment effect
-model22.comp <- avg_comparisons(
-  model = model22.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 22, .before = term)
-model22.comp
 
 
 
@@ -2942,6 +2942,15 @@ model23.pred <- avg_predictions(
   mutate(Model = 23, .before = trt_control)
 model23.pred
 
+# Estimation of average treatment effect
+model23.comp <- avg_comparisons(
+  model = model23.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 23, .before = term)
+model23.comp
+
 # Plot
 model23.plot <- model23.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -2955,15 +2964,6 @@ model23.plot <- model23.pred |>
   labs(title = "23. CO Plateaus: Post-burn aerial seeding",
        x = NULL)
 model23.plot
-
-# Estimation of average treatment effect
-model23.comp <- avg_comparisons(
-  model = model23.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 23, .before = term)
-model23.comp
 
 
 
@@ -3071,6 +3071,15 @@ model24.pred <- avg_predictions(
   mutate(Model = 24, .before = trt_control)
 model24.pred
 
+# Estimation of average treatment effect
+model24.comp <- avg_comparisons(
+  model = model24.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 24, .before = term)
+model24.comp
+
 # Plot
 model24.plot <- model24.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3084,15 +3093,6 @@ model24.plot <- model24.pred |>
   labs(title = "24. Middle Rockies: Herbicide",
        x = NULL)
 model24.plot
-
-# Estimation of average treatment effect
-model24.comp <- avg_comparisons(
-  model = model24.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 24, .before = term)
-model24.comp
 
 
 
@@ -3200,6 +3200,15 @@ model25.pred <- avg_predictions(
   mutate(Model = 25, .before = trt_control)
 model25.pred
 
+# Estimation of average treatment effect
+model25.comp <- avg_comparisons(
+  model = model25.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 25, .before = term)
+model25.comp # p = 0.009
+
 # Plot
 model25.plot <- model25.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3217,15 +3226,6 @@ model25.plot <- model25.pred |>
     annotations = c("**")
   )
 model25.plot
-
-# Estimation of average treatment effect
-model25.comp <- avg_comparisons(
-  model = model25.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 25, .before = term)
-model25.comp # p = 0.009
 
 
 
@@ -3333,6 +3333,15 @@ model26.pred <- avg_predictions(
   mutate(Model = 26, .before = trt_control)
 model26.pred
 
+# Estimation of average treatment effect
+model26.comp <- avg_comparisons(
+  model = model26.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 26, .before = term)
+model26.comp
+
 # Plot
 model26.plot <- model26.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3346,15 +3355,6 @@ model26.plot <- model26.pred |>
   labs(title = "26. Northern BR: Drill seeding",
        x = NULL)
 model26.plot
-
-# Estimation of average treatment effect
-model26.comp <- avg_comparisons(
-  model = model26.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 26, .before = term)
-model26.comp
 
 
 
@@ -3459,6 +3459,15 @@ model27.pred <- avg_predictions(
   mutate(Model = 27, .before = trt_control)
 model27.pred
 
+# Estimation of average treatment effect
+model27.comp <- avg_comparisons(
+  model = model27.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 27, .before = term)
+model27.comp
+
 # Plot
 model27.plot <- model27.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3472,15 +3481,6 @@ model27.plot <- model27.pred |>
   labs(title = "27. Northern BR: Drill seeding & soil disturbance",
        x = NULL)
 model27.plot
-
-# Estimation of average treatment effect
-model27.comp <- avg_comparisons(
-  model = model27.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 27, .before = term)
-model27.comp
 
 
 
@@ -3585,6 +3585,15 @@ model28.pred <- avg_predictions(
   mutate(Model = 28, .before = trt_control)
 model28.pred
 
+# Estimation of average treatment effect
+model28.comp <- avg_comparisons(
+  model = model28.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 28, .before = term)
+model28.comp
+
 # Plot
 model28.plot <- model28.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3598,15 +3607,6 @@ model28.plot <- model28.pred |>
   labs(title = "28. Northern BR: Herbicide",
        x = NULL)
 model28.plot
-
-# Estimation of average treatment effect
-model28.comp <- avg_comparisons(
-  model = model28.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 28, .before = term)
-model28.comp
 
 
 
@@ -3711,6 +3711,15 @@ model29.pred <- avg_predictions(
   mutate(Model = 29, .before = trt_control)
 model29.pred
 
+# Estimation of average treatment effect
+model29.comp <- avg_comparisons(
+  model = model29.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 29, .before = term)
+model29.comp
+
 # Plot
 model29.plot <- model29.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3724,15 +3733,6 @@ model29.plot <- model29.pred |>
   labs(title = "29. Northern BR: Prescribed burn",
        x = NULL)
 model29.plot
-
-# Estimation of average treatment effect
-model29.comp <- avg_comparisons(
-  model = model29.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 29, .before = term)
-model29.comp
 
 
 
@@ -3837,6 +3837,15 @@ model30.pred <- avg_predictions(
   mutate(Model = 30, .before = trt_control)
 model30.pred
 
+# Estimation of average treatment effect
+model30.comp <- avg_comparisons(
+  model = model30.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 30, .before = term)
+model30.comp # p = 0.003
+
 # Plot
 model30.plot <- model30.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3854,15 +3863,6 @@ model30.plot <- model30.pred |>
     annotations = c("**")
   )
 model30.plot
-
-# Estimation of average treatment effect
-model30.comp <- avg_comparisons(
-  model = model30.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 30, .before = term)
-model30.comp # p = 0.003
 
 
 
@@ -3967,6 +3967,15 @@ model31.pred <- avg_predictions(
   mutate(Model = 31, .before = trt_control)
 model31.pred
 
+# Estimation of average treatment effect
+model31.comp <- avg_comparisons(
+  model = model31.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 31, .before = term)
+model31.comp
+
 # Plot
 model31.plot <- model31.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -3980,15 +3989,6 @@ model31.plot <- model31.pred |>
   labs(title = "31. Northern BR: Post-burn aerial seeding",
        x = NULL)
 model31.plot
-
-# Estimation of average treatment effect
-model31.comp <- avg_comparisons(
-  model = model31.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 31, .before = term)
-model31.comp
 
 
 
@@ -4093,6 +4093,15 @@ model32.pred <- avg_predictions(
   mutate(Model = 32, .before = trt_control)
 model32.pred
 
+# Estimation of average treatment effect
+model32.comp <- avg_comparisons(
+  model = model32.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 32, .before = term)
+model32.comp
+
 # Plot
 model32.plot <- model32.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4106,15 +4115,6 @@ model32.plot <- model32.pred |>
   labs(title = "32. Northern BR: Post-burn aerial & drill seeding",
        x = NULL)
 model32.plot
-
-# Estimation of average treatment effect
-model32.comp <- avg_comparisons(
-  model = model32.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 32, .before = term)
-model32.comp
 
 
 
@@ -4219,6 +4219,15 @@ model33.pred <- avg_predictions(
   mutate(Model = 33, .before = trt_control)
 model33.pred
 
+# Estimation of average treatment effect
+model33.comp <- avg_comparisons(
+  model = model33.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 33, .before = term)
+model33.comp # p < 0.001
+
 # Plot
 model33.plot <- model33.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4236,15 +4245,6 @@ model33.plot <- model33.pred |>
     annotations = c("***")
   )
 model33.plot
-
-# Estimation of average treatment effect
-model33.comp <- avg_comparisons(
-  model = model33.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 33, .before = term)
-model33.comp # p < 0.001
 
 
 
@@ -4349,6 +4349,15 @@ model34.pred <- avg_predictions(
   mutate(Model = 34, .before = trt_control)
 model34.pred
 
+# Estimation of average treatment effect
+model34.comp <- avg_comparisons(
+  model = model34.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 34, .before = term)
+model34.comp
+
 # Plot
 model34.plot <- model34.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4362,15 +4371,6 @@ model34.plot <- model34.pred |>
   labs(title = "34. Northern BR: Post-burn drill seeding",
        x = NULL)
 model34.plot
-
-# Estimation of average treatment effect
-model34.comp <- avg_comparisons(
-  model = model34.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 34, .before = term)
-model34.comp
 
 
 
@@ -4475,6 +4475,15 @@ model35.pred <- avg_predictions(
   mutate(Model = 35, .before = trt_control)
 model35.pred
 
+# Estimation of average treatment effect
+model35.comp <- avg_comparisons(
+  model = model35.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 35, .before = term)
+model35.comp
+
 # Plot
 model35.plot <- model35.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4488,15 +4497,6 @@ model35.plot <- model35.pred |>
   labs(title = "35. Northern BR: Post-burn herbicide",
        x = NULL)
 model35.plot
-
-# Estimation of average treatment effect
-model35.comp <- avg_comparisons(
-  model = model35.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 35, .before = term)
-model35.comp
 
 
 
@@ -4601,6 +4601,15 @@ model36.pred <- avg_predictions(
   mutate(Model = 36, .before = trt_control)
 model36.pred
 
+# Estimation of average treatment effect
+model36.comp <- avg_comparisons(
+  model = model36.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 36, .before = term)
+model36.comp # p = 0.03
+
 # Plot
 model36.plot <- model36.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4618,15 +4627,6 @@ model36.plot <- model36.pred |>
     annotations = c("*")
   )
 model36.plot
-
-# Estimation of average treatment effect
-model36.comp <- avg_comparisons(
-  model = model36.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 36, .before = term)
-model36.comp # p = 0.03
 
 
 
@@ -4734,6 +4734,15 @@ model37.pred <- avg_predictions(
   mutate(Model = 37, .before = trt_control)
 model37.pred
 
+# Estimation of average treatment effect
+model37.comp <- avg_comparisons(
+  model = model37.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 37, .before = term)
+model37.comp # p < 0.001
+
 # Plot
 model37.plot <- model37.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4751,15 +4760,6 @@ model37.plot <- model37.pred |>
     annotations = c("***")
   )
 model37.plot
-
-# Estimation of average treatment effect
-model37.comp <- avg_comparisons(
-  model = model37.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 37, .before = term)
-model37.comp # p < 0.001
 
 
 
@@ -4867,6 +4867,15 @@ model38.pred <- avg_predictions(
   mutate(Model = 38, .before = trt_control)
 model38.pred
 
+# Estimation of average treatment effect
+model38.comp <- avg_comparisons(
+  model = model38.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 38, .before = term)
+model38.comp # p = 0.007
+
 # Plot
 model38.plot <- model38.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -4884,15 +4893,6 @@ model38.plot <- model38.pred |>
     annotations = c("**")
   )
 model38.plot
-
-# Estimation of average treatment effect
-model38.comp <- avg_comparisons(
-  model = model38.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 38, .before = term)
-model38.comp # p = 0.007
 
 
 
@@ -4997,6 +4997,15 @@ model39.pred <- avg_predictions(
   mutate(Model = 39, .before = trt_control)
 model39.pred
 
+# Estimation of average treatment effect
+model39.comp <- avg_comparisons(
+  model = model39.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 39, .before = term)
+model39.comp
+
 # Plot
 model39.plot <- model39.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5010,15 +5019,6 @@ model39.plot <- model39.pred |>
   labs(title = "Snake River Plain: Post-burn aerial & drill seeding",
        x = NULL)
 model39.plot
-
-# Estimation of average treatment effect
-model39.comp <- avg_comparisons(
-  model = model39.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 39, .before = term)
-model39.comp
 
 
 
@@ -5123,6 +5123,15 @@ model40.pred <- avg_predictions(
   mutate(Model = 40, .before = trt_control)
 model40.pred
 
+# Estimation of average treatment effect
+model40.comp <- avg_comparisons(
+  model = model40.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 40, .before = term)
+model40.comp # p < 0.001
+
 # Plot
 model40.plot <- model40.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5140,15 +5149,6 @@ model40.plot <- model40.pred |>
     annotations = c("***")
   )
 model40.plot
-
-# Estimation of average treatment effect
-model40.comp <- avg_comparisons(
-  model = model40.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 40, .before = term)
-model40.comp # p < 0.001
 
 
 
@@ -5253,6 +5253,15 @@ model41.pred <- avg_predictions(
   mutate(Model = 41, .before = trt_control)
 model41.pred
 
+# Estimation of average treatment effect
+model41.comp <- avg_comparisons(
+  model = model41.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 41, .before = term)
+model41.comp
+
 # Plot
 model41.plot <- model41.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5266,15 +5275,6 @@ model41.plot <- model41.pred |>
   labs(title = "Snake River Plain: Post-burn drill seeding",
        x = NULL)
 model41.plot
-
-# Estimation of average treatment effect
-model41.comp <- avg_comparisons(
-  model = model41.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 41, .before = term)
-model41.comp
 
 
 
@@ -5379,6 +5379,15 @@ model42.pred <- avg_predictions(
   mutate(Model = 42, .before = trt_control)
 model42.pred
 
+# Estimation of average treatment effect
+model42.comp <- avg_comparisons(
+  model = model42.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 42, .before = term)
+model42.comp
+
 # Plot
 model42.plot <- model42.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5392,15 +5401,6 @@ model42.plot <- model42.pred |>
   labs(title = "Snake River Plain: Post-burn herbicide",
        x = NULL)
 model42.plot
-
-# Estimation of average treatment effect
-model42.comp <- avg_comparisons(
-  model = model42.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 42, .before = term)
-model42.comp
 
 
 
@@ -5508,6 +5508,15 @@ model43.pred <- avg_predictions(
   mutate(Model = 43, .before = trt_control)
 model43.pred
 
+# Estimation of average treatment effect
+model43.comp <- avg_comparisons(
+  model = model43.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 43, .before = term)
+model43.comp
+
 # Plot
 model43.plot <- model43.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5521,15 +5530,6 @@ model43.plot <- model43.pred |>
   labs(title = "Southern Rockies: Herbicide",
        x = NULL)
 model43.plot
-
-# Estimation of average treatment effect
-model43.comp <- avg_comparisons(
-  model = model43.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 43, .before = term)
-model43.comp
 
 
 
@@ -5764,6 +5764,15 @@ model45.pred <- avg_predictions(
   mutate(Model = 45, .before = trt_control)
 model45.pred
 
+# Estimation of average treatment effect
+model45.comp <- avg_comparisons(
+  model = model45.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 45, .before = term)
+model45.comp
+
 # Plot
 model45.plot <- model45.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5777,15 +5786,6 @@ model45.plot <- model45.pred |>
   labs(title = "Southern Rockies: Vegetation disturbance",
        x = NULL)
 model45.plot
-
-# Estimation of average treatment effect
-model45.comp <- avg_comparisons(
-  model = model45.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 45, .before = term)
-model45.comp
 
 
 
@@ -5893,6 +5893,15 @@ model46.pred <- avg_predictions(
   mutate(Model = 46, .before = trt_control)
 model46.pred
 
+# Estimation of average treatment effect
+model46.comp <- avg_comparisons(
+  model = model46.lm,
+  variables = "trt_control",
+  vcov = ~subclass
+) |> 
+  mutate(Model = 46, .before = term)
+model46.comp
+
 # Plot
 model46.plot <- model46.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
@@ -5907,14 +5916,6 @@ model46.plot <- model46.pred |>
        x = NULL)
 model46.plot
 
-# Estimation of average treatment effect
-model46.comp <- avg_comparisons(
-  model = model46.lm,
-  variables = "trt_control",
-  vcov = ~subclass
-) |> 
-  mutate(Model = 46, .before = term)
-model46.comp
 
 
 
@@ -6000,6 +6001,7 @@ avg.comp <- avg.comp |>
     p.value < 0.05  ~ "*",
     TRUE            ~ ""
   ), .before = s.value)
+
 
 
 
