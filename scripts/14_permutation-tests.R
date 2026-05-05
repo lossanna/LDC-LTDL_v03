@@ -1,14 +1,18 @@
 # Created: 2026-05-04
-# Updated: 2026-05-04
+# Updated: 2026-05-05
 
 # Purpose: Run permutation tests (based on Ron's script).
 
 
 library(tidyverse)
+library(ggsignif)
+library(RColorBrewer)
+library(ggpubr)
+library(gridExtra)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13.1_matched-data.RData")
+load("RData/13_matched-data.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
 
 
@@ -128,17 +132,18 @@ geoindicators.join <- geoindicators |>
 
 
 
+
 # Arizona/New Mexico Mountains --------------------------------------------
 
-## 1. Prescribed Burn -----------------------------------------------------
+## 1. Prescribed burn -----------------------------------------------------
 
 # Join cover cols
-model01.matched <- anm.prescribed.burn.matched |> 
+model01.matched2 <- model01.matched |> 
   select(LDCpointID, PrimaryKey, trt_control) |> 
   left_join(geoindicators.join)
 
 #   pivot_longer() for cover cols
-model01.matched <- model01.matched |> 
+model01.matched2 <- model01.matched2 |> 
   pivot_longer(
     cols = !c(LDCpointID, PrimaryKey, trt_control),
     names_to = "indicators",
@@ -146,7 +151,7 @@ model01.matched <- model01.matched |>
     )
 
 #   Rename functional group cover types
-model01.matched <- model01.matched |> 
+model01.matched2 <- model01.matched2 |> 
   mutate(indicators = 
            case_when(
              indicators == "AnnForbCover_AH" ~ "Annual forb",
@@ -156,20 +161,8 @@ model01.matched <- model01.matched |>
              indicators == "ShrubCover_AH" ~ "Shrub"
            ))
 
-# Boxplot
-model01.bp <- model01.matched |> 
-  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
-  geom_boxplot() +
-  theme_bw() +
-  labs(y = "Cover (%)",
-       x = NULL,
-       title = "1. AZ/NM Mountains: Prescribed Burn") +
-  theme(legend.title = element_blank()) +
-  theme(legend.position = "bottom")
-model01.bp
-
 # Calculate observed mean difference
-model01.diff <- model01.matched |> 
+model01.diff <- model01.matched2 |> 
   group_by(indicators, trt_control) |> 
   summarise(mean_cover = mean(pct_cover),
             .groups = "drop") |> 
@@ -186,25 +179,44 @@ model01.perm <- map_dfr(
   1:n_perms,
   ~ {
     # shuffle treatment labels
-    permuted_data <- model01.matched |> 
+    permuted_data <- model01.matched2 |> 
       mutate(trt_control = sample(trt_control))
     
     # calculate mean differences for each functional group
-    permuted_data %>%
-      group_by(indicators, trt_control) %>%
-      summarize(mean_cover = mean(pct_cover), .groups = "drop") %>%
-      group_by(indicators) %>%
-      summarize(mean_diff = diff(mean_cover), .groups = "drop") %>%
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
       mutate(Iteration = .x)
   }
 )
 
 #   Calculate p-values for each functional group
-p_values <- model01.perm %>%
-  inner_join(x = ., y = model01.diff, by = "indicators") %>%
-  group_by(indicators) %>%
+p_values <- model01.perm |>
+  inner_join(model01.diff, by = "indicators") |>
+  group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values # p = 0.048 for perennial forb
+
+# Boxplot
+model01.bp <- model01.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "1. AZ/NM Mountains: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  geom_signif(
+    y_position = 25,
+    xmin = 2.8,
+    xmax = 3.2,
+    annotations = c("*")
+  ) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model01.bp
 
 
 # Plot frequency distribution
@@ -212,63 +224,1066 @@ p_values
 model01.annforb <- model01.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Annual forb"],
-             color = "red", linetype = "dashed") +
-  labs(title = "1. AZ/NM Mts, Prescribed Burn: Annual forb",
-       x = "Difference in means",
-       y = "Frequency") +
-  theme_bw()
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
 model01.annforb
 
 #   Annual grass
 model01.anngrass <- model01.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Annual grass"],
-             color = "red", linetype = "dashed") +
-  labs(title = "1. AZ/NM Mts, Prescribed Burn: Annual grass",
-       x = "Difference in means",
-       y = "Frequency") +
-  theme_bw()
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
 model01.anngrass
 
 #   Perennial forb
 model01.perforb <- model01.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Perennial forb"],
-             color = "red", linetype = "dashed") +
-  labs(title = "1. AZ/NM Mts, Prescribed Burn: Perennial forb",
-       x = "Difference in means",
-       y = "Frequency") +
-  theme_bw()
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
 model01.perforb
 
 #   Perennial grass
 model01.pergrass <- model01.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Perennial grass"],
-             color = "red", linetype = "dashed") +
-  labs(title = "1. AZ/NM Mts, Prescribed Burn: Perennial grass",
-       x = "Difference in means",
-       y = "Frequency") +
-  theme_bw()
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
 model01.pergrass
 
 #   Shrub
 model01.shrub <- model01.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Shrub"],
-             color = "red", linetype = "dashed") +
-  labs(title = "1. AZ/NM Mts, Prescribed Burn: Shrub",
-       x = "Difference in means",
-       y = "Frequency") +
-  theme_bw()
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
 model01.shrub
+
+
+# Combine plots
+grid.arrange(
+  model01.bp, model01.annforb, model01.anngrass,
+  model01.perforb, model01.pergrass, model01.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+
+# Arizona/New Mexico Plateau ----------------------------------------------
+
+## 2. Herbicide -----------------------------------------------------------
+
+# Join cover cols
+model02.matched2 <- model02.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model02.matched2 <- model02.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model02.matched2 <- model02.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model02.diff <- model02.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model02.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model02.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model02.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model02.perm |>
+  inner_join(model02.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model02.bp <- model02.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "2. AZ/NM Plateau: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model01.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model02.annforb <- model02.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model02.annforb
+
+#   Annual grass
+model02.anngrass <- model02.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model02.anngrass
+
+#   Perennial forb
+model02.perforb <- model02.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model02.perforb
+
+#   Perennial grass
+model02.pergrass <- model02.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model02.pergrass
+
+#   Shrub
+model02.shrub <- model02.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model02.shrub
+
+
+# Combine plots
+grid.arrange(
+  model02.bp, model02.annforb, model02.anngrass,
+  model02.perforb, model02.pergrass, model02.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+## 3. Prescribed Burn -----------------------------------------------------
+
+# Join cover cols
+model03.matched2 <- model03.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model03.matched2 <- model03.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model03.matched2 <- model03.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model03.diff <- model03.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model03.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model03.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model03.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model03.perm |>
+  inner_join(model03.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model03.bp <- model03.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "3. AZ/NM Plateau: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model03.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model03.annforb <- model03.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model03.annforb
+
+#   Annual grass
+model03.anngrass <- model03.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model03.anngrass
+
+#   Perennial forb
+model03.perforb <- model03.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model03.perforb
+
+#   Perennial grass
+model03.pergrass <- model03.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model03.pergrass
+
+#   Shrub
+model03.shrub <- model03.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model03.shrub
+
+
+# Combine plots
+grid.arrange(
+  model03.bp, model03.annforb, model03.anngrass,
+  model03.perforb, model03.pergrass, model03.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+## 4. Seeding -------------------------------------------------------------
+
+# Join cover cols
+model04.matched2 <- model04.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model04.matched2 <- model04.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model04.matched2 <- model04.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model04.diff <- model04.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model04.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model04.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model04.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model04.perm |>
+  inner_join(model04.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model04.bp <- model04.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "4. AZ/NM Mountains: Seeding") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model04.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model04.annforb <- model04.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model04.annforb
+
+#   Annual grass
+model04.anngrass <- model04.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model04.anngrass
+
+#   Perennial forb
+model04.perforb <- model04.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model04.perforb
+
+#   Perennial grass
+model04.pergrass <- model04.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model04.pergrass
+
+#   Shrub
+model04.shrub <- model04.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model04.shrub
+
+
+# Combine plots
+grid.arrange(
+  model04.bp, model04.annforb, model04.anngrass,
+  model04.perforb, model04.pergrass, model04.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+## 5. Soil Disturbance ----------------------------------------------------
+
+# Join cover cols
+model05.matched2 <- model05.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model05.matched2 <- model05.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model05.matched2 <- model05.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model05.diff <- model05.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model05.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model05.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model05.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model05.perm |>
+  inner_join(model05.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model05.bp <- model05.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "5. AZ/NM Mountains: Soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model05.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model05.annforb <- model05.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model05.annforb
+
+#   Annual grass
+model05.anngrass <- model05.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model05.anngrass
+
+#   Perennial forb
+model05.perforb <- model05.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model05.perforb
+
+#   Perennial grass
+model05.pergrass <- model05.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model05.pergrass
+
+#   Shrub
+model05.shrub <- model05.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model05.shrub
+
+
+# Combine plots
+grid.arrange(
+  model05.bp, model05.annforb, model05.anngrass,
+  model05.perforb, model05.pergrass, model05.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+# Blue Mountains ----------------------------------------------------------
+
+## 6. Herbicide -----------------------------------------------------------
+
+# Join cover cols
+model06.matched2 <- model06.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model06.matched2 <- model06.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model06.matched2 <- model06.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model06.diff <- model06.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model06.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model06.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model06.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model06.perm |>
+  inner_join(model06.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model06.bp <- model06.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "6. Blue Mountains: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model06.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model06.annforb <- model06.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model06.annforb
+
+#   Annual grass
+model06.anngrass <- model06.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model06.anngrass
+
+#   Perennial forb
+model06.perforb <- model06.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model06.perforb
+
+#   Perennial grass
+model06.pergrass <- model06.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model06.pergrass
+
+#   Shrub
+model06.shrub <- model06.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model06.shrub
+
+
+# Combine plots
+grid.arrange(
+  model06.bp, model06.annforb, model06.anngrass,
+  model06.perforb, model06.pergrass, model06.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+
+
+## 7. Vegetation Disturbance ----------------------------------------------
+
+# Join cover cols
+model07.matched2 <- model07.matched |> 
+  select(LDCpointID, PrimaryKey, trt_control) |> 
+  left_join(geoindicators.join)
+
+#   pivot_longer() for cover cols
+model07.matched2 <- model07.matched2 |> 
+  pivot_longer(
+    cols = !c(LDCpointID, PrimaryKey, trt_control),
+    names_to = "indicators",
+    values_to = "pct_cover"
+  )
+
+#   Rename functional group cover types
+model07.matched2 <- model07.matched2 |> 
+  mutate(indicators = 
+           case_when(
+             indicators == "AnnForbCover_AH" ~ "Annual forb",
+             indicators == "AnnGramCover_AH" ~ "Annual grass",
+             indicators == "PerForbCover_AH" ~ "Perennial forb",
+             indicators == "PerGramCover_AH" ~ "Perennial grass",
+             indicators == "ShrubCover_AH" ~ "Shrub"
+           ))
+
+# Calculate observed mean difference
+model07.diff <- model07.matched2 |> 
+  group_by(indicators, trt_control) |> 
+  summarise(mean_cover = mean(pct_cover),
+            .groups = "drop") |> 
+  group_by(indicators) |> 
+  summarise(obs_diff = diff(mean_cover))
+model07.diff
+
+# Permutation test
+n_perms <- 10000
+
+set.seed(1)
+
+model07.perm <- map_dfr(
+  1:n_perms,
+  ~ {
+    # shuffle treatment labels
+    permuted_data <- model07.matched2 |> 
+      mutate(trt_control = sample(trt_control))
+    
+    # calculate mean differences for each functional group
+    permuted_data |>
+      group_by(indicators, trt_control) |>
+      summarize(mean_cover = mean(pct_cover), .groups = "drop") |>
+      group_by(indicators) |>
+      summarize(mean_diff = diff(mean_cover), .groups = "drop") |>
+      mutate(Iteration = .x)
+  }
+)
+
+#   Calculate p-values for each functional group
+p_values <- model07.perm |>
+  inner_join(model07.diff, by = "indicators") |>
+  group_by(indicators) |>
+  summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
+p_values
+
+# Boxplot
+model07.bp <- model07.matched2 |> 
+  ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
+  theme_bw() +
+  labs(y = "Cover (%)",
+       x = NULL,
+       title = "7. Blue Mountains: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(plot.margin = margin(10, 10, 20, 10))
+model07.bp
+
+
+# Plot frequency distribution
+#   Annual forb
+model07.annforb <- model07.perm |> 
+  filter(indicators == "Annual forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Annual forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model07.annforb
+
+#   Annual grass
+model07.anngrass <- model07.perm |> 
+  filter(indicators == "Annual grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Annual grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Annual grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model07.anngrass
+
+#   Perennial forb
+model07.perforb <- model07.perm |> 
+  filter(indicators == "Perennial forb") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Perennial forb"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial forb") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model07.perforb
+
+#   Perennial grass
+model07.pergrass <- model07.perm |> 
+  filter(indicators == "Perennial grass") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Perennial grass"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Perennial grass") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model07.pergrass
+
+#   Shrub
+model07.shrub <- model07.perm |> 
+  filter(indicators == "Shrub") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Shrub"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shrub") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model07.shrub
+
+
+# Combine plots
+grid.arrange(
+  model07.bp, model07.annforb, model07.anngrass,
+  model07.perforb, model07.pergrass, model07.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+
+save.image("RData/14_permutation-tests.RData")
+
