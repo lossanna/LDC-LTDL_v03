@@ -2,7 +2,7 @@
 # Updated: 2026-04-13
 
 # Purpose: Trial run of propensity score matching based on Ron's code (restoration_psm_analysis_20250910.R)
-#   with SPEI data (also from Ron) as substitute for CETWI (while we wait to recieve CETWI).
+#   with SPEI data (also from Ron) as substitute for CETWI (while we wait to receive CETWI).
 
 # https://kosukeimai.github.io/MatchIt/articles/MatchIt.html
 
