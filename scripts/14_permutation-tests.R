@@ -193,11 +193,11 @@ model01.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model01.perm |>
+p_values01 <- model01.perm |>
   inner_join(model01.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.048 for perennial forb
+p_values01 # p = 0.048 for perennial forb
 
 # Boxplot
 model01.bp <- model01.matched2 |> 
@@ -365,11 +365,11 @@ model02.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model02.perm |>
+p_values02 <- model02.perm |>
   inner_join(model02.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values02
 
 # Boxplot
 model02.bp <- model02.matched2 |> 
@@ -528,11 +528,11 @@ model03.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model03.perm |>
+p_values03 <- model03.perm |>
   inner_join(model03.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values03
 
 # Boxplot
 model03.bp <- model03.matched2 |> 
@@ -691,11 +691,11 @@ model04.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model04.perm |>
+p_values04 <- model04.perm |>
   inner_join(model04.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values04
 
 # Boxplot
 model04.bp <- model04.matched2 |> 
@@ -854,11 +854,11 @@ model05.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model05.perm |>
+p_values05 <- model05.perm |>
   inner_join(model05.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values05
 
 # Boxplot
 model05.bp <- model05.matched2 |> 
@@ -1019,11 +1019,11 @@ model06.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model06.perm |>
+p_values06 <- model06.perm |>
   inner_join(model06.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values06
 
 # Boxplot
 model06.bp <- model06.matched2 |> 
@@ -1182,11 +1182,11 @@ model07.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model07.perm |>
+p_values07 <- model07.perm |>
   inner_join(model07.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values07
 
 # Boxplot
 model07.bp <- model07.matched2 |> 
@@ -1345,11 +1345,11 @@ model08.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model08.perm |>
+p_values08 <- model08.perm |>
   inner_join(model08.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values08
 
 # Boxplot
 model08.bp <- model08.matched2 |> 
@@ -1453,7 +1453,7 @@ grid.arrange(
 
 # Central Basin and Range -------------------------------------------------
 
-## 9. Aerial seeding ------------------------------------------------------
+## 9. Aerial Seeding ------------------------------------------------------
 
 # Join cover cols
 model09.matched2 <- model09.matched |> 
@@ -1511,11 +1511,11 @@ model09.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model09.perm |>
+p_values09 <- model09.perm |>
   inner_join(model09.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.04 for perennial herb
+p_values09 # p = 0.04 for perennial herb
 
 # Boxplot
 model09.bp <- model09.matched2 |> 
@@ -1680,11 +1680,11 @@ model10.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model10.perm |>
+p_values10 <- model10.perm |>
   inner_join(model10.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.0009 for perennial grass
+p_values10 # p = 0.0009 for perennial grass
 
 # Boxplot
 model10.bp <- model10.matched2 |> 
@@ -1849,11 +1849,11 @@ model11.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model11.perm |>
+p_values11 <- model11.perm |>
   inner_join(model11.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.002 for perennial grass
+p_values11 # p = 0.002 for perennial grass
 
 # Boxplot
 model11.bp <- model11.matched2 |> 
@@ -2018,11 +2018,11 @@ model12.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model12.perm |>
+p_values12 <- model12.perm |>
   inner_join(model12.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values12
 
 # Boxplot
 model12.bp <- model12.matched2 |> 
@@ -2181,11 +2181,11 @@ model13.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model13.perm |>
+p_values13 <- model13.perm |>
   inner_join(model13.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.002 for perennial forb
+p_values13 # p = 0.002 for perennial forb
 
 # Boxplot
 model13.bp <- model13.matched2 |> 
@@ -2350,11 +2350,11 @@ model14.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model14.perm |>
+p_values14 <- model14.perm |>
   inner_join(model14.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values14
 
 # Boxplot
 model14.bp <- model14.matched2 |> 
@@ -2513,11 +2513,11 @@ model15.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model15.perm |>
+p_values15 <- model15.perm |>
   inner_join(model15.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values15
 
 # Boxplot
 model15.bp <- model15.matched2 |> 
@@ -2676,11 +2676,11 @@ model16.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model16.perm |>
+p_values16 <- model16.perm |>
   inner_join(model16.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values16
 
 # Boxplot
 model16.bp <- model16.matched2 |> 
@@ -2842,11 +2842,11 @@ model17.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model17.perm |>
+p_values17 <- model17.perm |>
   inner_join(model17.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values17
 
 # Boxplot
 model17.bp <- model17.matched2 |> 
@@ -3008,11 +3008,11 @@ model18.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model18.perm |>
+p_values18 <- model18.perm |>
   inner_join(model18.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values18
 
 # Boxplot
 model18.bp <- model18.matched2 |> 
@@ -3334,11 +3334,11 @@ model20.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model20.perm |>
+p_values20 <- model20.perm |>
   inner_join(model20.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values20
 
 # Boxplot
 model20.bp <- model20.matched2 |> 
@@ -3497,11 +3497,11 @@ model21.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model21.perm |>
+p_values21 <- model21.perm |>
   inner_join(model21.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values21
 
 # Boxplot
 model21.bp <- model21.matched2 |> 
@@ -3660,11 +3660,11 @@ model22.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model22.perm |>
+p_values22 <- model22.perm |>
   inner_join(model22.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.002 for annual grass
+p_values22 # p = 0.002 for annual grass
 
 # Boxplot
 model22.bp <- model22.matched2 |> 
@@ -3829,11 +3829,11 @@ model23.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model23.perm |>
+p_values23 <- model23.perm |>
   inner_join(model23.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values23
 
 # Boxplot
 model23.bp <- model23.matched2 |> 
@@ -3995,11 +3995,11 @@ model24.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model24.perm |>
+p_values24 <- model24.perm |>
   inner_join(model24.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values24
 
 # Boxplot
 model24.bp <- model24.matched2 |> 
@@ -4161,11 +4161,11 @@ model25.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model25.perm |>
+p_values25 <- model25.perm |>
   inner_join(model25.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values 
+p_values25
 
 # Boxplot
 model25.bp <- model25.matched2 |> 
@@ -4327,11 +4327,11 @@ model26.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model26.perm |>
+p_values26 <- model26.perm |>
   inner_join(model26.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.009 for perennial grass
+p_values26 # p = 0.009 for perennial grass
 
 # Boxplot
 model26.bp <- model26.matched2 |> 
@@ -4495,11 +4495,11 @@ model27.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model27.perm |>
+p_values27 <- model27.perm |>
   inner_join(model27.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.04 for annual forb; p = 0.02 for perennial forb
+p_values27 # p = 0.04 for annual forb; p = 0.02 for perennial forb
 
 # Boxplot
 model27.bp <- model27.matched2 |> 
@@ -4670,11 +4670,11 @@ model28.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model28.perm |>
+p_values28 <- model28.perm |>
   inner_join(model28.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values28
 
 # Boxplot
 model28.bp <- model28.matched2 |> 
@@ -4833,11 +4833,11 @@ model29.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model29.perm |>
+p_values29 <- model29.perm |>
   inner_join(model29.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.03 for annual grass; p = 0.002 for perennial grass
+p_values29 # p = 0.03 for annual grass; p = 0.002 for perennial grass
 
 # Boxplot
 model29.bp <- model29.matched2 |> 
@@ -4849,9 +4849,9 @@ model29.bp <- model29.matched2 |>
        x = NULL,
        title = "29. Northern BR: Prescribed burn") +
   geom_signif(
-    y_position = 60,
-    xmin = 0.8,
-    xmax = 1.2, 
+    y_position = 98,
+    xmin = 1.8,
+    xmax = 2.2, 
     annotations = c("*")
   ) +
   geom_signif(
@@ -5008,11 +5008,11 @@ model30.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model30.perm |>
+p_values30 <- model30.perm |>
   inner_join(model30.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values30
 
 # Boxplot
 model30.bp <- model30.matched2 |> 
@@ -5171,11 +5171,11 @@ model31.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model31.perm |>
+p_values31 <- model31.perm |>
   inner_join(model31.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values31
 
 # Boxplot
 model31.bp <- model31.matched2 |> 
@@ -5334,11 +5334,11 @@ model32.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model32.perm |>
+p_values32 <- model32.perm |>
   inner_join(model32.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values32
 
 # Boxplot
 model32.bp <- model32.matched2 |> 
@@ -5496,11 +5496,11 @@ model33.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model33.perm |>
+p_values33 <- model33.perm |>
   inner_join(model33.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p <0.001 for annual and perennial grass
+p_values33 # p <0.001 for annual and perennial grass
 
 # Boxplot
 model33.bp <- model33.matched2 |> 
@@ -5671,11 +5671,11 @@ model34.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model34.perm |>
+p_values34 <- model34.perm |>
   inner_join(model34.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.008 for perennial forb
+p_values34 # p = 0.008 for perennial forb
 
 # Boxplot
 model34.bp <- model34.matched2 |> 
@@ -5840,11 +5840,11 @@ model35.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model35.perm |>
+p_values35 <- model35.perm |>
   inner_join(model35.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.002 for perennial grass
+p_values35 # p = 0.002 for perennial grass
 
 # Boxplot
 model35.bp <- model35.matched2 |> 
@@ -6009,11 +6009,11 @@ model36.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model36.perm |>
+p_values36 <- model36.perm |>
   inner_join(model36.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.02 for annual grass
+p_values36 # p = 0.02 for annual grass
 
 # Boxplot
 model36.bp <- model36.matched2 |> 
@@ -6181,11 +6181,11 @@ model37.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model37.perm |>
+p_values37 <- model37.perm |>
   inner_join(model37.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values37
 
 # Boxplot
 model37.bp <- model37.matched2 |> 
@@ -6347,11 +6347,11 @@ model38.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model38.perm |>
+p_values38 <- model38.perm |>
   inner_join(model38.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.01 for perennial forb and 0.002 for perennial grass
+p_values38 # p = 0.01 for perennial forb and 0.002 for perennial grass
 
 # Boxplot
 model38.bp <- model38.matched2 |> 
@@ -6521,11 +6521,11 @@ model39.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model39.perm |>
+p_values39 <- model39.perm |>
   inner_join(model39.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values39
 
 # Boxplot
 model39.bp <- model39.matched2 |> 
@@ -6685,11 +6685,11 @@ model40.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model40.perm |>
+p_values40 <- model40.perm |>
   inner_join(model40.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values # p = 0.007 for annual grass; p = 0.01 for perennial grass
+p_values40 # p = 0.007 for annual grass; p = 0.01 for perennial grass
 
 # Boxplot
 model40.bp <- model40.matched2 |> 
@@ -6860,11 +6860,11 @@ model41.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model41.perm |>
+p_values41 <- model41.perm |>
   inner_join(model41.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values41
 
 # Boxplot
 model41.bp <- model41.matched2 |> 
@@ -7022,11 +7022,11 @@ model42.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model42.perm |>
+p_values42 <- model42.perm |>
   inner_join(model42.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values42
 
 # Boxplot
 model42.bp <- model42.matched2 |> 
@@ -7188,11 +7188,11 @@ model43.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model43.perm |>
+p_values43 <- model43.perm |>
   inner_join(model43.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values43
 
 # Boxplot
 model43.bp <- model43.matched2 |> 
@@ -7351,11 +7351,11 @@ model44.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model44.perm |>
+p_values44 <- model44.perm |>
   inner_join(model44.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values44
 
 # Boxplot
 model44.bp <- model44.matched2 |> 
@@ -7514,11 +7514,11 @@ model45.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model45.perm |>
+p_values45 <- model45.perm |>
   inner_join(model45.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values45
 
 # Boxplot
 model45.bp <- model45.matched2 |> 
@@ -7679,11 +7679,11 @@ model46.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model46.perm |>
+p_values46 <- model46.perm |>
   inner_join(model46.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values46
 
 # Boxplot
 model46.bp <- model46.matched2 |> 
