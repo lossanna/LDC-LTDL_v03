@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-05-06
+# Updated: 2026-05-21
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data.
 
@@ -63,9 +63,12 @@ summary(model01.psm) # 30 treated matched
 
 
 # Diagnostic love plot
-love.plot(model01.psm, stars = "std",
+model01.loveplot <- love.plot(model01.psm, stars = "std",
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "1. AZ/NM Mountains: Prescribed burn")
+  labs(title = "1. AZ/NM Mountains: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
+model01.loveplot
 
 # eCDF plots
 plot(model01.psm, type = "ecdf")
@@ -151,13 +154,14 @@ model01.comp
 # Plot
 model01.plot <- model01.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(x = NULL,
        title = "1. AZ/NM Mountains: Prescribed burn")
 model01.plot
@@ -1059,7 +1063,7 @@ model08.plot
 
 # Central Basin and Range -------------------------------------------------
 
-## 9. Aerial seeding ------------------------------------------------------
+## 9. Aerial Seeding ------------------------------------------------------
 
 # Filter data
 model09.dat <- ldc.007 |>
@@ -1284,7 +1288,7 @@ model10.pred <- avg_predictions(
   by = "trt_control"
 ) |> 
   mutate(Model = 10, .before = trt_control)
-model10.pred # NS for both control & treate (not different from 0)
+model10.pred # NS for both control & treated (not different from 0)
 
 # Estimation of average treatment effect
 model10.comp <- avg_comparisons(
@@ -6010,6 +6014,21 @@ avg.comp <- avg.comp |>
 save(list = ls(pattern = "\\.matched$"), 
      file = "RData/13_matched-data.RData")
 
+
+# Write out figures -------------------------------------------------------
+
+# 1. AZ/NM Mountains: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model01_loveplot.tiff",
+    units = "in", width = 6, height = 4, res = 150)
+model01.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model01_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model01.plot
+dev.off()
 
 
 save.image("RData/13_propensity-score-matching.RData")

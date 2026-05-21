@@ -1,5 +1,5 @@
 # Created: 2026-05-04
-# Updated: 2026-05-05
+# Updated: 2026-05-21
 
 # Purpose: Run permutation tests (based on Ron's script).
 
@@ -215,6 +215,7 @@ model01.bp <- model01.matched2 |>
     xmax = 3.2,
     annotations = c("*")
   ) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model01.bp
 
@@ -7782,6 +7783,23 @@ grid.arrange(
   )
 )
 
+
+
+# Write out figures -------------------------------------------------------
+
+# 1. AZ/NM Mountains: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model01_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model01.bp, model01.annforb, model01.anngrass,
+  model01.perforb, model01.pergrass, model01.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
 
 
 save.image("RData/14_permutation-tests.RData")
