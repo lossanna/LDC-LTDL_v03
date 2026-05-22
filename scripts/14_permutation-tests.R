@@ -8070,5 +8070,21 @@ grid.arrange(
 dev.off()
 
 
+## Chihuahuan Desert ------------------------------------------------------
+
+# 17. Chihuahuan Desert: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model17_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model17.bp, model17.annforb, model17.anngrass,
+  model17.perforb, model17.pergrass, model17.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
 save.image("RData/14_permutation-tests.RData")
 

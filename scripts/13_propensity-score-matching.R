@@ -2168,11 +2168,12 @@ summary(model17.psm) # 64 treated matched
 
 
 # Diagnostic love plot
-love.plot(model17.psm, stars = "std",           
+model17.loveplot <- love.plot(model17.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "17. Chihuahuan Desert: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model17.loveplot
 
 # eCDF plots
 plot(model17.psm, type = "ecdf")
@@ -2258,12 +2259,12 @@ model17.comp
 # Plot
 model17.plot <- model17.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "17. Chihuahuan Desert: Herbicide",
@@ -3303,15 +3304,15 @@ model25.comp # p = 0.009
 # Plot
 model25.plot <- model25.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "25. Mojave BR: Post-burn aerial seeding",
+  labs(title = "25. Mojave Basin and Range: Post-burn aerial seeding",
        x = NULL) +
   geom_signif(
     comparisons = list(c("Post-burn control", "Post-burn aerial seeding")),
@@ -6138,6 +6139,11 @@ gcomp.pred <- gcomp.pred |>
     TRUE            ~ ""
   ), .before = s.value)
 
+# Add back-transformation for estimate
+gcomp.pred <- gcomp.pred |> 
+  mutate(estimate_bt = exp(estimate),
+         .after = estimate)
+
 
 
 ## Average treatment effect -----------------------------------------------
@@ -6400,6 +6406,23 @@ dev.off()
 tiff("figures/2026-05_PSM-and-permutation-tests/model16_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model16.plot
+dev.off()
+
+
+
+## Chihuahuan Desert ------------------------------------------------------
+
+# 17. Chihuahuan Desert: Herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model17_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model17.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model17_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model17.plot
 dev.off()
 
 
