@@ -196,9 +196,12 @@ summary(model02.psm) # 49 treated matched
 
 
 # Diagnostic love plot
-love.plot(model02.psm, stars = "std",           
+model02.loveplot <- love.plot(model02.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "2. AZ/NM Plateau: Herbicide")
+  labs(title = "2. AZ/NM Plateau: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
+model02.loveplot
 
 # eCDF plots
 plot(model02.psm, type = "ecdf")
@@ -284,13 +287,14 @@ model02.comp
 # Plot
 model02.plot <- model02.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(x = NULL,
        title = "2. AZ/NM Plateau: Herbicide")
 model02.plot
@@ -322,9 +326,12 @@ summary(model03.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(model03.psm, stars = "std",           
+model03.loveplot <- love.plot(model03.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "3. AZ/NM Plateau: Prescribed burn")
+  labs(title = "3. AZ/NM Plateau: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
+model03.loveplot
 
 # eCDF plots
 plot(model03.psm, type = "ecdf")
@@ -410,13 +417,14 @@ model03.comp
 # Plot
 model03.plot <- model03.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "3. AZ/NM Plateau: Prescribed burn",
        x = NULL)
 model03.plot
@@ -448,9 +456,12 @@ summary(model04.psm) # 34 treated matched
 
 
 # Diagnostic love plot
-love.plot(model04.psm, stars = "std",           
+model04.loveplot <- love.plot(model04.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "4. AZ/NM Plateau: Seeding")
+  labs(title = "4. AZ/NM Plateau: Seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
+model04.loveplot
 
 # eCDF plots
 plot(model04.psm, type = "ecdf")
@@ -536,13 +547,14 @@ model04.comp
 # Plot
 model04.plot <- model04.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "4. AZ/NM Plateau: Seeding",
        x = NULL)
 model04.plot
@@ -574,9 +586,12 @@ summary(model05.psm) # 41 treated matched
 
 
 # Diagnostic love plot
-love.plot(model05.psm, stars = "std",           
+model05.loveplot <- love.plot(model05.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "5. AZ/NM Plateau: Soil disturbance")
+  labs(title = "5. AZ/NM Plateau: Soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
+model05.loveplot
 
 # eCDF plots
 plot(model05.psm, type = "ecdf")
@@ -662,13 +677,14 @@ model05.comp # p = 0.008
 # Plot
 model05.plot <- model05.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "5. AZ/NM Plateau: Soil disturbance",
        x = NULL) +
   geom_signif(
@@ -709,7 +725,9 @@ summary(model06.psm) # 96 treated matched
 # Diagnostic love plot
 love.plot(model06.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "6. Blue Mountains: Herbicide")
+  labs(title = "6. Blue Mountains: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model06.psm, type = "ecdf")
@@ -802,6 +820,7 @@ model06.plot <- model06.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "6. Blue Mountains: Herbicide",
        x = NULL)
 model06.plot
@@ -835,7 +854,9 @@ summary(model07.psm) # 31 treated matched
 # Diagnostic love plot
 love.plot(model07.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "7. Blue Mountains: Vegetation disturbance")
+  labs(title = "7. Blue Mountains: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model07.psm, type = "ecdf")
@@ -928,6 +949,7 @@ model07.plot <- model07.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "7. Blue Mountains: Vegetation disturbance",
        x = NULL)
 model07.plot
@@ -961,7 +983,9 @@ summary(model08.psm) # 42 treated matched
 # Diagnostic love plot
 love.plot(model08.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "8. Blue Mountains: Post-burn herbicide")
+  labs(title = "8. Blue Mountains: Post-burn herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model08.psm, type = "ecdf")
@@ -1054,6 +1078,7 @@ model08.plot <- model08.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "8. Blue Mountains: Post-burn herbicide",
        x = NULL)
 model08.plot
@@ -1090,7 +1115,9 @@ summary(model09.psm) # 31 treated matched
 # Diagnostic love plot
 love.plot(model09.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "9. Central BR: Aerial seeding")
+  labs(title = "9. Central BR: Aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model09.psm, type = "ecdf")
@@ -1183,6 +1210,7 @@ model09.plot <- model09.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "9. Central BR: Aerial seeding",
        x = NULL)
 model09.plot
@@ -1216,7 +1244,9 @@ summary(model10.psm) # 36 treated matched
 # Diagnostic love plot
 love.plot(model10.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "10. Central BR: Drill Seeding & soil disturbance")
+  labs(title = "10. Central BR: Drill Seeding & soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model10.psm, type = "ecdf")
@@ -1309,6 +1339,7 @@ model10.plot <- model10.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "10. Central BR: Drill seeding & soil disturbance",
        x = NULL)
 model10.plot
@@ -1342,7 +1373,9 @@ summary(model11.psm) # 31 treated matched
 # Diagnostic love plot
 love.plot(model11.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "11. Central BR: Prescribed burn")
+  labs(title = "11. Central BR: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model11.psm, type = "ecdf")
@@ -1435,6 +1468,7 @@ model11.plot <- model11.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "11. Central BR: Prescribed burn",
        x = NULL)
 model11.plot
@@ -1468,7 +1502,9 @@ summary(model12.psm) # 99 treated matched
 # Diagnostic love plot
 love.plot(model12.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "12. Central BR: Vegetation disturbance")
+  labs(title = "12. Central BR: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model12.psm, type = "ecdf")
@@ -1561,6 +1597,7 @@ model12.plot <- model12.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "12. Central BR: Vegetation disturbance",
        x = NULL) +
   geom_signif(
@@ -1598,7 +1635,9 @@ summary(model13.psm) # 345 treated matched
 # Diagnostic love plot
 love.plot(model13.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "13. Central BR: Post-burn aerial seeding")
+  labs(title = "13. Central BR: Post-burn aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model13.psm, type = "ecdf")
@@ -1691,6 +1730,7 @@ model13.plot <- model13.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "13. Central BR: Post-burn aerial seeding",
        x = NULL)
 model13.plot
@@ -1724,7 +1764,9 @@ summary(model14.psm) # 88 treated matched
 # Diagnostic love plot
 love.plot(model14.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "14. Central BR: Post-burn drill seeding")
+  labs(title = "14. Central BR: Post-burn drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model14.psm, type = "ecdf")
@@ -1817,6 +1859,7 @@ model14.plot <- model14.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "14. Central BR: Post-burn drill seeding",
        x = NULL) +
   geom_signif(
@@ -1854,7 +1897,9 @@ summary(model15.psm) # 38 treated matched
 # Diagnostic love plot
 love.plot(model15.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "15. Central BR: Post-burn ground seeding")
+  labs(title = "15. Central BR: Post-burn ground seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model15.psm, type = "ecdf")
@@ -1947,6 +1992,7 @@ model15.plot <- model15.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "15. Central BR: Post-burn ground seeding",
        x = NULL)
 model15.plot
@@ -1980,7 +2026,9 @@ summary(model16.psm) # 80 treated matched
 # Diagnostic love plot
 love.plot(model16.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "16. Central BR: Post-burn herbicide")
+  labs(title = "16. Central BR: Post-burn herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model16.psm, type = "ecdf")
@@ -2073,6 +2121,7 @@ model16.plot <- model16.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "16. Central BR: Post-burn herbicide",
        x = NULL)
 model16.plot
@@ -2109,7 +2158,9 @@ summary(model17.psm) # 64 treated matched
 # Diagnostic love plot
 love.plot(model17.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "17. Chihuahuan Desert: Herbicide")
+  labs(title = "17. Chihuahuan Desert: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model17.psm, type = "ecdf")
@@ -2202,6 +2253,7 @@ model17.plot <- model17.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "17. Chihuahuan Desert: Herbicide",
        x = NULL)
 model17.plot
@@ -2238,7 +2290,9 @@ summary(model18.psm) # 60 treated matched
 # Diagnostic love plot
 love.plot(model18.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance")
+  labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model18.psm, type = "ecdf")
@@ -2331,6 +2385,7 @@ model18.plot <- model18.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance",
        x = NULL)
 model18.plot
@@ -2364,7 +2419,9 @@ summary(model19.psm) # 47 treated matched
 # Diagnostic love plot
 love.plot(model19.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "19. CO Plateaus: Herbicide")
+  labs(title = "19. CO Plateaus: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model19.psm, type = "ecdf")
@@ -2457,6 +2514,7 @@ model19.plot <- model19.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "19. CO Plateaus: Herbicide",
        x = NULL)
 model19.plot
@@ -2490,7 +2548,9 @@ summary(model20.psm) # 76 treated matched
 # Diagnostic love plot
 love.plot(model20.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "20. CO Plateaus: Prescribed burn")
+  labs(title = "20. CO Plateaus: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model20.psm, type = "ecdf")
@@ -2583,6 +2643,7 @@ model20.plot <- model20.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "20. CO Plateaus: Prescribed burn",
        x = NULL) + 
   geom_signif(
@@ -2620,7 +2681,9 @@ summary(model21.psm) # 40 treated matched
 # Diagnostic love plot
 love.plot(model21.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "21. CO Plateaus: Soil disturbance")
+  labs(title = "21. CO Plateaus: Soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model21.psm, type = "ecdf")
@@ -2713,6 +2776,7 @@ model21.plot <- model21.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "21. CO Plateaus: Soil disturbance",
        x = NULL)
 model21.plot
@@ -2746,7 +2810,9 @@ summary(model22.psm) # 34 treated matched
 # Diagnostic love plot
 love.plot(model22.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "22. CO Plateaus: Vegetation disturbance")
+  labs(title = "22. CO Plateaus: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model22.psm, type = "ecdf")
@@ -2839,6 +2905,7 @@ model22.plot <- model22.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "22. CO Plateaus: Vegetation disturbance",
        x = NULL)
 model22.plot
@@ -2872,7 +2939,9 @@ summary(model23.psm) # 58 treated matched
 # Diagnostic love plot
 love.plot(model23.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "23. CO Plateaus: Post-burn aerial seeding")
+  labs(title = "23. CO Plateaus: Post-burn aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model23.psm, type = "ecdf")
@@ -2965,6 +3034,7 @@ model23.plot <- model23.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "23. CO Plateaus: Post-burn aerial seeding",
        x = NULL)
 model23.plot
@@ -3001,7 +3071,9 @@ summary(model24.psm) # 33 treated matched
 # Diagnostic love plot
 love.plot(model24.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "24. Middle Rockies: Herbicide")
+  labs(title = "24. Middle Rockies: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model24.psm, type = "ecdf")
@@ -3094,6 +3166,7 @@ model24.plot <- model24.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "24. Middle Rockies: Herbicide",
        x = NULL)
 model24.plot
@@ -3130,7 +3203,9 @@ summary(model25.psm) # 65 treated matched
 # Diagnostic love plot
 love.plot(model25.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "25. Mojave BR: Post-burn aerial seeding")
+  labs(title = "25. Mojave BR: Post-burn aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model25.psm, type = "ecdf")
@@ -3223,6 +3298,7 @@ model25.plot <- model25.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "25. Mojave BR: Post-burn aerial seeding",
        x = NULL) +
   geom_signif(
@@ -3263,7 +3339,9 @@ summary(model26.psm) # 82 treated matched
 # Diagnostic love plot
 love.plot(model26.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "26. Northern BR: Drill seeding")
+  labs(title = "26. Northern BR: Drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model26.psm, type = "ecdf")
@@ -3356,6 +3434,7 @@ model26.plot <- model26.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "26. Northern BR: Drill seeding",
        x = NULL)
 model26.plot
@@ -3389,7 +3468,9 @@ summary(model27.psm) # 61 treated matched
 # Diagnostic love plot
 love.plot(model27.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "27. Northern BR: Drill seeding & soil disturbance")
+  labs(title = "27. Northern BR: Drill seeding & soil disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model27.psm, type = "ecdf")
@@ -3482,6 +3563,7 @@ model27.plot <- model27.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "27. Northern BR: Drill seeding & soil disturbance",
        x = NULL)
 model27.plot
@@ -3515,7 +3597,9 @@ summary(model28.psm) # 259 treated matched
 # Diagnostic love plot
 love.plot(model28.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "28. Northern BR: Herbicide")
+  labs(title = "28. Northern BR: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model28.psm, type = "ecdf")
@@ -3608,6 +3692,7 @@ model28.plot <- model28.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "28. Northern BR: Herbicide",
        x = NULL)
 model28.plot
@@ -3641,7 +3726,9 @@ summary(model29.psm) # 158 treated matched
 # Diagnostic love plot
 love.plot(model29.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "29. Northern BR: Prescribed burn")
+  labs(title = "29. Northern BR: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model29.psm, type = "ecdf")
@@ -3734,6 +3821,7 @@ model29.plot <- model29.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "29. Northern BR: Prescribed burn",
        x = NULL)
 model29.plot
@@ -3767,7 +3855,9 @@ summary(model30.psm) # 105 treated matched
 # Diagnostic love plot
 love.plot(model30.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "30. Northern BR: Vegetation disturbance")
+  labs(title = "30. Northern BR: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model30.psm, type = "ecdf")
@@ -3860,6 +3950,7 @@ model30.plot <- model30.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "30. Northern BR: Vegetation disturbance",
        x = NULL) +
   geom_signif(
@@ -3897,7 +3988,9 @@ summary(model31.psm) # 542 treated matched
 # Diagnostic love plot
 love.plot(model31.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "31. Northern BR: Post-burn aerial seeding")
+  labs(title = "31. Northern BR: Post-burn aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model31.psm, type = "ecdf")
@@ -3990,6 +4083,7 @@ model31.plot <- model31.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "31. Northern BR: Post-burn aerial seeding",
        x = NULL)
 model31.plot
@@ -4023,7 +4117,9 @@ summary(model32.psm) # 88 treated matched
 # Diagnostic love plot
 love.plot(model32.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "32. Northern BR: Post-burn aerial & drill seeding")
+  labs(title = "32. Northern BR: Post-burn aerial & drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model32.psm, type = "ecdf")
@@ -4116,6 +4212,7 @@ model32.plot <- model32.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "32. Northern BR: Post-burn aerial & drill seeding",
        x = NULL)
 model32.plot
@@ -4149,7 +4246,9 @@ summary(model33.psm) # 151 treated matched
 # Diagnostic love plot
 love.plot(model33.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "33. Northern BR: Post-burn closure")
+  labs(title = "33. Northern BR: Post-burn closure") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model33.psm, type = "ecdf")
@@ -4242,6 +4341,7 @@ model33.plot <- model33.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "33. Northern BR: Post-burn closure",
        x = NULL) +
   geom_signif(
@@ -4279,7 +4379,9 @@ summary(model34.psm) # 217 treated matched
 # Diagnostic love plot
 love.plot(model34.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "34. Northern BR: Post-burn drill seeding")
+  labs(title = "34. Northern BR: Post-burn drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model34.psm, type = "ecdf")
@@ -4372,6 +4474,7 @@ model34.plot <- model34.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "34. Northern BR: Post-burn drill seeding",
        x = NULL)
 model34.plot
@@ -4405,7 +4508,9 @@ summary(model35.psm) # 370 treated matched
 # Diagnostic love plot
 love.plot(model35.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "35. Northern BR: Post-burn herbicide")
+  labs(title = "35. Northern BR: Post-burn herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model35.psm, type = "ecdf")
@@ -4498,6 +4603,7 @@ model35.plot <- model35.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "35. Northern BR: Post-burn herbicide",
        x = NULL)
 model35.plot
@@ -4531,7 +4637,9 @@ summary(model36.psm) # 56 treated matched
 # Diagnostic love plot
 love.plot(model36.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "36. Northern BR: Post-burn seedling planting")
+  labs(title = "36. Northern BR: Post-burn seedling planting") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model36.psm, type = "ecdf")
@@ -4624,6 +4732,7 @@ model36.plot <- model36.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "36. Northern BR: Post-burn seedling planting",
        x = NULL) + 
   geom_signif(
@@ -4664,7 +4773,9 @@ summary(model37.psm) # 51 treated matched
 # Diagnostic love plot
 love.plot(model37.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "37. NW Great Plains: Prescribed burn")
+  labs(title = "37. NW Great Plains: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model37.psm, type = "ecdf")
@@ -4757,6 +4868,7 @@ model37.plot <- model37.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "37. NW Great Plains: Prescribed burn",
        x = NULL) +
   geom_signif(
@@ -4797,7 +4909,9 @@ summary(model38.psm) # 153 treated matched
 # Diagnostic love plot
 love.plot(model38.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "38. Snake River Plain: Post-burn aerial seeding")
+  labs(title = "38. Snake River Plain: Post-burn aerial seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model38.psm, type = "ecdf")
@@ -4890,6 +5004,7 @@ model38.plot <- model38.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "38. Snake River Plain: Post-burn aerial seeding",
        x = NULL) +
   geom_signif(
@@ -4927,7 +5042,9 @@ summary(model39.psm) # 77 treated matched
 # Diagnostic love plot
 love.plot(model39.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "39. Snake River Plain: Post-burn aerial & drill seeding")
+  labs(title = "39. Snake River Plain: Post-burn aerial & drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model39.psm, type = "ecdf")
@@ -5020,6 +5137,7 @@ model39.plot <- model39.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "39. Snake River Plain: Post-burn aerial & drill seeding",
        x = NULL)
 model39.plot
@@ -5053,7 +5171,9 @@ summary(model40.psm) # 87 treated matched
 # Diagnostic love plot
 love.plot(model40.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "40. Snake River Plain: Post-burn closure")
+  labs(title = "40. Snake River Plain: Post-burn closure") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model40.psm, type = "ecdf")
@@ -5146,6 +5266,7 @@ model40.plot <- model40.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "40. Snake River Plain: Post-burn closure",
        x = NULL) +
   geom_signif(
@@ -5183,7 +5304,9 @@ summary(model41.psm) # 36 treated matched
 # Diagnostic love plot
 love.plot(model41.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "41. Snake River Plain: Post-burn drill seeding")
+  labs(title = "41. Snake River Plain: Post-burn drill seeding") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model41.psm, type = "ecdf")
@@ -5276,6 +5399,7 @@ model41.plot <- model41.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "41. Snake River Plain: Post-burn drill seeding",
        x = NULL)
 model41.plot
@@ -5309,7 +5433,9 @@ summary(model42.psm) # 28 treated matched
 # Diagnostic love plot
 love.plot(model42.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "42. Snake River Plain: Post-burn herbicide")
+  labs(title = "42. Snake River Plain: Post-burn herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model42.psm, type = "ecdf")
@@ -5402,6 +5528,7 @@ model42.plot <- model42.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "42. Snake River Plain: Post-burn herbicide",
        x = NULL)
 model42.plot
@@ -5438,7 +5565,9 @@ summary(model43.psm) # 76 treated matched
 # Diagnostic love plot
 love.plot(model43.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "43. Southern Rockies: Herbicide")
+  labs(title = "43. Southern Rockies: Herbicide") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model43.psm, type = "ecdf")
@@ -5531,6 +5660,7 @@ model43.plot <- model43.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "43. Southern Rockies: Herbicide",
        x = NULL)
 model43.plot
@@ -5564,7 +5694,9 @@ summary(model44.psm) # 37 treated matched
 # Diagnostic love plot
 love.plot(model44.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "44. Southern Rockies: Prescribed burn")
+  labs(title = "44. Southern Rockies: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model44.psm, type = "ecdf")
@@ -5657,6 +5789,7 @@ model44.plot <- model44.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "44. Southern Rockies: Prescribed burn",
        x = NULL) + 
   geom_signif(
@@ -5694,7 +5827,9 @@ summary(model45.psm) # 28 treated matched
 # Diagnostic love plot
 love.plot(model45.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "45. Southern Rockies: Vegetation disturbance")
+  labs(title = "45. Southern Rockies: Vegetation disturbance") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model45.psm, type = "ecdf")
@@ -5787,6 +5922,7 @@ model45.plot <- model45.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "45. Southern Rockies: Vegetation disturbance",
        x = NULL)
 model45.plot
@@ -5823,7 +5959,9 @@ summary(model46.psm) # 37 treated matched
 # Diagnostic love plot
 love.plot(model46.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "46. WY Basin: Prescribed burn")
+  labs(title = "46. WY Basin: Prescribed burn") +
+  theme(legend.title = element_blank()) +
+  theme(legend.position = "bottom")
 
 # eCDF plots
 plot(model46.psm, type = "ecdf")
@@ -5916,6 +6054,7 @@ model46.plot <- model46.pred |>
   ) +
   geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
+  theme(axis.text.x = element_text(color = "black")) +
   labs(title = "46. WY Basin: Prescribed burn",
        x = NULL)
 model46.plot
@@ -6017,6 +6156,8 @@ save(list = ls(pattern = "\\.matched$"),
 
 # Write out figures -------------------------------------------------------
 
+## AZ/NM Mountains --------------------------------------------------------
+
 # 1. AZ/NM Mountains: Prescribed burn
 #   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model01_loveplot.tiff",
@@ -6029,6 +6170,66 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model01_average-treatment-effect
      units = "in", width = 6, height = 4, res = 150)
 model01.plot
 dev.off()
+
+
+
+## AZ/NM Plateau ----------------------------------------------------------
+
+# 2. AZ/NM Plateau: Herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model02_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model02.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model02_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model02.plot
+dev.off()
+
+
+# 3. AZ/NM Plateau: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model03_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model03.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model03_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model03.plot
+dev.off()
+
+
+# 4. AZ/NM Plateau: Seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model04_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model04.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model04_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model04.plot
+dev.off()
+
+
+# 5. AZ/NM Plateau: Soil disturbance
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model05_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model05.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model05_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model05.plot
+dev.off()
+
 
 
 save.image("RData/13_propensity-score-matching.RData")

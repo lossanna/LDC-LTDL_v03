@@ -382,6 +382,7 @@ model02.bp <- model02.matched2 |>
        x = NULL,
        title = "2. AZ/NM Plateau: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model01.bp
 
@@ -545,6 +546,7 @@ model03.bp <- model03.matched2 |>
        x = NULL,
        title = "3. AZ/NM Plateau: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model03.bp
 
@@ -708,6 +710,7 @@ model04.bp <- model04.matched2 |>
        x = NULL,
        title = "4. AZ/NM Mountains: Seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model04.bp
 
@@ -871,6 +874,7 @@ model05.bp <- model05.matched2 |>
        x = NULL,
        title = "5. AZ/NM Mountains: Soil disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model05.bp
 
@@ -1036,6 +1040,7 @@ model06.bp <- model06.matched2 |>
        x = NULL,
        title = "6. Blue Mountains: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model06.bp
 
@@ -1199,6 +1204,7 @@ model07.bp <- model07.matched2 |>
        x = NULL,
        title = "7. Blue Mountains: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model07.bp
 
@@ -1362,6 +1368,7 @@ model08.bp <- model08.matched2 |>
        x = NULL,
        title = "8. Blue Mountains: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model08.bp
 
@@ -1534,6 +1541,7 @@ model09.bp <- model09.matched2 |>
     annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model09.bp
 
@@ -1703,6 +1711,7 @@ model10.bp <- model10.matched2 |>
     annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model10.bp
 
@@ -1871,7 +1880,8 @@ model11.bp <- model11.matched2 |>
     xmax = 4.2, 
     annotations = c("**")
   ) +
-theme(legend.title = element_blank()) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model11.bp
 
@@ -2035,6 +2045,7 @@ model12.bp <- model12.matched2 |>
        x = NULL,
        title = "12. Central BR: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model12.bp
 
@@ -2204,6 +2215,7 @@ model13.bp <- model13.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model13.bp
 
@@ -2367,6 +2379,7 @@ model14.bp <- model14.matched2 |>
        x = NULL,
        title = "14. Central BR: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model14.bp
 
@@ -2530,6 +2543,7 @@ model15.bp <- model15.matched2 |>
        x = NULL,
        title = "12. Central BR: Post-burn ground seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model15.bp
 
@@ -2693,6 +2707,7 @@ model16.bp <- model16.matched2 |>
        x = NULL,
        title = "16. Central BR: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model16.bp
 
@@ -2859,6 +2874,7 @@ model17.bp <- model17.matched2 |>
        x = NULL,
        title = "17. Chihuahuan Desert: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model17.bp
 
@@ -3025,6 +3041,7 @@ model18.bp <- model18.matched2 |>
        x = NULL,
        title = "18. CO Plateaus: Aerial seeding & soil disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model18.bp
 
@@ -3188,6 +3205,7 @@ model19.bp <- model19.matched2 |>
        x = NULL,
        title = "19. CO Plateaus: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model19.bp
 
@@ -3351,6 +3369,7 @@ model20.bp <- model20.matched2 |>
        x = NULL,
        title = "20. CO Plateaus: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model20.bp
 
@@ -3514,6 +3533,7 @@ model21.bp <- model21.matched2 |>
        x = NULL,
        title = "21. CO Plateaus: Soil disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model21.bp
 
@@ -3683,6 +3703,7 @@ model22.bp <- model22.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model22.bp
 
@@ -3846,6 +3867,7 @@ model23.bp <- model23.matched2 |>
        x = NULL,
        title = "23. CO Plateaus: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model23.bp
 
@@ -4012,6 +4034,7 @@ model24.bp <- model24.matched2 |>
        x = NULL,
        title = "24. Middle Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model24.bp
 
@@ -4178,6 +4201,7 @@ model25.bp <- model25.matched2 |>
        x = NULL,
        title = "25. Mojave BR: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model25.bp
 
@@ -4350,6 +4374,7 @@ model26.bp <- model26.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model26.bp
 
@@ -4524,6 +4549,7 @@ model27.bp <- model27.matched2 |>
     annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model27.bp
 
@@ -4687,6 +4713,7 @@ model28.bp <- model28.matched2 |>
        x = NULL,
        title = "28. Northern BR: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model28.bp
 
@@ -4862,6 +4889,7 @@ model29.bp <- model29.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model29.bp
 
@@ -5025,6 +5053,7 @@ model30.bp <- model30.matched2 |>
        x = NULL,
        title = "30. Northern BR: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model30.bp
 
@@ -5188,6 +5217,7 @@ model31.bp <- model31.matched2 |>
        x = NULL,
        title = "31. Northern BR: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model31.bp
 
@@ -5351,6 +5381,7 @@ model32.bp <- model32.matched2 |>
        x = NULL,
        title = "32. Northern BR: Post-burn aerial & drill seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model32.bp
 
@@ -5525,6 +5556,7 @@ model33.bp <- model33.matched2 |>
     annotations = c("***")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model33.bp 
 
@@ -5694,6 +5726,7 @@ model34.bp <- model34.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model34.bp
 
@@ -5863,6 +5896,7 @@ model35.bp <- model35.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model35.bp
 
@@ -6032,6 +6066,7 @@ model36.bp <- model36.matched2 |>
     annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model36.bp
 
@@ -6198,6 +6233,7 @@ model37.bp <- model37.matched2 |>
        x = NULL,
        title = "37. NW Great Plains: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model37.bp
 
@@ -6376,6 +6412,7 @@ model38.bp <- model38.matched2 |>
     annotations = c("**")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model38.bp
 
@@ -6538,6 +6575,7 @@ model39.bp <- model39.matched2 |>
        x = NULL,
        title = "39. Snake River Plain: Post-burn aerial & drill seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model39.bp
 
@@ -6714,6 +6752,7 @@ model40.bp <- model40.matched2 |>
     annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model40.bp
 
@@ -6877,6 +6916,7 @@ model41.bp <- model41.matched2 |>
        x = NULL,
        title = "41. Snake River Plain: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model41.bp
 
@@ -7039,6 +7079,7 @@ model42.bp <- model42.matched2 |>
        x = NULL,
        title = "42. Snake River Plain: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model42.bp
 
@@ -7205,6 +7246,7 @@ model43.bp <- model43.matched2 |>
        x = NULL,
        title = "43. Southern Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model43.bp
 
@@ -7368,6 +7410,7 @@ model44.bp <- model44.matched2 |>
        x = NULL,
        title = "44. Southern Rockies: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model44.bp
 
@@ -7531,6 +7574,7 @@ model45.bp <- model45.matched2 |>
        x = NULL,
        title = "45. Southern Rockies: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model45.bp
 
@@ -7696,6 +7740,7 @@ model46.bp <- model46.matched2 |>
        x = NULL,
        title = "46. WY Basin: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model46.bp
 
@@ -7787,6 +7832,9 @@ grid.arrange(
 
 # Write out figures -------------------------------------------------------
 
+
+# AZ/NM Mountains ---------------------------------------------------------
+
 # 1. AZ/NM Mountains: Prescribed burn
 tiff("figures/2026-05_PSM-and-permutation-tests/model01_permutation_functional-group.tiff",
      units = "in", width = 9, height = 6.5, res = 150)
@@ -7801,6 +7849,64 @@ grid.arrange(
 )
 dev.off()
 
+
+# AZ/NM Plateau -----------------------------------------------------------
+
+# 2. AZ/NM Plateau: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model02_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model02.bp, model02.annforb, model02.anngrass,
+  model02.perforb, model02.pergrass, model02.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 3. AZ/NM Plateau: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model03_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model03.bp, model03.annforb, model03.anngrass,
+  model03.perforb, model03.pergrass, model03.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 4. AZ/NM Plateau: Seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model04_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model04.bp, model04.annforb, model04.anngrass,
+  model04.perforb, model04.pergrass, model04.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 5. AZ/NM Plateau: Soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model05_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model05.bp, model05.annforb, model05.anngrass,
+  model05.perforb, model05.pergrass, model05.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
 
 save.image("RData/14_permutation-tests.RData")
 
