@@ -7833,7 +7833,7 @@ grid.arrange(
 # Write out figures -------------------------------------------------------
 
 
-# AZ/NM Mountains ---------------------------------------------------------
+## AZ/NM Mountains --------------------------------------------------------
 
 # 1. AZ/NM Mountains: Prescribed burn
 tiff("figures/2026-05_PSM-and-permutation-tests/model01_permutation_functional-group.tiff",
@@ -7850,7 +7850,7 @@ grid.arrange(
 dev.off()
 
 
-# AZ/NM Plateau -----------------------------------------------------------
+## AZ/NM Plateau ----------------------------------------------------------
 
 # 2. AZ/NM Plateau: Herbicide
 tiff("figures/2026-05_PSM-and-permutation-tests/model02_permutation_functional-group.tiff",
@@ -7907,6 +7907,52 @@ grid.arrange(
   )
 )
 dev.off()
+
+
+## Blue Mountains ---------------------------------------------------------
+
+# 6. Blue Mountains: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model06_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model06.bp, model06.annforb, model06.anngrass,
+  model06.perforb, model06.pergrass, model06.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 7. Blue Mountains: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model07_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model07.bp, model07.annforb, model07.anngrass,
+  model07.perforb, model07.pergrass, model07.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 8. Blue Mountains: Post-burn herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model08_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model08.bp, model08.annforb, model08.anngrass,
+  model08.perforb, model08.pergrass, model08.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
 
 save.image("RData/14_permutation-tests.RData")
 

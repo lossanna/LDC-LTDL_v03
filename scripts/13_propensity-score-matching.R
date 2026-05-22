@@ -723,11 +723,12 @@ summary(model06.psm) # 96 treated matched
 
 
 # Diagnostic love plot
-love.plot(model06.psm, stars = "std",           
+model06.loveplot <- love.plot(model06.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "6. Blue Mountains: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model06.loveplot
 
 # eCDF plots
 plot(model06.psm, type = "ecdf")
@@ -813,12 +814,12 @@ model06.comp
 # Plot
 model06.plot <- model06.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "6. Blue Mountains: Herbicide",
@@ -852,11 +853,12 @@ summary(model07.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(model07.psm, stars = "std",           
+model07.loveplot <- love.plot(model07.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "7. Blue Mountains: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model07.loveplot
 
 # eCDF plots
 plot(model07.psm, type = "ecdf")
@@ -942,12 +944,12 @@ model07.comp
 # Plot
 model07.plot <- model07.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "7. Blue Mountains: Vegetation disturbance",
@@ -981,11 +983,12 @@ summary(model08.psm) # 42 treated matched
 
 
 # Diagnostic love plot
-love.plot(model08.psm, stars = "std",           
+model08.loveplot <- love.plot(model08.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "8. Blue Mountains: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model08.loveplot
 
 # eCDF plots
 plot(model08.psm, type = "ecdf")
@@ -1071,12 +1074,12 @@ model08.comp
 # Plot
 model08.plot <- model08.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "8. Blue Mountains: Post-burn herbicide",
@@ -6228,6 +6231,51 @@ dev.off()
 tiff("figures/2026-05_PSM-and-permutation-tests/model05_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model05.plot
+dev.off()
+
+
+
+## Blue Mountains ---------------------------------------------------------
+
+# 6. Blue Mountains: Herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model06_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model06.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model06_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model06.plot
+dev.off()
+
+
+# 7. Blue Mountains: Vegetation disturbance
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model07_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model07.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model07_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model07.plot
+dev.off()
+
+
+# 8. Blue Mountains: Post-burn herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model08_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model08.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model08_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model08.plot
 dev.off()
 
 
