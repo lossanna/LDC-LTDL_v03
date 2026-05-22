@@ -1533,7 +1533,7 @@ model09.bp <- model09.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "9. Central BR: Aerial seeding") +
+       title = "9. Central Basin and Range: Aerial seeding") +
   geom_signif(
     y_position = 25,
     xmin = 2.8,
@@ -1703,15 +1703,16 @@ model10.bp <- model10.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "10. Central BR: Drill seeding & soil disturbance") +
+       title = "10. Central Basin and Range: Drill seeding & soil disturbance") +
   geom_signif(
-    y_position = 80,
+    y_position = 82,
     xmin = 3.8,
     xmax = 4.2, 
-    annotations = c("*")
+    annotations = c("***")
   ) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
+  ylim(0, 85) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model10.bp
 
@@ -1873,7 +1874,7 @@ model11.bp <- model11.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "11. Central BR: Prescribed burn") +
+       title = "11. Central Basin and Range: Prescribed burn") +
   geom_signif(
     y_position = 65,
     xmin = 3.8,
@@ -2043,7 +2044,7 @@ model12.bp <- model12.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "12. Central BR: Vegetation disturbance") +
+       title = "12. Central Basin and Range: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -2207,7 +2208,7 @@ model13.bp <- model13.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "13. Central BR: Post-burn aerial seeding") +
+       title = "13. Central Basin and Range: Post-burn aerial seeding") +
   geom_signif(
     y_position = 60,
     xmin = 2.8,
@@ -2377,7 +2378,7 @@ model14.bp <- model14.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "14. Central BR: Post-burn drill seeding") +
+       title = "14. Central Basin and Range: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -2541,7 +2542,7 @@ model15.bp <- model15.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "12. Central BR: Post-burn ground seeding") +
+       title = "15. Central Basin and Range: Post-burn ground seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -2705,7 +2706,7 @@ model16.bp <- model16.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "16. Central BR: Post-burn herbicide") +
+       title = "16. Central Basin and Range: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -7945,6 +7946,121 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model08_permutation_functional-g
 grid.arrange(
   model08.bp, model08.annforb, model08.anngrass,
   model08.perforb, model08.pergrass, model08.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
+## Central Basin and Range ------------------------------------------------
+
+# 9. Central BR: Aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model09_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model09.bp, model09.annforb, model09.anngrass,
+  model09.perforb, model09.pergrass, model09.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 10. Central BR: Drill seeding & soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model10_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model10.bp, model10.annforb, model10.anngrass,
+  model10.perforb, model10.pergrass, model10.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 11. Central BR: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model11_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model11.bp, model11.annforb, model11.anngrass,
+  model11.perforb, model11.pergrass, model11.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 12. Central BR: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model12_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model12.bp, model12.annforb, model12.anngrass,
+  model12.perforb, model12.pergrass, model12.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 13. Central BR: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model13_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model13.bp, model13.annforb, model13.anngrass,
+  model13.perforb, model13.pergrass, model13.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 14. Central BR: Post-burn drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model14_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model14.bp, model14.annforb, model14.anngrass,
+  model14.perforb, model14.pergrass, model14.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 15. Central BR: Post-burn ground seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model15_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model15.bp, model15.annforb, model15.anngrass,
+  model15.perforb, model15.pergrass, model15.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 16. Central BR: Post-burn herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model16_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model16.bp, model16.annforb, model16.anngrass,
+  model16.perforb, model16.pergrass, model16.shrub,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),

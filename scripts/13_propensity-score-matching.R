@@ -1116,11 +1116,12 @@ summary(model09.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(model09.psm, stars = "std",           
+model09.loveplot <- love.plot(model09.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "9. Central BR: Aerial seeding") +
+  labs(title = "9. Central Basin and Range: Aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model09.loveplot
 
 # eCDF plots
 plot(model09.psm, type = "ecdf")
@@ -1206,15 +1207,15 @@ model09.comp
 # Plot
 model09.plot <- model09.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "9. Central BR: Aerial seeding",
+  labs(title = "9. Central Basin and Range: Aerial seeding",
        x = NULL)
 model09.plot
 
@@ -1245,11 +1246,12 @@ summary(model10.psm) # 36 treated matched
 
 
 # Diagnostic love plot
-love.plot(model10.psm, stars = "std",           
+model10.loveplot <- love.plot(model10.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "10. Central BR: Drill Seeding & soil disturbance") +
+  labs(title = "10. Central Basin and Range: Drill seeding & soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model10.loveplot
 
 # eCDF plots
 plot(model10.psm, type = "ecdf")
@@ -1335,15 +1337,15 @@ model10.comp
 # Plot
 model10.plot <- model10.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "10. Central BR: Drill seeding & soil disturbance",
+  labs(title = "10. Central Basin and Range: Drill seeding & soil disturbance",
        x = NULL)
 model10.plot
 
@@ -1374,11 +1376,12 @@ summary(model11.psm) # 31 treated matched
 
 
 # Diagnostic love plot
-love.plot(model11.psm, stars = "std",           
+model11.loveplot <- love.plot(model11.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "11. Central BR: Prescribed burn") +
+  labs(title = "11. Central Basin and Range: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model11.loveplot
 
 # eCDF plots
 plot(model11.psm, type = "ecdf")
@@ -1464,15 +1467,15 @@ model11.comp
 # Plot
 model11.plot <- model11.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "11. Central BR: Prescribed burn",
+  labs(title = "11. Central Basin and Range: Prescribed burn",
        x = NULL)
 model11.plot
 
@@ -1503,11 +1506,12 @@ summary(model12.psm) # 99 treated matched
 
 
 # Diagnostic love plot
-love.plot(model12.psm, stars = "std",           
+model12.loveplot <- love.plot(model12.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "12. Central BR: Vegetation disturbance") +
+  labs(title = "12. Central Basin and Range: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model12.loveplot
 
 # eCDF plots
 plot(model12.psm, type = "ecdf")
@@ -1593,15 +1597,15 @@ model12.comp # p = 0.001
 # Plot
 model12.plot <- model12.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "12. Central BR: Vegetation disturbance",
+  labs(title = "12. Central Basin and Range: Vegetation disturbance",
        x = NULL) +
   geom_signif(
     comparisons = list(c("Control", "Vegetation disturbance")),
@@ -1636,11 +1640,12 @@ summary(model13.psm) # 345 treated matched
 
 
 # Diagnostic love plot
-love.plot(model13.psm, stars = "std",           
+model13.loveplot <- love.plot(model13.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "13. Central BR: Post-burn aerial seeding") +
+  labs(title = "13. Central Basin and Range: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model13.loveplot
 
 # eCDF plots
 plot(model13.psm, type = "ecdf")
@@ -1726,15 +1731,15 @@ model13.comp
 # Plot
 model13.plot <- model13.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "13. Central BR: Post-burn aerial seeding",
+  labs(title = "13. Central Basin and Range: Post-burn aerial seeding",
        x = NULL)
 model13.plot
 
@@ -1765,11 +1770,12 @@ summary(model14.psm) # 88 treated matched
 
 
 # Diagnostic love plot
-love.plot(model14.psm, stars = "std",           
+model14.loveplot <- love.plot(model14.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "14. Central BR: Post-burn drill seeding") +
+  labs(title = "14. Central Basin and Range: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model14.loveplot
 
 # eCDF plots
 plot(model14.psm, type = "ecdf")
@@ -1854,16 +1860,17 @@ model14.comp # p = 0.01
 
 # Plot
 model14.plot <- model14.pred |>
+  
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "14. Central BR: Post-burn drill seeding",
+  labs(title = "14. Central Basin and Range: Post-burn drill seeding",
        x = NULL) +
   geom_signif(
     comparisons = list(c("Post-burn control", "Post-burn drill seeding")),
@@ -1898,11 +1905,12 @@ summary(model15.psm) # 38 treated matched
 
 
 # Diagnostic love plot
-love.plot(model15.psm, stars = "std",           
+model15.loveplot <- love.plot(model15.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "15. Central BR: Post-burn ground seeding") +
+  labs(title = "15. Central Basin and Range: Post-burn ground seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model15.loveplot
 
 # eCDF plots
 plot(model15.psm, type = "ecdf")
@@ -1988,15 +1996,15 @@ model15.comp
 # Plot
 model15.plot <- model15.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "15. Central BR: Post-burn ground seeding",
+  labs(title = "15. Central Basin and Range: Post-burn ground seeding",
        x = NULL)
 model15.plot
 
@@ -2027,11 +2035,12 @@ summary(model16.psm) # 80 treated matched
 
 
 # Diagnostic love plot
-love.plot(model16.psm, stars = "std",           
+model16.loveplot <- love.plot(model16.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "16. Central BR: Post-burn herbicide") +
+  labs(title = "16. Central Basin and Range: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model16.loveplot
 
 # eCDF plots
 plot(model16.psm, type = "ecdf")
@@ -2117,15 +2126,15 @@ model16.comp
 # Plot
 model16.plot <- model16.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "16. Central BR: Post-burn herbicide",
+  labs(title = "16. Central Basin and Range: Post-burn herbicide",
        x = NULL)
 model16.plot
 
@@ -6278,6 +6287,120 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model08_average-treatment-effect
 model08.plot
 dev.off()
 
+
+
+## Central Basin and Range ------------------------------------------------
+
+# 9. Central BR: Aerial seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model09_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model09.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model09_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model09.plot
+dev.off()
+
+
+# 10. Central BR: Drill seeding & soil disturbance
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model10_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model10.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model10_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model10.plot
+dev.off()
+
+
+# 11. Central BR: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model11_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model11.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model11_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model11.plot
+dev.off()
+
+
+# 12. Central BR: Vegetation disturbance
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model12_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model12.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model12_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model12.plot
+dev.off()
+
+
+# 13. Central BR: Post-burn aerial seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model13_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model13.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model13_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model13.plot
+dev.off()
+
+
+# 14. Central BR: Post-burn drill seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model14_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model14.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model14_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model14.plot
+dev.off()
+
+
+# 15. Central BR: Post-burn ground seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model15_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model15.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model15_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model15.plot
+dev.off()
+
+
+# 16. Central BR: Post-burn herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model16_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model16.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model16_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model16.plot
+dev.off()
 
 
 save.image("RData/13_propensity-score-matching.RData")
