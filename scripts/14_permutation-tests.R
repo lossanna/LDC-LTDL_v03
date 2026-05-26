@@ -4368,13 +4368,14 @@ model26.bp <- model26.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "26. Northern BR: Drill seeding") +
+       title = "26. Northern Basin and Range: Drill seeding") +
   geom_signif(
     y_position = 85,
     xmin = 3.8,
     xmax = 4.2, 
     annotations = c("**")
   ) +
+  ylim(0, 90) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -4537,7 +4538,7 @@ model27.bp <- model27.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "27. Northern BR: Drill seeding & soil disturbance") +
+       title = "27. Northern Basin and Range: Drill seeding & soil disturbance") +
   geom_signif(
     y_position = 43,
     xmin = 0.8,
@@ -4713,7 +4714,7 @@ model28.bp <- model28.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "28. Northern BR: Herbicide") +
+       title = "28. Northern Basin and Range: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -4877,7 +4878,7 @@ model29.bp <- model29.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "29. Northern BR: Prescribed burn") +
+       title = "29. Northern Basin and Range: Prescribed burn") +
   geom_signif(
     y_position = 98,
     xmin = 1.8,
@@ -4890,6 +4891,7 @@ model29.bp <- model29.matched2 |>
     xmax = 4.2, 
     annotations = c("**")
   ) +
+  ylim(0, 105) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -5217,7 +5219,7 @@ model31.bp <- model31.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "31. Northern BR: Post-burn aerial seeding") +
+       title = "31. Northern Basin and Range: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -5381,7 +5383,7 @@ model32.bp <- model32.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "32. Northern BR: Post-burn aerial & drill seeding") +
+       title = "32. Northern Basin and Range: Post-burn aerial & drill seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -5544,9 +5546,9 @@ model33.bp <- model33.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "33. Northern BR: Post-burn closure") +
+       title = "33. Northern Basin and Range: Post-burn closure") +
   geom_signif(
-    y_position = 105,
+    y_position = 107,
     xmin = 1.8,
     xmax = 2.2, 
     annotations = c("***")
@@ -5557,6 +5559,7 @@ model33.bp <- model33.matched2 |>
     xmax = 4.2, 
     annotations = c("***")
   ) +
+  ylim(0, 120) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -5720,7 +5723,7 @@ model34.bp <- model34.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "34. Northern BR: Post-burn drill seeding") +
+       title = "34. Northern Basin and Range: Post-burn drill seeding") +
   geom_signif(
     y_position = 50,
     xmin = 2.8,
@@ -5890,7 +5893,7 @@ model35.bp <- model35.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "35. Northern BR: Post-burn herbicide") +
+       title = "35. Northern Basin and Range: Post-burn herbicide") +
   geom_signif(
     y_position = 95,
     xmin = 3.8,
@@ -6060,13 +6063,14 @@ model36.bp <- model36.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "36. Northern BR: Post-burn seedling planting") +
+       title = "36. Northern Basin and Range: Post-burn seedling planting") +
   geom_signif(
     y_position = 105,
     xmin = 1.8,
     xmax = 2.2, 
     annotations = c("*")
   ) +
+  ylim(0, 120) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -8200,6 +8204,163 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model25_permutation_functional-g
 grid.arrange(
   model25.bp, model25.annforb, model25.anngrass,
   model25.perforb, model25.pergrass, model25.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
+## Northern Basin and Range -----------------------------------------------
+
+# 26. Northern BR: Drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model26_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model26.bp, model26.annforb, model26.anngrass,
+  model26.perforb, model26.pergrass, model26.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 27. Northern BR: Drill seeding & soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model27_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model27.bp, model27.annforb, model27.anngrass,
+  model27.perforb, model27.pergrass, model27.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 28. Northern BR: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model28_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model28.bp, model28.annforb, model28.anngrass,
+  model28.perforb, model28.pergrass, model28.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 29. Northern BR: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model29_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model29.bp, model29.annforb, model29.anngrass,
+  model29.perforb, model29.pergrass, model29.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 30. Northern BR: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model30_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model30.bp, model30.annforb, model30.anngrass,
+  model30.perforb, model30.pergrass, model30.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 31. Northern BR: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model31_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model31.bp, model31.annforb, model31.anngrass,
+  model31.perforb, model31.pergrass, model31.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 32. Northern BR: Post-burn aerial and drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model32_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model32.bp, model32.annforb, model32.anngrass,
+  model32.perforb, model32.pergrass, model32.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 33. Northern BR: Post-burn closure
+tiff("figures/2026-05_PSM-and-permutation-tests/model33_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model33.bp, model33.annforb, model33.anngrass,
+  model33.perforb, model33.pergrass, model33.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 34. Northern BR: Post-burn drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model34_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model34.bp, model34.annforb, model34.anngrass,
+  model34.perforb, model34.pergrass, model34.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 35. Northern BR: Post-burn herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model35_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model35.bp, model35.annforb, model35.anngrass,
+  model35.perforb, model35.pergrass, model35.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 36. Northern BR: Post-burn seedling planting
+tiff("figures/2026-05_PSM-and-permutation-tests/model36_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model36.bp, model36.annforb, model36.anngrass,
+  model36.perforb, model36.pergrass, model36.shrub,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
