@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-05-21
+# Updated: 2026-05-26
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data.
 
@@ -2301,11 +2301,12 @@ summary(model18.psm) # 60 treated matched
 
 
 # Diagnostic love plot
-love.plot(model18.psm, stars = "std",           
+model18.loveplot <- love.plot(model18.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance") +
+  labs(title = "18. Colorado Plateaus: Aerial seeding & soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model18.loveplot
 
 # eCDF plots
 plot(model18.psm, type = "ecdf")
@@ -2391,15 +2392,15 @@ model18.comp
 # Plot
 model18.plot <- model18.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "18. CO Plateaus: Aerial seeding & soil disturbance",
+  labs(title = "18. Colorado Plateaus: Aerial seeding & soil disturbance",
        x = NULL)
 model18.plot
 
@@ -2430,11 +2431,12 @@ summary(model19.psm) # 47 treated matched
 
 
 # Diagnostic love plot
-love.plot(model19.psm, stars = "std",           
+model19.loveplot <- love.plot(model19.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "19. CO Plateaus: Herbicide") +
+  labs(title = "19. Colorado Plateaus: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model19.loveplot
 
 # eCDF plots
 plot(model19.psm, type = "ecdf")
@@ -2520,15 +2522,15 @@ model19.comp
 # Plot
 model19.plot <- model19.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "19. CO Plateaus: Herbicide",
+  labs(title = "19. Colorado Plateaus: Herbicide",
        x = NULL)
 model19.plot
 
@@ -2559,11 +2561,12 @@ summary(model20.psm) # 76 treated matched
 
 
 # Diagnostic love plot
-love.plot(model20.psm, stars = "std",           
+model20.loveplot <- love.plot(model20.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "20. CO Plateaus: Prescribed burn") +
+  labs(title = "20. Colorado Plateaus: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model20.loveplot
 
 # eCDF plots
 plot(model20.psm, type = "ecdf")
@@ -2644,20 +2647,20 @@ model20.comp <- avg_comparisons(
   vcov = ~subclass
 ) |> 
   mutate(Model = 20, .before = term)
-model20.comp # p = 0.01
+model20.comp # p = 0.012
 
 # Plot
 model20.plot <- model20.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "20. CO Plateaus: Prescribed burn",
+  labs(title = "20. Colorado Plateaus: Prescribed burn",
        x = NULL) + 
   geom_signif(
     comparisons = list(c("Control", "Prescribed burn")),
@@ -2692,11 +2695,12 @@ summary(model21.psm) # 40 treated matched
 
 
 # Diagnostic love plot
-love.plot(model21.psm, stars = "std",           
+model21.loveplot <- love.plot(model21.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "21. CO Plateaus: Soil disturbance") +
+  labs(title = "21. Colorado Plateaus: Soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model21.loveplot
 
 # eCDF plots
 plot(model21.psm, type = "ecdf")
@@ -2782,15 +2786,15 @@ model21.comp
 # Plot
 model21.plot <- model21.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "21. CO Plateaus: Soil disturbance",
+  labs(title = "21. Colorado Plateaus: Soil disturbance",
        x = NULL)
 model21.plot
 
@@ -2821,11 +2825,12 @@ summary(model22.psm) # 34 treated matched
 
 
 # Diagnostic love plot
-love.plot(model22.psm, stars = "std",           
+model22.loveplot <- love.plot(model22.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "22. CO Plateaus: Vegetation disturbance") +
+  labs(title = "22. Colorado Plateaus: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model22.loveplot
 
 # eCDF plots
 plot(model22.psm, type = "ecdf")
@@ -2911,15 +2916,15 @@ model22.comp
 # Plot
 model22.plot <- model22.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "22. CO Plateaus: Vegetation disturbance",
+  labs(title = "22. Colorado Plateaus: Vegetation disturbance",
        x = NULL)
 model22.plot
 
@@ -2950,11 +2955,12 @@ summary(model23.psm) # 58 treated matched
 
 
 # Diagnostic love plot
-love.plot(model23.psm, stars = "std",           
+model23.loveplot <- love.plot(model23.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "23. CO Plateaus: Post-burn aerial seeding") +
+  labs(title = "23. Colorado Plateaus: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model23.loveplot
 
 # eCDF plots
 plot(model23.psm, type = "ecdf")
@@ -3040,15 +3046,15 @@ model23.comp
 # Plot
 model23.plot <- model23.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "23. CO Plateaus: Post-burn aerial seeding",
+  labs(title = "23. Colorado Plateaus: Post-burn aerial seeding",
        x = NULL)
 model23.plot
 
@@ -6423,6 +6429,86 @@ dev.off()
 tiff("figures/2026-05_PSM-and-permutation-tests/model17_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model17.plot
+dev.off()
+
+
+## Colorado Plateaus ------------------------------------------------------
+
+# 18. CO Plateaus: Aerial seeding & soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model18_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model18.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model18_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model18.plot
+dev.off()
+
+
+# 19. CO Plateaus: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model19_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model19.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model19_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model19.plot
+dev.off()
+
+
+# 20. CO Plateaus: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model20_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model20.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model20_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model20.plot
+dev.off()
+
+
+# 21. CO Plateaus: Soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model21_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model21.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model21_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model21.plot
+dev.off()
+
+
+# 22. CO Plateaus: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model22_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model22.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model22_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model22.plot
+dev.off()
+
+
+# 23. CO Plateaus: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model23_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model23.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model23_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model23.plot
 dev.off()
 
 

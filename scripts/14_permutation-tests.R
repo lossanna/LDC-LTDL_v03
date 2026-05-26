@@ -1,5 +1,5 @@
 # Created: 2026-05-04
-# Updated: 2026-05-21
+# Updated: 2026-05-26
 
 # Purpose: Run permutation tests (based on Ron's script).
 
@@ -3040,7 +3040,7 @@ model18.bp <- model18.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "18. CO Plateaus: Aerial seeding & soil disturbance") +
+       title = "18. Colorado Plateaus: Aerial seeding & soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -3190,11 +3190,11 @@ model19.perm <- map_dfr(
 )
 
 #   Calculate p-values for each functional group
-p_values <- model19.perm |>
+p_values19 <- model19.perm |>
   inner_join(model19.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values
+p_values19
 
 # Boxplot
 model19.bp <- model19.matched2 |> 
@@ -3204,7 +3204,7 @@ model19.bp <- model19.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "19. CO Plateaus: Herbicide") +
+       title = "19. Colorado Plateaus: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -3368,7 +3368,7 @@ model20.bp <- model20.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "20. CO Plateaus: Prescribed burn") +
+       title = "20. Colorado Plateaus: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -3532,7 +3532,7 @@ model21.bp <- model21.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "21. CO Plateaus: Soil disturbance") +
+       title = "21. Colorado Plateaus: Soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -3696,13 +3696,14 @@ model22.bp <- model22.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "22. CO Plateaus: Vegetation disturbance") +
+       title = "22. Colorado Plateaus: Vegetation disturbance") +
   geom_signif(
     y_position = 85,
     xmin = 1.8,
     xmax = 2.2, 
     annotations = c("**")
   ) +
+  ylim(0, 90) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -3866,7 +3867,7 @@ model23.bp <- model23.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "23. CO Plateaus: Post-burn aerial seeding") +
+       title = "23. Colorado Plateaus: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -8085,6 +8086,94 @@ grid.arrange(
   )
 )
 dev.off()
+
+
+## Colorado Plateaus ------------------------------------------------------
+
+# 18. CO Plateaus: Aerial seeding & soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model18_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model18.bp, model18.annforb, model18.anngrass,
+  model18.perforb, model18.pergrass, model18.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 19. CO Plateaus: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model19_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model19.bp, model19.annforb, model19.anngrass,
+  model19.perforb, model19.pergrass, model19.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 20. CO Plateaus: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model20_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model20.bp, model20.annforb, model20.anngrass,
+  model20.perforb, model20.pergrass, model20.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 21. CO Plateaus: Soil disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model21_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model21.bp, model21.annforb, model21.anngrass,
+  model21.perforb, model21.pergrass, model21.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 22. CO Plateaus: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model22_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model22.bp, model22.annforb, model22.anngrass,
+  model22.perforb, model22.pergrass, model22.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 23. CO Plateaus: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model23_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model23.bp, model23.annforb, model23.anngrass,
+  model23.perforb, model23.pergrass, model23.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
 
 save.image("RData/14_permutation-tests.RData")
 
