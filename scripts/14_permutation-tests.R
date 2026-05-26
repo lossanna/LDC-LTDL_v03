@@ -4201,7 +4201,7 @@ model25.bp <- model25.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "25. Mojave BR: Post-burn aerial seeding") +
+       title = "25. Mojave Basin and Range: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -8166,6 +8166,40 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model23_permutation_functional-g
 grid.arrange(
   model23.bp, model23.annforb, model23.anngrass,
   model23.perforb, model23.pergrass, model23.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
+## Middle Rockies ---------------------------------------------------------
+
+# 24. Middle Rockies: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model24_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model24.bp, model24.annforb, model24.anngrass,
+  model24.perforb, model24.pergrass, model24.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
+## Mojave Basin and Range -------------------------------------------------
+
+# 25. Mojave BR: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model25_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model25.bp, model25.annforb, model25.anngrass,
+  model25.perforb, model25.pergrass, model25.shrub,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),

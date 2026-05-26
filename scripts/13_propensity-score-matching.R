@@ -3088,11 +3088,12 @@ summary(model24.psm) # 33 treated matched
 
 
 # Diagnostic love plot
-love.plot(model24.psm, stars = "std",           
+model24.loveplot <- love.plot(model24.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "24. Middle Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model24.loveplot
 
 # eCDF plots
 plot(model24.psm, type = "ecdf")
@@ -3178,12 +3179,12 @@ model24.comp
 # Plot
 model24.plot <- model24.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "24. Middle Rockies: Herbicide",
@@ -3220,11 +3221,12 @@ summary(model25.psm) # 65 treated matched
 
 
 # Diagnostic love plot
-love.plot(model25.psm, stars = "std",           
+model25.loveplot <- love.plot(model25.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "25. Mojave BR: Post-burn aerial seeding") +
+  labs(title = "25. Mojave Basin and Range: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model25.loveplot
 
 # eCDF plots
 plot(model25.psm, type = "ecdf")
@@ -6435,6 +6437,7 @@ dev.off()
 ## Colorado Plateaus ------------------------------------------------------
 
 # 18. CO Plateaus: Aerial seeding & soil disturbance
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model18_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model18.loveplot
@@ -6448,6 +6451,7 @@ dev.off()
 
 
 # 19. CO Plateaus: Herbicide
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model19_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model19.loveplot
@@ -6461,6 +6465,7 @@ dev.off()
 
 
 # 20. CO Plateaus: Prescribed burn
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model20_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model20.loveplot
@@ -6474,6 +6479,7 @@ dev.off()
 
 
 # 21. CO Plateaus: Soil disturbance
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model21_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model21.loveplot
@@ -6487,6 +6493,7 @@ dev.off()
 
 
 # 22. CO Plateaus: Vegetation disturbance
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model22_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model22.loveplot
@@ -6500,6 +6507,7 @@ dev.off()
 
 
 # 23. CO Plateaus: Post-burn aerial seeding
+#   Love plot
 tiff("figures/2026-05_PSM-and-permutation-tests/model23_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model23.loveplot
@@ -6511,5 +6519,38 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model23_average-treatment-effect
 model23.plot
 dev.off()
 
+
+
+## Middle Rockies ---------------------------------------------------------
+
+# 24. Middle Rockies: Herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model24_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model24.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model24_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model24.plot
+dev.off()
+
+
+
+## Mojave Basin and Range -------------------------------------------------
+
+# 25. Mojave BR: Post-burn aerial seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model25_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model25.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model25_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model25.plot
+dev.off()
 
 save.image("RData/13_propensity-score-matching.RData")
