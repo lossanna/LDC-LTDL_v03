@@ -5601,11 +5601,12 @@ summary(model43.psm) # 76 treated matched
 
 
 # Diagnostic love plot
-love.plot(model43.psm, stars = "std",           
+model43.loveplot <- love.plot(model43.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "43. Southern Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model43.loveplot
 
 # eCDF plots
 plot(model43.psm, type = "ecdf")
@@ -5691,12 +5692,12 @@ model43.comp
 # Plot
 model43.plot <- model43.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "43. Southern Rockies: Herbicide",
@@ -5730,11 +5731,12 @@ summary(model44.psm) # 37 treated matched
 
 
 # Diagnostic love plot
-love.plot(model44.psm, stars = "std",           
+model44.loveplot <- love.plot(model44.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "44. Southern Rockies: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model44.loveplot
 
 # eCDF plots
 plot(model44.psm, type = "ecdf")
@@ -5820,12 +5822,12 @@ model44.comp # p = 0.03
 # Plot
 model44.plot <- model44.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "44. Southern Rockies: Prescribed burn",
@@ -5863,11 +5865,12 @@ summary(model45.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(model45.psm, stars = "std",           
+model45.loveplot <- love.plot(model45.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "45. Southern Rockies: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model45.loveplot
 
 # eCDF plots
 plot(model45.psm, type = "ecdf")
@@ -5953,12 +5956,12 @@ model45.comp
 # Plot
 model45.plot <- model45.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "45. Southern Rockies: Vegetation disturbance",
@@ -6817,6 +6820,50 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model42_average-treatment-effect
 model42.plot
 dev.off()
 
+
+
+## Southern Rockies -------------------------------------------------------
+
+# 43. Southern Rockies: Herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model43_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model43.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model43_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model43.plot
+dev.off()
+
+
+# 44. Southern Rockies: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model44_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model44.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model44_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model44.plot
+dev.off()
+
+
+# 45. Southern Rockies: Vegetation disturbance
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model45_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model45.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model45_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model45.plot
+dev.off()
 
 
 save.image("RData/13_propensity-score-matching.RData")

@@ -8460,5 +8460,50 @@ grid.arrange(
 dev.off()
 
 
+## Southern Rockies -------------------------------------------------------
+
+# 43. Southern Rockies: Herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model43_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model43.bp, model43.annforb, model43.anngrass,
+  model43.perforb, model43.pergrass, model43.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 44. Southern Rockies: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model44_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model44.bp, model44.annforb, model44.anngrass,
+  model44.perforb, model44.pergrass, model44.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 45. Southern Rockies: Vegetation disturbance
+tiff("figures/2026-05_PSM-and-permutation-tests/model45_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model45.bp, model45.annforb, model45.anngrass,
+  model45.perforb, model45.pergrass, model45.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
 save.image("RData/14_permutation-tests.RData")
 
