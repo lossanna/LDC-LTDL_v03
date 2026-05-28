@@ -1,5 +1,5 @@
 # Created: 2026-05-04
-# Updated: 2026-05-26
+# Updated: 2026-05-28
 
 # Purpose: Run permutation tests (based on Ron's script).
 
@@ -6237,7 +6237,7 @@ model37.bp <- model37.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "37. NW Great Plains: Prescribed burn") +
+       title = "37. Northwestern Great Plains: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -8369,6 +8369,22 @@ grid.arrange(
 )
 dev.off()
 
+
+## Northwestern Great Plains ----------------------------------------------
+
+# 37. NW Great Plains: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model37_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model37.bp, model37.annforb, model37.anngrass,
+  model37.perforb, model37.pergrass, model37.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
 
 save.image("RData/14_permutation-tests.RData")
 

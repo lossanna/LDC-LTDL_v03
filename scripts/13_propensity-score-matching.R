@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-05-26
+# Updated: 2026-05-28
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data.
 
@@ -4803,11 +4803,12 @@ summary(model37.psm) # 51 treated matched
 
 
 # Diagnostic love plot
-love.plot(model37.psm, stars = "std",           
+model37.loveplot <- love.plot(model37.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "37. NW Great Plains: Prescribed burn") +
+  labs(title = "37. Northwestern Great Plains: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model37.loveplot
 
 # eCDF plots
 plot(model37.psm, type = "ecdf")
@@ -4893,15 +4894,15 @@ model37.comp # p < 0.001
 # Plot
 model37.plot <- model37.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "37. NW Great Plains: Prescribed burn",
+  labs(title = "37. Northwestern Great Plains: Prescribed burn",
        x = NULL) +
   geom_signif(
     comparisons = list(c("Control", "Prescribed burn")),
@@ -6722,6 +6723,21 @@ model36.plot
 dev.off()
 
 
+
+## Northwestern Great Plains ----------------------------------------------
+
+# 37. NW Great Plains: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model37_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model37.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model37_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model37.plot
+dev.off()
 
 
 save.image("RData/13_propensity-score-matching.RData")
