@@ -8386,5 +8386,79 @@ grid.arrange(
 )
 dev.off()
 
+
+## Snake River Plain ------------------------------------------------------
+
+# 38. Snake River Plain: Post-burn aerial seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model38_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model38.bp, model38.annforb, model38.anngrass,
+  model38.perforb, model38.pergrass, model38.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 39. Snake River Plain: Post-burn aerial & drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model39_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model39.bp, model39.annforb, model39.anngrass,
+  model39.perforb, model39.pergrass, model39.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 40. Snake River Plain: Post-burn closure
+tiff("figures/2026-05_PSM-and-permutation-tests/model40_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model40.bp, model40.annforb, model40.anngrass,
+  model40.perforb, model40.pergrass, model40.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 41. Snake River Plain: Post-burn drill seeding
+tiff("figures/2026-05_PSM-and-permutation-tests/model41_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model41.bp, model41.annforb, model41.anngrass,
+  model41.perforb, model41.pergrass, model41.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+# 42. Snake River Plain: Post-burn herbicide
+tiff("figures/2026-05_PSM-and-permutation-tests/model42_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model42.bp, model42.annforb, model42.anngrass,
+  model42.perforb, model42.pergrass, model42.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
 save.image("RData/14_permutation-tests.RData")
 

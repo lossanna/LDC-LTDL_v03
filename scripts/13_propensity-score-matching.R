@@ -4940,11 +4940,12 @@ summary(model38.psm) # 153 treated matched
 
 
 # Diagnostic love plot
-love.plot(model38.psm, stars = "std",           
+model38.loveplot <- love.plot(model38.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "38. Snake River Plain: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model38.loveplot
 
 # eCDF plots
 plot(model38.psm, type = "ecdf")
@@ -5030,12 +5031,12 @@ model38.comp # p = 0.007
 # Plot
 model38.plot <- model38.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "38. Snake River Plain: Post-burn aerial seeding",
@@ -5073,11 +5074,12 @@ summary(model39.psm) # 77 treated matched
 
 
 # Diagnostic love plot
-love.plot(model39.psm, stars = "std",           
+model39.loveplot <- love.plot(model39.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "39. Snake River Plain: Post-burn aerial & drill seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model39.loveplot
 
 # eCDF plots
 plot(model39.psm, type = "ecdf")
@@ -5163,12 +5165,12 @@ model39.comp
 # Plot
 model39.plot <- model39.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "39. Snake River Plain: Post-burn aerial & drill seeding",
@@ -5202,11 +5204,12 @@ summary(model40.psm) # 87 treated matched
 
 
 # Diagnostic love plot
-love.plot(model40.psm, stars = "std",           
+model40.loveplot <- love.plot(model40.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "40. Snake River Plain: Post-burn closure") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model40.loveplot
 
 # eCDF plots
 plot(model40.psm, type = "ecdf")
@@ -5292,12 +5295,12 @@ model40.comp # p < 0.001
 # Plot
 model40.plot <- model40.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "40. Snake River Plain: Post-burn closure",
@@ -5335,11 +5338,12 @@ summary(model41.psm) # 36 treated matched
 
 
 # Diagnostic love plot
-love.plot(model41.psm, stars = "std",           
+model41.loveplot <- love.plot(model41.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "41. Snake River Plain: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model41.loveplot
 
 # eCDF plots
 plot(model41.psm, type = "ecdf")
@@ -5425,12 +5429,12 @@ model41.comp
 # Plot
 model41.plot <- model41.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "41. Snake River Plain: Post-burn drill seeding",
@@ -5464,11 +5468,12 @@ summary(model42.psm) # 28 treated matched
 
 
 # Diagnostic love plot
-love.plot(model42.psm, stars = "std",           
+model42.loveplot <- love.plot(model42.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
   labs(title = "42. Snake River Plain: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model42.loveplot
 
 # eCDF plots
 plot(model42.psm, type = "ecdf")
@@ -5554,12 +5559,12 @@ model42.comp
 # Plot
 model42.plot <- model42.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
   labs(title = "42. Snake River Plain: Post-burn herbicide",
@@ -6738,6 +6743,80 @@ tiff("figures/2026-05_PSM-and-permutation-tests/model37_average-treatment-effect
      units = "in", width = 6, height = 4, res = 150)
 model37.plot
 dev.off()
+
+
+
+## Snake River Plain ------------------------------------------------------
+
+# 38. Snake River Plain: Post-burn aerial seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model38_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model38.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model38_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model38.plot
+dev.off()
+
+
+# 39. Snake River Plain: Post-burn aerial & drill seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model39_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model39.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model39_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model39.plot
+dev.off()
+
+
+# 40. Snake River Plain: Post-burn closure
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model40_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model40.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model40_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model40.plot
+dev.off()
+
+
+# 41. Snake River Plain: Post-burn drill seeding
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model41_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model41.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model41_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model41.plot
+dev.off()
+
+
+# 42. Snake River Plain: Post-burn herbicide
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model42_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model42.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model42_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model42.plot
+dev.off()
+
 
 
 save.image("RData/13_propensity-score-matching.RData")
