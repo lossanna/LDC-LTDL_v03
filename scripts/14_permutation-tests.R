@@ -1,5 +1,5 @@
 # Created: 2026-05-04
-# Updated: 2026-05-28
+# Updated: 2026-06-01
 
 # Purpose: Run permutation tests (based on Ron's script).
 
@@ -7744,7 +7744,7 @@ model46.bp <- model46.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "46. WY Basin: Prescribed burn") +
+       title = "46. Wyoming Basin: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   theme(plot.margin = margin(10, 10, 20, 10))
@@ -8505,5 +8505,21 @@ grid.arrange(
 dev.off()
 
 
-save.image("RData/14_permutation-tests.RData")
+## Wyoming Basin ----------------------------------------------------------
 
+# 46. Wyoming Basin: Prescribed burn
+tiff("figures/2026-05_PSM-and-permutation-tests/model46_permutation_functional-group.tiff",
+     units = "in", width = 9, height = 6.5, res = 150)
+grid.arrange(
+  model46.bp, model46.annforb, model46.anngrass,
+  model46.perforb, model46.pergrass, model46.shrub,
+  layout_matrix = rbind(
+    c(1, 1, 1, 1, 1, 1),
+    c(NA, 2, 2, 3, 3, NA),
+    c(4, 4, 5, 5, 6, 6)
+  )
+)
+dev.off()
+
+
+save.image("RData/14_permutation-tests.RData")

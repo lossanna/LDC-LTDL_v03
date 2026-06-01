@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-05-28
+# Updated: 2026-06-01
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data.
 
@@ -5998,11 +5998,12 @@ summary(model46.psm) # 37 treated matched
 
 
 # Diagnostic love plot
-love.plot(model46.psm, stars = "std",           
+model46.loveplot <- love.plot(model46.psm, stars = "std",           
           thresholds = c(m = 0.2, v = 2)) +
-  labs(title = "46. WY Basin: Prescribed burn") +
+  labs(title = "46. Wyoming Basin: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(legend.position = "bottom")
+model46.loveplot
 
 # eCDF plots
 plot(model46.psm, type = "ecdf")
@@ -6088,15 +6089,15 @@ model46.comp
 # Plot
 model46.plot <- model46.pred |>
   ggplot(aes(x = trt_control, y = estimate)) +
+  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   geom_point(
     shape = 18,
     size = 4,
     color = "red"
   ) +
-  geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
   theme_bw() +
   theme(axis.text.x = element_text(color = "black")) +
-  labs(title = "46. WY Basin: Prescribed burn",
+  labs(title = "46. Wyoming Basin: Prescribed burn",
        x = NULL)
 model46.plot
 
@@ -6863,6 +6864,23 @@ dev.off()
 tiff("figures/2026-05_PSM-and-permutation-tests/model45_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model45.plot
+dev.off()
+
+
+
+## Wyoming Basin ----------------------------------------------------------
+
+# 46. Wyoming Basin: Prescribed burn
+#   Love plot
+tiff("figures/2026-05_PSM-and-permutation-tests/model46_loveplot.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model46.loveplot
+dev.off()
+
+#   Treatment effect
+tiff("figures/2026-05_PSM-and-permutation-tests/model46_average-treatment-effect.tiff",
+     units = "in", width = 6, height = 4, res = 150)
+model46.plot
 dev.off()
 
 
