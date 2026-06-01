@@ -1,7 +1,8 @@
-# Created: 2026-05-04
+# Updated: 2026-06-01
 # Updated: 2026-06-01
 
-# Purpose: Run permutation tests (based on Ron's script).
+# Purpose: Run permutation tests for functional group cover, Shannon diversity,
+#   RHEM output, and invasive species.
 
 
 library(tidyverse)
@@ -14,6 +15,7 @@ library(gridExtra)
 
 load("RData/13_matched-data.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
+all_diversity <- read_csv("data/versions-from-R/16_shannon-diversity_all-models.csv")
 
 
 # Data wrangling ----------------------------------------------------------
@@ -137,18 +139,20 @@ geoindicators.join <- geoindicators |>
 
 ## 1. Prescribed burn -----------------------------------------------------
 
-# Join cover cols
+# Join cover & shannon cols
 model01.matched2 <- model01.matched |> 
   select(LDCpointID, PrimaryKey, trt_control) |> 
-  left_join(geoindicators.join)
+  left_join(geoindicators.join) |> 
+  left_join(filter(all_diversity, Model == "model01")) |> 
+  select(-Model)
 
-#   pivot_longer() for cover cols
+#   pivot_longer() for cover & shannon cols
 model01.matched2 <- model01.matched2 |> 
   pivot_longer(
     cols = !c(LDCpointID, PrimaryKey, trt_control),
     names_to = "indicators",
     values_to = "pct_cover"
-    )
+  )
 
 #   Rename functional group cover types
 model01.matched2 <- model01.matched2 |> 
@@ -158,8 +162,16 @@ model01.matched2 <- model01.matched2 |>
              indicators == "AnnGramCover_AH" ~ "Annual grass",
              indicators == "PerForbCover_AH" ~ "Perennial forb",
              indicators == "PerGramCover_AH" ~ "Perennial grass",
-             indicators == "ShrubCover_AH" ~ "Shrub"
-           ))
+             indicators == "ShrubCover_AH" ~ "Shrub",
+             indicators == "Shannon" ~ "Shannon diversity"
+           )) |> 
+  mutate(indicators = factor(indicators,
+                             levels = c("Annual forb",
+                                        "Annual grass",
+                                        "Perennial forb",
+                                        "Perennial grass",
+                                        "Shrub",
+                                        "Shannon diversity")))
 
 # Calculate observed mean difference
 model01.diff <- model01.matched2 |> 
@@ -197,10 +209,11 @@ p_values01 <- model01.perm |>
   inner_join(model01.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values01 # p = 0.048 for perennial forb
+p_values01 # p = 0.042 for perennial forb; p = 0.02 for shannon
 
 # Boxplot
 model01.bp <- model01.matched2 |> 
+  filter(indicators != "Shannon diversity") |> 
   ggplot(aes(x = indicators, y = pct_cover, fill = trt_control)) +
   geom_boxplot() +
   scale_fill_manual(values = c("#FC8D62", "#8DA0CB")) +
@@ -225,7 +238,7 @@ model01.bp
 model01.annforb <- model01.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -239,7 +252,7 @@ model01.annforb
 model01.anngrass <- model01.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -253,7 +266,7 @@ model01.anngrass
 model01.perforb <- model01.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -267,7 +280,7 @@ model01.perforb
 model01.pergrass <- model01.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -281,7 +294,7 @@ model01.pergrass
 model01.shrub <- model01.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -291,15 +304,32 @@ model01.shrub <- model01.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model01.shrub
 
+#   Shannon diversity
+model01.shannon <- model01.perm |> 
+  filter(indicators == "Shannon diversity") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Shannon diversity"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shannon diversity") +
+  theme_bw() +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model01.shannon
+
+
 
 # Combine plots
 grid.arrange(
   model01.bp, model01.annforb, model01.anngrass,
   model01.perforb, model01.pergrass, model01.shrub,
+  model01.shannon,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(7, 7, NA, NA, NA, NA)
   )
 )
 
@@ -392,7 +422,7 @@ model01.bp
 model02.annforb <- model02.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -406,7 +436,7 @@ model02.annforb
 model02.anngrass <- model02.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -420,7 +450,7 @@ model02.anngrass
 model02.perforb <- model02.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -434,7 +464,7 @@ model02.perforb
 model02.pergrass <- model02.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -448,7 +478,7 @@ model02.pergrass
 model02.shrub <- model02.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -556,7 +586,7 @@ model03.bp
 model03.annforb <- model03.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -570,7 +600,7 @@ model03.annforb
 model03.anngrass <- model03.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -584,7 +614,7 @@ model03.anngrass
 model03.perforb <- model03.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -598,7 +628,7 @@ model03.perforb
 model03.pergrass <- model03.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -612,7 +642,7 @@ model03.pergrass
 model03.shrub <- model03.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -720,7 +750,7 @@ model04.bp
 model04.annforb <- model04.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -734,7 +764,7 @@ model04.annforb
 model04.anngrass <- model04.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -748,7 +778,7 @@ model04.anngrass
 model04.perforb <- model04.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -762,7 +792,7 @@ model04.perforb
 model04.pergrass <- model04.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -776,7 +806,7 @@ model04.pergrass
 model04.shrub <- model04.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -884,7 +914,7 @@ model05.bp
 model05.annforb <- model05.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -898,7 +928,7 @@ model05.annforb
 model05.anngrass <- model05.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -912,7 +942,7 @@ model05.anngrass
 model05.perforb <- model05.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -926,7 +956,7 @@ model05.perforb
 model05.pergrass <- model05.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -940,7 +970,7 @@ model05.pergrass
 model05.shrub <- model05.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1050,7 +1080,7 @@ model06.bp
 model06.annforb <- model06.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1064,7 +1094,7 @@ model06.annforb
 model06.anngrass <- model06.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1078,7 +1108,7 @@ model06.anngrass
 model06.perforb <- model06.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1092,7 +1122,7 @@ model06.perforb
 model06.pergrass <- model06.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1106,7 +1136,7 @@ model06.pergrass
 model06.shrub <- model06.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model06.diff$obs_diff[model06.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1214,7 +1244,7 @@ model07.bp
 model07.annforb <- model07.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1228,7 +1258,7 @@ model07.annforb
 model07.anngrass <- model07.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1242,7 +1272,7 @@ model07.anngrass
 model07.perforb <- model07.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1256,7 +1286,7 @@ model07.perforb
 model07.pergrass <- model07.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1270,7 +1300,7 @@ model07.pergrass
 model07.shrub <- model07.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model07.diff$obs_diff[model07.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1378,7 +1408,7 @@ model08.bp
 model08.annforb <- model08.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model08.diff$obs_diff[model08.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1392,7 +1422,7 @@ model08.annforb
 model08.anngrass <- model08.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model08.diff$obs_diff[model08.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1406,7 +1436,7 @@ model08.anngrass
 model08.perforb <- model08.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model08.diff$obs_diff[model08.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1420,7 +1450,7 @@ model08.perforb
 model08.pergrass <- model08.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model08.diff$obs_diff[model08.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1434,7 +1464,7 @@ model08.pergrass
 model08.shrub <- model08.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model08.diff$obs_diff[model08.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1551,7 +1581,7 @@ model09.bp
 model09.annforb <- model09.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model09.diff$obs_diff[model09.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1565,7 +1595,7 @@ model09.annforb
 model09.anngrass <- model09.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model09.diff$obs_diff[model09.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1579,7 +1609,7 @@ model09.anngrass
 model09.perforb <- model09.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model09.diff$obs_diff[model09.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1593,7 +1623,7 @@ model09.perforb
 model09.pergrass <- model09.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model09.diff$obs_diff[model09.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1607,7 +1637,7 @@ model09.pergrass
 model09.shrub <- model09.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model09.diff$obs_diff[model09.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1722,7 +1752,7 @@ model10.bp
 model10.annforb <- model10.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model10.diff$obs_diff[model10.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1736,7 +1766,7 @@ model10.annforb
 model10.anngrass <- model10.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model10.diff$obs_diff[model10.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1750,7 +1780,7 @@ model10.anngrass
 model10.perforb <- model10.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model10.diff$obs_diff[model10.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1764,7 +1794,7 @@ model10.perforb
 model10.pergrass <- model10.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model10.diff$obs_diff[model10.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1778,7 +1808,7 @@ model10.pergrass
 model10.shrub <- model10.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model10.diff$obs_diff[model10.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1892,7 +1922,7 @@ model11.bp
 model11.annforb <- model11.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model11.diff$obs_diff[model11.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1906,7 +1936,7 @@ model11.annforb
 model11.anngrass <- model11.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model11.diff$obs_diff[model11.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1920,7 +1950,7 @@ model11.anngrass
 model11.perforb <- model11.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model11.diff$obs_diff[model11.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1934,7 +1964,7 @@ model11.perforb
 model11.pergrass <- model11.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model11.diff$obs_diff[model11.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -1948,7 +1978,7 @@ model11.pergrass
 model11.shrub <- model11.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model11.diff$obs_diff[model11.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2056,7 +2086,7 @@ model12.bp
 model12.annforb <- model12.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model12.diff$obs_diff[model12.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2070,7 +2100,7 @@ model12.annforb
 model12.anngrass <- model12.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model12.diff$obs_diff[model12.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2084,7 +2114,7 @@ model12.anngrass
 model12.perforb <- model12.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model12.diff$obs_diff[model12.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2098,7 +2128,7 @@ model12.perforb
 model12.pergrass <- model12.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model12.diff$obs_diff[model12.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2112,7 +2142,7 @@ model12.pergrass
 model12.shrub <- model12.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model12.diff$obs_diff[model12.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2226,7 +2256,7 @@ model13.bp
 model13.annforb <- model13.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model13.diff$obs_diff[model13.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2240,7 +2270,7 @@ model13.annforb
 model13.anngrass <- model13.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model13.diff$obs_diff[model13.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2254,7 +2284,7 @@ model13.anngrass
 model13.perforb <- model13.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model13.diff$obs_diff[model13.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2268,7 +2298,7 @@ model13.perforb
 model13.pergrass <- model13.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model13.diff$obs_diff[model13.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2282,7 +2312,7 @@ model13.pergrass
 model13.shrub <- model13.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model13.diff$obs_diff[model13.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2390,7 +2420,7 @@ model14.bp
 model14.annforb <- model14.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model14.diff$obs_diff[model14.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2404,7 +2434,7 @@ model14.annforb
 model14.anngrass <- model14.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model14.diff$obs_diff[model14.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2418,7 +2448,7 @@ model14.anngrass
 model14.perforb <- model14.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model14.diff$obs_diff[model14.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2432,7 +2462,7 @@ model14.perforb
 model14.pergrass <- model14.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model14.diff$obs_diff[model14.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2446,7 +2476,7 @@ model14.pergrass
 model14.shrub <- model14.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model14.diff$obs_diff[model14.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2554,7 +2584,7 @@ model15.bp
 model15.annforb <- model15.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model15.diff$obs_diff[model15.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2568,7 +2598,7 @@ model15.annforb
 model15.anngrass <- model15.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model15.diff$obs_diff[model15.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2582,7 +2612,7 @@ model15.anngrass
 model15.perforb <- model15.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model15.diff$obs_diff[model15.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2596,7 +2626,7 @@ model15.perforb
 model15.pergrass <- model15.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model15.diff$obs_diff[model15.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2610,7 +2640,7 @@ model15.pergrass
 model15.shrub <- model15.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model15.diff$obs_diff[model15.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2718,7 +2748,7 @@ model16.bp
 model16.annforb <- model16.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model16.diff$obs_diff[model16.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2732,7 +2762,7 @@ model16.annforb
 model16.anngrass <- model16.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model16.diff$obs_diff[model16.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2746,7 +2776,7 @@ model16.anngrass
 model16.perforb <- model16.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model16.diff$obs_diff[model16.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2760,7 +2790,7 @@ model16.perforb
 model16.pergrass <- model16.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model16.diff$obs_diff[model16.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2774,7 +2804,7 @@ model16.pergrass
 model16.shrub <- model16.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model16.diff$obs_diff[model16.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2885,7 +2915,7 @@ model17.bp
 model17.annforb <- model17.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2899,7 +2929,7 @@ model17.annforb
 model17.anngrass <- model17.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2913,7 +2943,7 @@ model17.anngrass
 model17.perforb <- model17.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2927,7 +2957,7 @@ model17.perforb
 model17.pergrass <- model17.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -2941,7 +2971,7 @@ model17.pergrass
 model17.shrub <- model17.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3052,7 +3082,7 @@ model18.bp
 model18.annforb <- model18.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model18.diff$obs_diff[model18.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3066,7 +3096,7 @@ model18.annforb
 model18.anngrass <- model18.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model18.diff$obs_diff[model18.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3080,7 +3110,7 @@ model18.anngrass
 model18.perforb <- model18.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model18.diff$obs_diff[model18.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3094,7 +3124,7 @@ model18.perforb
 model18.pergrass <- model18.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model18.diff$obs_diff[model18.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3108,7 +3138,7 @@ model18.pergrass
 model18.shrub <- model18.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model18.diff$obs_diff[model18.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3216,7 +3246,7 @@ model19.bp
 model19.annforb <- model19.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model19.diff$obs_diff[model19.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3230,7 +3260,7 @@ model19.annforb
 model19.anngrass <- model19.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model19.diff$obs_diff[model19.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3244,7 +3274,7 @@ model19.anngrass
 model19.perforb <- model19.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model19.diff$obs_diff[model19.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3258,7 +3288,7 @@ model19.perforb
 model19.pergrass <- model19.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model19.diff$obs_diff[model19.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3272,7 +3302,7 @@ model19.pergrass
 model19.shrub <- model19.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model19.diff$obs_diff[model19.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3380,7 +3410,7 @@ model20.bp
 model20.annforb <- model20.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model20.diff$obs_diff[model20.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3394,7 +3424,7 @@ model20.annforb
 model20.anngrass <- model20.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model20.diff$obs_diff[model20.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3408,7 +3438,7 @@ model20.anngrass
 model20.perforb <- model20.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model20.diff$obs_diff[model20.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3422,7 +3452,7 @@ model20.perforb
 model20.pergrass <- model20.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model20.diff$obs_diff[model20.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3436,7 +3466,7 @@ model20.pergrass
 model20.shrub <- model20.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model20.diff$obs_diff[model20.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3544,7 +3574,7 @@ model21.bp
 model21.annforb <- model21.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model21.diff$obs_diff[model21.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3558,7 +3588,7 @@ model21.annforb
 model21.anngrass <- model21.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model21.diff$obs_diff[model21.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3572,7 +3602,7 @@ model21.anngrass
 model21.perforb <- model21.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model21.diff$obs_diff[model21.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3586,7 +3616,7 @@ model21.perforb
 model21.pergrass <- model21.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model21.diff$obs_diff[model21.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3600,7 +3630,7 @@ model21.pergrass
 model21.shrub <- model21.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model21.diff$obs_diff[model21.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3715,7 +3745,7 @@ model22.bp
 model22.annforb <- model22.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model22.diff$obs_diff[model22.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3729,7 +3759,7 @@ model22.annforb
 model22.anngrass <- model22.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model22.diff$obs_diff[model22.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3743,7 +3773,7 @@ model22.anngrass
 model22.perforb <- model22.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model22.diff$obs_diff[model22.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3757,7 +3787,7 @@ model22.perforb
 model22.pergrass <- model22.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model22.diff$obs_diff[model22.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3771,7 +3801,7 @@ model22.pergrass
 model22.shrub <- model22.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model22.diff$obs_diff[model22.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3879,7 +3909,7 @@ model23.bp
 model23.annforb <- model23.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model23.diff$obs_diff[model23.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3893,7 +3923,7 @@ model23.annforb
 model23.anngrass <- model23.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model23.diff$obs_diff[model23.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3907,7 +3937,7 @@ model23.anngrass
 model23.perforb <- model23.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model23.diff$obs_diff[model23.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3921,7 +3951,7 @@ model23.perforb
 model23.pergrass <- model23.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model23.diff$obs_diff[model23.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -3935,7 +3965,7 @@ model23.pergrass
 model23.shrub <- model23.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model23.diff$obs_diff[model23.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4046,7 +4076,7 @@ model24.bp
 model24.annforb <- model24.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model24.diff$obs_diff[model24.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4060,7 +4090,7 @@ model24.annforb
 model24.anngrass <- model24.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model24.diff$obs_diff[model24.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4074,7 +4104,7 @@ model24.anngrass
 model24.perforb <- model24.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model24.diff$obs_diff[model24.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4088,7 +4118,7 @@ model24.perforb
 model24.pergrass <- model24.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model24.diff$obs_diff[model24.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4102,7 +4132,7 @@ model24.pergrass
 model24.shrub <- model24.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model24.diff$obs_diff[model24.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4213,7 +4243,7 @@ model25.bp
 model25.annforb <- model25.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4227,7 +4257,7 @@ model25.annforb
 model25.anngrass <- model25.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4241,7 +4271,7 @@ model25.anngrass
 model25.perforb <- model25.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4255,7 +4285,7 @@ model25.perforb
 model25.pergrass <- model25.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4269,7 +4299,7 @@ model25.pergrass
 model25.shrub <- model25.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4387,7 +4417,7 @@ model26.bp
 model26.annforb <- model26.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model26.diff$obs_diff[model26.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4401,7 +4431,7 @@ model26.annforb
 model26.anngrass <- model26.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model26.diff$obs_diff[model26.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4415,7 +4445,7 @@ model26.anngrass
 model26.perforb <- model26.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model26.diff$obs_diff[model26.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4429,7 +4459,7 @@ model26.perforb
 model26.pergrass <- model26.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model26.diff$obs_diff[model26.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4443,7 +4473,7 @@ model26.pergrass
 model26.shrub <- model26.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model26.diff$obs_diff[model26.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4562,7 +4592,7 @@ model27.bp
 model27.annforb <- model27.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model27.diff$obs_diff[model27.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4576,7 +4606,7 @@ model27.annforb
 model27.anngrass <- model27.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model27.diff$obs_diff[model27.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4590,7 +4620,7 @@ model27.anngrass
 model27.perforb <- model27.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model27.diff$obs_diff[model27.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4604,7 +4634,7 @@ model27.perforb
 model27.pergrass <- model27.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model27.diff$obs_diff[model27.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4618,7 +4648,7 @@ model27.pergrass
 model27.shrub <- model27.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model27.diff$obs_diff[model27.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4726,7 +4756,7 @@ model28.bp
 model28.annforb <- model28.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model28.diff$obs_diff[model28.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4740,7 +4770,7 @@ model28.annforb
 model28.anngrass <- model28.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model28.diff$obs_diff[model28.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4754,7 +4784,7 @@ model28.anngrass
 model28.perforb <- model28.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model28.diff$obs_diff[model28.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4768,7 +4798,7 @@ model28.perforb
 model28.pergrass <- model28.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model28.diff$obs_diff[model28.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4782,7 +4812,7 @@ model28.pergrass
 model28.shrub <- model28.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model28.diff$obs_diff[model28.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4903,7 +4933,7 @@ model29.bp
 model29.annforb <- model29.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model29.diff$obs_diff[model29.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4917,7 +4947,7 @@ model29.annforb
 model29.anngrass <- model29.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model29.diff$obs_diff[model29.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4931,7 +4961,7 @@ model29.anngrass
 model29.perforb <- model29.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model29.diff$obs_diff[model29.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4945,7 +4975,7 @@ model29.perforb
 model29.pergrass <- model29.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model29.diff$obs_diff[model29.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -4959,7 +4989,7 @@ model29.pergrass
 model29.shrub <- model29.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model29.diff$obs_diff[model29.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5067,7 +5097,7 @@ model30.bp
 model30.annforb <- model30.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model30.diff$obs_diff[model30.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5081,7 +5111,7 @@ model30.annforb
 model30.anngrass <- model30.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model30.diff$obs_diff[model30.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5095,7 +5125,7 @@ model30.anngrass
 model30.perforb <- model30.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model30.diff$obs_diff[model30.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5109,7 +5139,7 @@ model30.perforb
 model30.pergrass <- model30.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model30.diff$obs_diff[model30.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5123,7 +5153,7 @@ model30.pergrass
 model30.shrub <- model30.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model30.diff$obs_diff[model30.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5231,7 +5261,7 @@ model31.bp
 model31.annforb <- model31.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model31.diff$obs_diff[model31.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5245,7 +5275,7 @@ model31.annforb
 model31.anngrass <- model31.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model31.diff$obs_diff[model31.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5259,7 +5289,7 @@ model31.anngrass
 model31.perforb <- model31.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model31.diff$obs_diff[model31.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5273,7 +5303,7 @@ model31.perforb
 model31.pergrass <- model31.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model31.diff$obs_diff[model31.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5287,7 +5317,7 @@ model31.pergrass
 model31.shrub <- model31.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model31.diff$obs_diff[model31.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5395,7 +5425,7 @@ model32.bp
 model32.annforb <- model32.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model32.diff$obs_diff[model32.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5409,7 +5439,7 @@ model32.annforb
 model32.anngrass <- model32.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model32.diff$obs_diff[model32.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5423,7 +5453,7 @@ model32.anngrass
 model32.perforb <- model32.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model32.diff$obs_diff[model32.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5437,7 +5467,7 @@ model32.perforb
 model32.pergrass <- model32.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model32.diff$obs_diff[model32.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5451,7 +5481,7 @@ model32.pergrass
 model32.shrub <- model32.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model32.diff$obs_diff[model32.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5571,7 +5601,7 @@ model33.bp
 model33.annforb <- model33.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model33.diff$obs_diff[model33.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5585,7 +5615,7 @@ model33.annforb
 model33.anngrass <- model33.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model33.diff$obs_diff[model33.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5599,7 +5629,7 @@ model33.anngrass
 model33.perforb <- model33.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model33.diff$obs_diff[model33.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5613,7 +5643,7 @@ model33.perforb
 model33.pergrass <- model33.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model33.diff$obs_diff[model33.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5627,7 +5657,7 @@ model33.pergrass
 model33.shrub <- model33.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model33.diff$obs_diff[model33.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5741,7 +5771,7 @@ model34.bp
 model34.annforb <- model34.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model34.diff$obs_diff[model34.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5755,7 +5785,7 @@ model34.annforb
 model34.anngrass <- model34.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model34.diff$obs_diff[model34.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5769,7 +5799,7 @@ model34.anngrass
 model34.perforb <- model34.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model34.diff$obs_diff[model34.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5783,7 +5813,7 @@ model34.perforb
 model34.pergrass <- model34.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model34.diff$obs_diff[model34.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5797,7 +5827,7 @@ model34.pergrass
 model34.shrub <- model34.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model34.diff$obs_diff[model34.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5911,7 +5941,7 @@ model35.bp
 model35.annforb <- model35.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model35.diff$obs_diff[model35.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5925,7 +5955,7 @@ model35.annforb
 model35.anngrass <- model35.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model35.diff$obs_diff[model35.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5939,7 +5969,7 @@ model35.anngrass
 model35.perforb <- model35.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model35.diff$obs_diff[model35.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5953,7 +5983,7 @@ model35.perforb
 model35.pergrass <- model35.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model35.diff$obs_diff[model35.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -5967,7 +5997,7 @@ model35.pergrass
 model35.shrub <- model35.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model35.diff$obs_diff[model35.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6082,7 +6112,7 @@ model36.bp
 model36.annforb <- model36.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model36.diff$obs_diff[model36.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6096,7 +6126,7 @@ model36.annforb
 model36.anngrass <- model36.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model36.diff$obs_diff[model36.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6110,7 +6140,7 @@ model36.anngrass
 model36.perforb <- model36.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model36.diff$obs_diff[model36.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6124,7 +6154,7 @@ model36.perforb
 model36.pergrass <- model36.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model36.diff$obs_diff[model36.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6138,7 +6168,7 @@ model36.pergrass
 model36.shrub <- model36.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model36.diff$obs_diff[model36.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6249,7 +6279,7 @@ model37.bp
 model37.annforb <- model37.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model37.diff$obs_diff[model37.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6263,7 +6293,7 @@ model37.annforb
 model37.anngrass <- model37.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model37.diff$obs_diff[model37.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6277,7 +6307,7 @@ model37.anngrass
 model37.perforb <- model37.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model37.diff$obs_diff[model37.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6291,7 +6321,7 @@ model37.perforb
 model37.pergrass <- model37.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model37.diff$obs_diff[model37.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6305,7 +6335,7 @@ model37.pergrass
 model37.shrub <- model37.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model37.diff$obs_diff[model37.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6428,7 +6458,7 @@ model38.bp
 model38.annforb <- model38.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model38.diff$obs_diff[model38.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6442,7 +6472,7 @@ model38.annforb
 model38.anngrass <- model38.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model38.diff$obs_diff[model38.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6456,7 +6486,7 @@ model38.anngrass
 model38.perforb <- model38.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model38.diff$obs_diff[model38.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6470,7 +6500,7 @@ model38.perforb
 model38.pergrass <- model38.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model38.diff$obs_diff[model38.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6484,7 +6514,7 @@ model38.pergrass
 model38.shrub <- model38.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model38.diff$obs_diff[model38.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6591,7 +6621,7 @@ model39.bp
 model39.annforb <- model39.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model39.diff$obs_diff[model39.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6605,7 +6635,7 @@ model39.annforb
 model39.anngrass <- model39.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model39.diff$obs_diff[model39.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6619,7 +6649,7 @@ model39.anngrass
 model39.perforb <- model39.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model39.diff$obs_diff[model39.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6633,7 +6663,7 @@ model39.perforb
 model39.pergrass <- model39.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model39.diff$obs_diff[model39.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6647,7 +6677,7 @@ model39.pergrass
 model39.shrub <- model39.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model39.diff$obs_diff[model39.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6768,7 +6798,7 @@ model40.bp
 model40.annforb <- model40.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model40.diff$obs_diff[model40.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6782,7 +6812,7 @@ model40.annforb
 model40.anngrass <- model40.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model40.diff$obs_diff[model40.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6796,7 +6826,7 @@ model40.anngrass
 model40.perforb <- model40.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model40.diff$obs_diff[model40.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6810,7 +6840,7 @@ model40.perforb
 model40.pergrass <- model40.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model40.diff$obs_diff[model40.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6824,7 +6854,7 @@ model40.pergrass
 model40.shrub <- model40.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model40.diff$obs_diff[model40.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6932,7 +6962,7 @@ model41.bp
 model41.annforb <- model41.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model41.diff$obs_diff[model41.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6946,7 +6976,7 @@ model41.annforb
 model41.anngrass <- model41.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model41.diff$obs_diff[model41.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6960,7 +6990,7 @@ model41.anngrass
 model41.perforb <- model41.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model41.diff$obs_diff[model41.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6974,7 +7004,7 @@ model41.perforb
 model41.pergrass <- model41.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model41.diff$obs_diff[model41.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -6988,7 +7018,7 @@ model41.pergrass
 model41.shrub <- model41.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model41.diff$obs_diff[model41.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7095,7 +7125,7 @@ model42.bp
 model42.annforb <- model42.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model42.diff$obs_diff[model42.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7109,7 +7139,7 @@ model42.annforb
 model42.anngrass <- model42.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model42.diff$obs_diff[model42.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7123,7 +7153,7 @@ model42.anngrass
 model42.perforb <- model42.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model42.diff$obs_diff[model42.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7137,7 +7167,7 @@ model42.perforb
 model42.pergrass <- model42.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model42.diff$obs_diff[model42.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7151,7 +7181,7 @@ model42.pergrass
 model42.shrub <- model42.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model42.diff$obs_diff[model42.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7262,7 +7292,7 @@ model43.bp
 model43.annforb <- model43.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7276,7 +7306,7 @@ model43.annforb
 model43.anngrass <- model43.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7290,7 +7320,7 @@ model43.anngrass
 model43.perforb <- model43.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7304,7 +7334,7 @@ model43.perforb
 model43.pergrass <- model43.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7318,7 +7348,7 @@ model43.pergrass
 model43.shrub <- model43.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7426,7 +7456,7 @@ model44.bp
 model44.annforb <- model44.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7440,7 +7470,7 @@ model44.annforb
 model44.anngrass <- model44.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7454,7 +7484,7 @@ model44.anngrass
 model44.perforb <- model44.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7468,7 +7498,7 @@ model44.perforb
 model44.pergrass <- model44.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7482,7 +7512,7 @@ model44.pergrass
 model44.shrub <- model44.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7590,7 +7620,7 @@ model45.bp
 model45.annforb <- model45.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7604,7 +7634,7 @@ model45.annforb
 model45.anngrass <- model45.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7618,7 +7648,7 @@ model45.anngrass
 model45.perforb <- model45.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7632,7 +7662,7 @@ model45.perforb
 model45.pergrass <- model45.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7646,7 +7676,7 @@ model45.pergrass
 model45.shrub <- model45.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7756,7 +7786,7 @@ model46.bp
 model46.annforb <- model46.perm |> 
   filter(indicators == "Annual forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Annual forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7770,7 +7800,7 @@ model46.annforb
 model46.anngrass <- model46.perm |> 
   filter(indicators == "Annual grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Annual grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7784,7 +7814,7 @@ model46.anngrass
 model46.perforb <- model46.perm |> 
   filter(indicators == "Perennial forb") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Perennial forb"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7798,7 +7828,7 @@ model46.perforb
 model46.pergrass <- model46.perm |> 
   filter(indicators == "Perennial grass") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Perennial grass"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7812,7 +7842,7 @@ model46.pergrass
 model46.shrub <- model46.perm |> 
   filter(indicators == "Shrub") |> 
   ggplot(aes(x = mean_diff)) +
-  geom_histogram(binwidth = 0.5, fill = "lightblue2", color = "black") +
+  geom_histogram(fill = "lightblue2", color = "black") +
   geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Shrub"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
@@ -7842,15 +7872,17 @@ grid.arrange(
 ## AZ/NM Mountains --------------------------------------------------------
 
 # 1. AZ/NM Mountains: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model01_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model01_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model01.bp, model01.annforb, model01.anngrass,
   model01.perforb, model01.pergrass, model01.shrub,
+  model01.shannon,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(7, 7, NA, NA, NA, NA)
   )
 )
 dev.off()
@@ -7859,8 +7891,8 @@ dev.off()
 ## AZ/NM Plateau ----------------------------------------------------------
 
 # 2. AZ/NM Plateau: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model02_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model02_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model02.bp, model02.annforb, model02.anngrass,
   model02.perforb, model02.pergrass, model02.shrub,
@@ -7873,8 +7905,8 @@ grid.arrange(
 dev.off()
 
 # 3. AZ/NM Plateau: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model03_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model03_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model03.bp, model03.annforb, model03.anngrass,
   model03.perforb, model03.pergrass, model03.shrub,
@@ -7887,8 +7919,8 @@ grid.arrange(
 dev.off()
 
 # 4. AZ/NM Plateau: Seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model04_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model04_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model04.bp, model04.annforb, model04.anngrass,
   model04.perforb, model04.pergrass, model04.shrub,
@@ -7901,8 +7933,8 @@ grid.arrange(
 dev.off()
 
 # 5. AZ/NM Plateau: Soil disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model05_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model05_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model05.bp, model05.annforb, model05.anngrass,
   model05.perforb, model05.pergrass, model05.shrub,
@@ -7918,8 +7950,8 @@ dev.off()
 ## Blue Mountains ---------------------------------------------------------
 
 # 6. Blue Mountains: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model06_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model06_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model06.bp, model06.annforb, model06.anngrass,
   model06.perforb, model06.pergrass, model06.shrub,
@@ -7932,8 +7964,8 @@ grid.arrange(
 dev.off()
 
 # 7. Blue Mountains: Vegetation disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model07_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model07_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model07.bp, model07.annforb, model07.anngrass,
   model07.perforb, model07.pergrass, model07.shrub,
@@ -7946,8 +7978,8 @@ grid.arrange(
 dev.off()
 
 # 8. Blue Mountains: Post-burn herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model08_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model08_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model08.bp, model08.annforb, model08.anngrass,
   model08.perforb, model08.pergrass, model08.shrub,
@@ -7963,8 +7995,8 @@ dev.off()
 ## Central Basin and Range ------------------------------------------------
 
 # 9. Central BR: Aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model09_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model09_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model09.bp, model09.annforb, model09.anngrass,
   model09.perforb, model09.pergrass, model09.shrub,
@@ -7977,8 +8009,8 @@ grid.arrange(
 dev.off()
 
 # 10. Central BR: Drill seeding & soil disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model10_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model10_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model10.bp, model10.annforb, model10.anngrass,
   model10.perforb, model10.pergrass, model10.shrub,
@@ -7991,8 +8023,8 @@ grid.arrange(
 dev.off()
 
 # 11. Central BR: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model11_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model11_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model11.bp, model11.annforb, model11.anngrass,
   model11.perforb, model11.pergrass, model11.shrub,
@@ -8005,8 +8037,8 @@ grid.arrange(
 dev.off()
 
 # 12. Central BR: Vegetation disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model12_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model12_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model12.bp, model12.annforb, model12.anngrass,
   model12.perforb, model12.pergrass, model12.shrub,
@@ -8019,8 +8051,8 @@ grid.arrange(
 dev.off()
 
 # 13. Central BR: Post-burn aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model13_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model13_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model13.bp, model13.annforb, model13.anngrass,
   model13.perforb, model13.pergrass, model13.shrub,
@@ -8033,8 +8065,8 @@ grid.arrange(
 dev.off()
 
 # 14. Central BR: Post-burn drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model14_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model14_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model14.bp, model14.annforb, model14.anngrass,
   model14.perforb, model14.pergrass, model14.shrub,
@@ -8047,8 +8079,8 @@ grid.arrange(
 dev.off()
 
 # 15. Central BR: Post-burn ground seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model15_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model15_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model15.bp, model15.annforb, model15.anngrass,
   model15.perforb, model15.pergrass, model15.shrub,
@@ -8061,8 +8093,8 @@ grid.arrange(
 dev.off()
 
 # 16. Central BR: Post-burn herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model16_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model16_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model16.bp, model16.annforb, model16.anngrass,
   model16.perforb, model16.pergrass, model16.shrub,
@@ -8078,8 +8110,8 @@ dev.off()
 ## Chihuahuan Desert ------------------------------------------------------
 
 # 17. Chihuahuan Desert: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model17_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model17_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model17.bp, model17.annforb, model17.anngrass,
   model17.perforb, model17.pergrass, model17.shrub,
@@ -8095,8 +8127,8 @@ dev.off()
 ## Colorado Plateaus ------------------------------------------------------
 
 # 18. CO Plateaus: Aerial seeding & soil disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model18_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model18_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model18.bp, model18.annforb, model18.anngrass,
   model18.perforb, model18.pergrass, model18.shrub,
@@ -8109,8 +8141,8 @@ grid.arrange(
 dev.off()
 
 # 19. CO Plateaus: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model19_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model19_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model19.bp, model19.annforb, model19.anngrass,
   model19.perforb, model19.pergrass, model19.shrub,
@@ -8123,8 +8155,8 @@ grid.arrange(
 dev.off()
 
 # 20. CO Plateaus: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model20_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model20_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model20.bp, model20.annforb, model20.anngrass,
   model20.perforb, model20.pergrass, model20.shrub,
@@ -8137,8 +8169,8 @@ grid.arrange(
 dev.off()
 
 # 21. CO Plateaus: Soil disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model21_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model21_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model21.bp, model21.annforb, model21.anngrass,
   model21.perforb, model21.pergrass, model21.shrub,
@@ -8151,8 +8183,8 @@ grid.arrange(
 dev.off()
 
 # 22. CO Plateaus: Vegetation disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model22_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model22_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model22.bp, model22.annforb, model22.anngrass,
   model22.perforb, model22.pergrass, model22.shrub,
@@ -8165,8 +8197,8 @@ grid.arrange(
 dev.off()
 
 # 23. CO Plateaus: Post-burn aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model23_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model23_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model23.bp, model23.annforb, model23.anngrass,
   model23.perforb, model23.pergrass, model23.shrub,
@@ -8182,8 +8214,8 @@ dev.off()
 ## Middle Rockies ---------------------------------------------------------
 
 # 24. Middle Rockies: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model24_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model24_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model24.bp, model24.annforb, model24.anngrass,
   model24.perforb, model24.pergrass, model24.shrub,
@@ -8199,8 +8231,8 @@ dev.off()
 ## Mojave Basin and Range -------------------------------------------------
 
 # 25. Mojave BR: Post-burn aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model25_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model25_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model25.bp, model25.annforb, model25.anngrass,
   model25.perforb, model25.pergrass, model25.shrub,
@@ -8216,8 +8248,8 @@ dev.off()
 ## Northern Basin and Range -----------------------------------------------
 
 # 26. Northern BR: Drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model26_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model26_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model26.bp, model26.annforb, model26.anngrass,
   model26.perforb, model26.pergrass, model26.shrub,
@@ -8230,8 +8262,8 @@ grid.arrange(
 dev.off()
 
 # 27. Northern BR: Drill seeding & soil disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model27_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model27_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model27.bp, model27.annforb, model27.anngrass,
   model27.perforb, model27.pergrass, model27.shrub,
@@ -8244,8 +8276,8 @@ grid.arrange(
 dev.off()
 
 # 28. Northern BR: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model28_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model28_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model28.bp, model28.annforb, model28.anngrass,
   model28.perforb, model28.pergrass, model28.shrub,
@@ -8258,8 +8290,8 @@ grid.arrange(
 dev.off()
 
 # 29. Northern BR: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model29_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model29_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model29.bp, model29.annforb, model29.anngrass,
   model29.perforb, model29.pergrass, model29.shrub,
@@ -8272,8 +8304,8 @@ grid.arrange(
 dev.off()
 
 # 30. Northern BR: Vegetation disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model30_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model30_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model30.bp, model30.annforb, model30.anngrass,
   model30.perforb, model30.pergrass, model30.shrub,
@@ -8286,8 +8318,8 @@ grid.arrange(
 dev.off()
 
 # 31. Northern BR: Post-burn aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model31_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model31_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model31.bp, model31.annforb, model31.anngrass,
   model31.perforb, model31.pergrass, model31.shrub,
@@ -8300,8 +8332,8 @@ grid.arrange(
 dev.off()
 
 # 32. Northern BR: Post-burn aerial and drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model32_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model32_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model32.bp, model32.annforb, model32.anngrass,
   model32.perforb, model32.pergrass, model32.shrub,
@@ -8314,8 +8346,8 @@ grid.arrange(
 dev.off()
 
 # 33. Northern BR: Post-burn closure
-tiff("figures/2026-05_PSM-and-permutation-tests/model33_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model33_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model33.bp, model33.annforb, model33.anngrass,
   model33.perforb, model33.pergrass, model33.shrub,
@@ -8328,8 +8360,8 @@ grid.arrange(
 dev.off()
 
 # 34. Northern BR: Post-burn drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model34_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model34_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model34.bp, model34.annforb, model34.anngrass,
   model34.perforb, model34.pergrass, model34.shrub,
@@ -8342,8 +8374,8 @@ grid.arrange(
 dev.off()
 
 # 35. Northern BR: Post-burn herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model35_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model35_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model35.bp, model35.annforb, model35.anngrass,
   model35.perforb, model35.pergrass, model35.shrub,
@@ -8356,8 +8388,8 @@ grid.arrange(
 dev.off()
 
 # 36. Northern BR: Post-burn seedling planting
-tiff("figures/2026-05_PSM-and-permutation-tests/model36_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model36_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model36.bp, model36.annforb, model36.anngrass,
   model36.perforb, model36.pergrass, model36.shrub,
@@ -8373,8 +8405,8 @@ dev.off()
 ## Northwestern Great Plains ----------------------------------------------
 
 # 37. NW Great Plains: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model37_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model37_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model37.bp, model37.annforb, model37.anngrass,
   model37.perforb, model37.pergrass, model37.shrub,
@@ -8390,8 +8422,8 @@ dev.off()
 ## Snake River Plain ------------------------------------------------------
 
 # 38. Snake River Plain: Post-burn aerial seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model38_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model38_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model38.bp, model38.annforb, model38.anngrass,
   model38.perforb, model38.pergrass, model38.shrub,
@@ -8404,8 +8436,8 @@ grid.arrange(
 dev.off()
 
 # 39. Snake River Plain: Post-burn aerial & drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model39_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model39_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model39.bp, model39.annforb, model39.anngrass,
   model39.perforb, model39.pergrass, model39.shrub,
@@ -8418,8 +8450,8 @@ grid.arrange(
 dev.off()
 
 # 40. Snake River Plain: Post-burn closure
-tiff("figures/2026-05_PSM-and-permutation-tests/model40_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model40_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model40.bp, model40.annforb, model40.anngrass,
   model40.perforb, model40.pergrass, model40.shrub,
@@ -8432,8 +8464,8 @@ grid.arrange(
 dev.off()
 
 # 41. Snake River Plain: Post-burn drill seeding
-tiff("figures/2026-05_PSM-and-permutation-tests/model41_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model41_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model41.bp, model41.annforb, model41.anngrass,
   model41.perforb, model41.pergrass, model41.shrub,
@@ -8446,8 +8478,8 @@ grid.arrange(
 dev.off()
 
 # 42. Snake River Plain: Post-burn herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model42_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model42_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model42.bp, model42.annforb, model42.anngrass,
   model42.perforb, model42.pergrass, model42.shrub,
@@ -8463,8 +8495,8 @@ dev.off()
 ## Southern Rockies -------------------------------------------------------
 
 # 43. Southern Rockies: Herbicide
-tiff("figures/2026-05_PSM-and-permutation-tests/model43_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model43_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model43.bp, model43.annforb, model43.anngrass,
   model43.perforb, model43.pergrass, model43.shrub,
@@ -8477,8 +8509,8 @@ grid.arrange(
 dev.off()
 
 # 44. Southern Rockies: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model44_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model44_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
   model44.perforb, model44.pergrass, model44.shrub,
@@ -8491,8 +8523,8 @@ grid.arrange(
 dev.off()
 
 # 45. Southern Rockies: Vegetation disturbance
-tiff("figures/2026-05_PSM-and-permutation-tests/model45_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model45_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
   model45.perforb, model45.pergrass, model45.shrub,
@@ -8508,8 +8540,8 @@ dev.off()
 ## Wyoming Basin ----------------------------------------------------------
 
 # 46. Wyoming Basin: Prescribed burn
-tiff("figures/2026-05_PSM-and-permutation-tests/model46_permutation_functional-group.tiff",
-     units = "in", width = 9, height = 6.5, res = 150)
+tiff("figures/2026-06_permutation-tests-2/model46_permutation-2.tiff",
+     units = "in", width = 10, height = 8, res = 150)
 grid.arrange(
   model46.bp, model46.annforb, model46.anngrass,
   model46.perforb, model46.pergrass, model46.shrub,
@@ -8522,4 +8554,4 @@ grid.arrange(
 dev.off()
 
 
-save.image("RData/14_permutation-tests.RData")
+save.image("RData/14_permutation-tests-1.RData")
