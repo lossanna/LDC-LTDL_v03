@@ -120,6 +120,11 @@ geoindicators <- geoindicators |>
   select(-all_of(empty_cols))
 
 
+# geoindicator cols for joining
+geoindicators.join <- geoindicators |> 
+  select(PrimaryKey, LongTermMeanRunoff, LongTermMeanSoilLoss)
+
+
 
 # All matched data --------------------------------------------------------
 
@@ -131,7 +136,24 @@ all.matched$Model <- sub("\\..*", "", all.matched$Model)
 
 # Combine -----------------------------------------------------------------
 
-rhem <- geoindicators |> 
-  filter(PrimaryKey %in% all.matched$PrimaryKey) |> 
-  select(PrimaryKey, LongTermMeanRunoff, LongTermMeanSoilLoss)
+# Combine all models
+rhem <- all.matched |> 
+  left_join(geoindicators.join)
+
+# Count number of NAs
+rhem |> 
+  group_by(Model) |> 
+  summarise(
+    across(everything(), ~ sum(is.na(.))),
+    .groups = "drop"
+  ) |> 
+  print(n = 46)
   
+#   NAs as percentage
+rhem |> 
+  group_by(Model) |> 
+  summarise(
+    across(everything(), ~ mean(is.na(.)) * 100),
+    .groups = "drop"
+  ) |> 
+  print(n = 46)
