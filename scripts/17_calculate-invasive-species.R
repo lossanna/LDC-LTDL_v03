@@ -1114,16 +1114,70 @@ s.rockies.species |>
   group_by(Species, ScientificName) |> 
   summarise(sum_cover = sum(SpeciesCover_AH)) |> 
   arrange(desc(sum_cover)) |> 
-  print(n = 30) # also not sure (all of the top 20 are native)
+  print(n = 30) # also not sure (all of the top 20 are native; doing BRTE for now)
 
 
 ## 43. Herbicide ----------------------------------------------------------
 
+# Add invasive species cover
+model43.invasive <- model43.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "BRTE")
+
+# Create df for plots with 0 invasive species
+model43.add0 <- model43.matched |> 
+  filter(!PrimaryKey %in% model43.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "BRTE",
+         ScientificName = "Bromus tectorum",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model43.invasive <- bind_rows(model43.invasive, model43.add0)
+
 
 ## 44. Prescribed burn ----------------------------------------------------
 
+# Add invasive species cover
+model44.invasive <- model44.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "BRTE")
+
+# Create df for plots with 0 invasive species
+model44.add0 <- model44.matched |> 
+  filter(!PrimaryKey %in% model44.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "BRTE",
+         ScientificName = "Bromus tectorum",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model44.invasive <- bind_rows(model44.invasive, model44.add0)
+
 
 ## 45. Vegetation disturbance ---------------------------------------------
+
+# Add invasive species cover
+model45.invasive <- model45.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "BRTE")
+
+# Create df for plots with 0 invasive species
+model45.add0 <- model45.matched |> 
+  filter(!PrimaryKey %in% model45.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "BRTE",
+         ScientificName = "Bromus tectorum",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model45.invasive <- bind_rows(model45.invasive, model45.add0)
 
 
 
@@ -1141,17 +1195,17 @@ wyb.species |>
   arrange(desc(sum_cover)) # BRTE
 
 
-## 46. Prescribed burn ----------------------------------------------------
+## 43. Prescribed burn ----------------------------------------------------
 
 # Add invasive species cover
-model46.invasive <- model46.matched |> 
+model43.invasive <- model43.matched |> 
   select(EcoLvl3, trt_control, PrimaryKey) |> 
   left_join(geospecies.join) |> 
   filter(Species == "BRTE")
 
 # Create df for plots with 0 invasive species
-model46.add0 <- model46.matched |> 
-  filter(!PrimaryKey %in% model46.invasive$PrimaryKey) |> 
+model43.add0 <- model43.matched |> 
+  filter(!PrimaryKey %in% model43.invasive$PrimaryKey) |> 
   select(EcoLvl3, trt_control, PrimaryKey) |>
   mutate(Species = "BRTE",
          ScientificName = "Bromus tectorum",
@@ -1159,7 +1213,7 @@ model46.add0 <- model46.matched |>
          Species_AH_n = 0)
 
 # Combine
-model46.invasive <- bind_rows(model46.invasive, model46.add0)
+model43.invasive <- bind_rows(model43.invasive, model43.add0)
 
 
 
