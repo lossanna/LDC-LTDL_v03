@@ -9067,7 +9067,10 @@ grid.arrange(
 # Join cover & shannon cols
 model43.matched2 <- model43.matched |> 
   select(LDCpointID, PrimaryKey, trt_control) |> 
-  left_join(geoindicators.join)
+  left_join(geoindicators.join) |> 
+  left_join(model43.invasive) |> 
+  left_join(filter(all_diversity, Model == "model43")) |> 
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model43.matched2 <- model43.matched2 |> 
@@ -9085,8 +9088,18 @@ model43.matched2 <- model43.matched2 |>
              indicators == "AnnGramCover_AH" ~ "Annual grass",
              indicators == "PerForbCover_AH" ~ "Perennial forb",
              indicators == "PerGramCover_AH" ~ "Perennial grass",
-             indicators == "ShrubCover_AH" ~ "Shrub"
-           ))
+             indicators == "ShrubCover_AH" ~ "Shrub",
+             indicators == "Shannon" ~ "Shannon diversity",
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+           )) |> 
+  mutate(indicators = factor(indicators,
+                             levels = c("Annual forb",
+                                        "Annual grass",
+                                        "Perennial forb",
+                                        "Perennial grass",
+                                        "Shrub",
+                                        "Shannon diversity",
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model43.diff <- model43.matched2 |> 
@@ -9214,14 +9227,44 @@ model43.shrub <- model43.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model43.shrub
 
+#   Shannon diversity
+model43.shannon <- model43.perm |> 
+  filter(indicators == "Shannon diversity") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Shannon diversity"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shannon diversity") +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model43.shannon
+
+#   Bromus tectorum
+model43.brte <- model43.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model43.diff$obs_diff[model43.diff$indicators == "Bromus tectorum"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = expression(italic("Bromus tectorum"))) +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model43.brte
+
 # Combine plots
 grid.arrange(
   model43.bp, model43.annforb, model43.anngrass,
   model43.perforb, model43.pergrass, model43.shrub,
+  model43.shannon, model43.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 
@@ -9231,7 +9274,10 @@ grid.arrange(
 # Join cover & shannon cols
 model44.matched2 <- model44.matched |> 
   select(LDCpointID, PrimaryKey, trt_control) |> 
-  left_join(geoindicators.join)
+  left_join(geoindicators.join) |> 
+  left_join(model44.invasive) |> 
+  left_join(filter(all_diversity, Model == "model44")) |> 
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model44.matched2 <- model44.matched2 |> 
@@ -9249,8 +9295,18 @@ model44.matched2 <- model44.matched2 |>
              indicators == "AnnGramCover_AH" ~ "Annual grass",
              indicators == "PerForbCover_AH" ~ "Perennial forb",
              indicators == "PerGramCover_AH" ~ "Perennial grass",
-             indicators == "ShrubCover_AH" ~ "Shrub"
-           ))
+             indicators == "ShrubCover_AH" ~ "Shrub",
+             indicators == "Shannon" ~ "Shannon diversity",
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+           )) |> 
+  mutate(indicators = factor(indicators,
+                             levels = c("Annual forb",
+                                        "Annual grass",
+                                        "Perennial forb",
+                                        "Perennial grass",
+                                        "Shrub",
+                                        "Shannon diversity",
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model44.diff <- model44.matched2 |> 
@@ -9378,14 +9434,44 @@ model44.shrub <- model44.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model44.shrub
 
+#   Shannon diversity
+model44.shannon <- model44.perm |> 
+  filter(indicators == "Shannon diversity") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Shannon diversity"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shannon diversity") +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model44.shannon
+
+#   Bromus tectorum
+model44.brte <- model44.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Bromus tectorum"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = expression(italic("Bromus tectorum"))) +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model44.brte
+
 # Combine plots
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
   model44.perforb, model44.pergrass, model44.shrub,
+  model44.shannon, model44.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 
@@ -9395,7 +9481,10 @@ grid.arrange(
 # Join cover & shannon cols
 model45.matched2 <- model45.matched |> 
   select(LDCpointID, PrimaryKey, trt_control) |> 
-  left_join(geoindicators.join)
+  left_join(geoindicators.join) |> 
+  left_join(model45.invasive) |> 
+  left_join(filter(all_diversity, Model == "model45")) |> 
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model45.matched2 <- model45.matched2 |> 
@@ -9413,8 +9502,18 @@ model45.matched2 <- model45.matched2 |>
              indicators == "AnnGramCover_AH" ~ "Annual grass",
              indicators == "PerForbCover_AH" ~ "Perennial forb",
              indicators == "PerGramCover_AH" ~ "Perennial grass",
-             indicators == "ShrubCover_AH" ~ "Shrub"
-           ))
+             indicators == "ShrubCover_AH" ~ "Shrub",
+             indicators == "Shannon" ~ "Shannon diversity",
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+           )) |> 
+  mutate(indicators = factor(indicators,
+                             levels = c("Annual forb",
+                                        "Annual grass",
+                                        "Perennial forb",
+                                        "Perennial grass",
+                                        "Shrub",
+                                        "Shannon diversity",
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model45.diff <- model45.matched2 |> 
@@ -9542,14 +9641,44 @@ model45.shrub <- model45.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model45.shrub
 
+#   Shannon diversity
+model45.shannon <- model45.perm |> 
+  filter(indicators == "Shannon diversity") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Shannon diversity"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = "Shannon diversity") +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model45.shannon
+
+#   Bromus tectorum
+model45.brte <- model45.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
+  ggplot(aes(x = mean_diff)) +
+  geom_histogram(fill = "lightblue2", color = "black") +
+  geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Bromus tectorum"],
+             color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x = "Difference in means",
+       y = "Frequency",
+       title = expression(italic("Bromus tectorum"))) +
+  theme_bw(base_size = 10) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+model45.brte
+
 # Combine plots
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
   model45.perforb, model45.pergrass, model45.shrub,
+  model45.shannon, model45.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 
@@ -10481,10 +10610,12 @@ tiff("figures/2026-06_permutation-tests-2/model43_permutation-2.tiff",
 grid.arrange(
   model43.bp, model43.annforb, model43.anngrass,
   model43.perforb, model43.pergrass, model43.shrub,
+  model43.shannon, model43.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 dev.off()
@@ -10495,10 +10626,12 @@ tiff("figures/2026-06_permutation-tests-2/model44_permutation-2.tiff",
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
   model44.perforb, model44.pergrass, model44.shrub,
+  model44.shannon, model44.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 dev.off()
@@ -10509,10 +10642,12 @@ tiff("figures/2026-06_permutation-tests-2/model45_permutation-2.tiff",
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
   model45.perforb, model45.pergrass, model45.shrub,
+  model45.shannon, model45.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
-    c(4, 4, 5, 5, 6, 6)
+    c(4, 4, 5, 5, 6, 6),
+    c(NA, 7, 7, 8, 8, NA)
   )
 )
 dev.off()
