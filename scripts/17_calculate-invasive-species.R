@@ -1,5 +1,5 @@
 # Created: 2026-06-02
-# Updated: 2026-06-02
+# Updated: 2026-06-03
 
 # Purpose: Identify prominent invasive species by ecoregion. Create dataframes of matched
 #   data with invasive species cover for each model.
@@ -99,16 +99,92 @@ az.nm.plat.species <- ldc.007 |>
 az.nm.plat.species |> 
   group_by(Species, ScientificName) |> 
   summarise(sum_cover = sum(SpeciesCover_AH)) |> 
-  arrange(desc(sum_cover)) # honestly I am not sure
+  arrange(desc(sum_cover)) |> 
+  print(n = 20) # SATR12? honestly not sure
 
 
 ## 2. Herbicide -----------------------------------------------------------
 
+# Add invasive species cover
+model02.invasive <- model02.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "SATR12")
+
+# Create df for plots with 0 invasive species
+model02.add0 <- model02.matched |> 
+  filter(!PrimaryKey %in% model02.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "SATR12",
+         ScientificName = "Salsola tragus",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model02.invasive <- bind_rows(model02.invasive, model02.add0)
+
+
 ## 3. Prescribed burn -----------------------------------------------------
+
+# Add invasive species cover
+model03.invasive <- model03.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "SATR12")
+
+# Create df for plots with 0 invasive species
+model03.add0 <- model03.matched |> 
+  filter(!PrimaryKey %in% model03.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "SATR12",
+         ScientificName = "Salsola tragus",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model03.invasive <- bind_rows(model03.invasive, model03.add0)
+
 
 ## 4. Seeding -------------------------------------------------------------
 
+# Add invasive species cover
+model04.invasive <- model04.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "SATR12")
+
+# Create df for plots with 0 invasive species
+model04.add0 <- model04.matched |> 
+  filter(!PrimaryKey %in% model04.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "SATR12",
+         ScientificName = "Salsola tragus",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model04.invasive <- bind_rows(model04.invasive, model04.add0)
+
+
 ## 5. Soil disturbance ----------------------------------------------------
+
+# Add invasive species cover
+model05.invasive <- model05.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "SATR12")
+
+# Create df for plots with 0 invasive species
+model05.add0 <- model05.matched |> 
+  filter(!PrimaryKey %in% model05.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "SATR12",
+         ScientificName = "Salsola tragus",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model05.invasive <- bind_rows(model05.invasive, model05.add0)
 
 
 
@@ -561,10 +637,29 @@ m.rockies.species <- ldc.007 |>
 m.rockies.species |> 
   group_by(Species, ScientificName) |> 
   summarise(sum_cover = sum(SpeciesCover_AH)) |> 
-  arrange(desc(sum_cover)) # honestly not sure
+  arrange(desc(sum_cover)) |> 
+  print(n = 20) # BRTE? honestly not sure
 
 
 ## 24. Herbicide ----------------------------------------------------------
+
+# Add invasive species cover
+model24.invasive <- model24.matched |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |> 
+  left_join(geospecies.join) |> 
+  filter(Species == "BRTE")
+
+# Create df for plots with 0 invasive species
+model24.add0 <- model24.matched |> 
+  filter(!PrimaryKey %in% model24.invasive$PrimaryKey) |> 
+  select(EcoLvl3, trt_control, PrimaryKey) |>
+  mutate(Species = "BRTE",
+         ScientificName = "Bromus tectorum",
+         SpeciesCover_AH = 0,
+         Species_AH_n = 0)
+
+# Combine
+model24.invasive <- bind_rows(model24.invasive, model24.add0)
 
 
 
@@ -1018,7 +1113,8 @@ s.rockies.species <- ldc.007 |>
 s.rockies.species |> 
   group_by(Species, ScientificName) |> 
   summarise(sum_cover = sum(SpeciesCover_AH)) |> 
-  arrange(desc(sum_cover)) # also not sure
+  arrange(desc(sum_cover)) |> 
+  print(n = 30) # also not sure (all of the top 20 are native)
 
 
 ## 43. Herbicide ----------------------------------------------------------
