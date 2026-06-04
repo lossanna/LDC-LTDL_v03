@@ -1,5 +1,5 @@
 # Created: 2026-06-02
-# Updated: 2026-06-03
+# Updated: 2026-06-04
 
 # Purpose: Identify prominent invasive species by ecoregion. Create dataframes of matched
 #   data with invasive species cover for each model.
@@ -11,7 +11,7 @@ library(tidyverse)
 
 geospecies.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/geospecies.csv")
 ldc.007.raw <- read_csv("data/versions-from-R/12.3_LDC-points_v007.csv")
-load("RData/13_matched-data.RData")
+load("RData/13.1_matched-data-1.RData")
 
 
 ## Prepare geospecies -----------------------------------------------------

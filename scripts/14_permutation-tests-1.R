@@ -1,5 +1,5 @@
 # Created: 2026-05-04
-# Updated: 2026-06-01
+# Updated: 2026-06-04
 
 # Purpose: Run permutation tests for functional group cover (based on Ron's script).
 
@@ -12,7 +12,7 @@ library(gridExtra)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13_matched-data.RData")
+load("RData/13.1_matched-data-1.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
 
 

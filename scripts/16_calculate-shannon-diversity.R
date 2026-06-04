@@ -1,5 +1,5 @@
 # Created: 2026-06-01
-# Updated: 2026-06-01
+# Updated: 2026-06-04
 
 # Purpose: Calculate Shannon diversity for each LDC point within each ecoregion/treatment
 #   data subset (for each of the 46 models).
@@ -9,7 +9,7 @@ library(vegan)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13_matched-data.RData")
+load("RData/13.1_matched-data-1.RData")
 geospecies.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/geospecies.csv")
 
 

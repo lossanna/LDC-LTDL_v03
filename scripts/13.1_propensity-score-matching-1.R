@@ -1,5 +1,5 @@
 # Created: 2026-04-29
-# Updated: 2026-06-01
+# Updated: 2026-06-04
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data.
 
@@ -6198,7 +6198,9 @@ avg.comp <- avg.comp |>
 # Save matched data -------------------------------------------------------
 
 save(list = ls(pattern = "\\.matched$"), 
-     file = "RData/13_matched-data.RData")
+     file = "RData/13.1_matched-data-1.RData")
+
+
 
 
 # Write out figures -------------------------------------------------------
@@ -6884,4 +6886,4 @@ model46.plot
 dev.off()
 
 
-save.image("RData/13_propensity-score-matching.RData")
+save.image("RData/13.1_propensity-score-matching-1.RData")
