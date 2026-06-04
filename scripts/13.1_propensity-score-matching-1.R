@@ -6209,13 +6209,13 @@ save(list = ls(pattern = "\\.matched$"),
 
 # 1. AZ/NM Mountains: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model01_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model01_loveplot.tiff",
     units = "in", width = 6, height = 4, res = 150)
 model01.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model01_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model01_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model01.plot
 dev.off()
@@ -6226,13 +6226,13 @@ dev.off()
 
 # 2. AZ/NM Plateau: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model02_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model02_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model02.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model02_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model02_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model02.plot
 dev.off()
@@ -6240,13 +6240,13 @@ dev.off()
 
 # 3. AZ/NM Plateau: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model03_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model03_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model03.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model03_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model03_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model03.plot
 dev.off()
@@ -6254,13 +6254,13 @@ dev.off()
 
 # 4. AZ/NM Plateau: Seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model04_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model04_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model04.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model04_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model04_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model04.plot
 dev.off()
@@ -6268,13 +6268,13 @@ dev.off()
 
 # 5. AZ/NM Plateau: Soil disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model05_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model05_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model05.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model05_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model05_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model05.plot
 dev.off()
@@ -6285,13 +6285,13 @@ dev.off()
 
 # 6. Blue Mountains: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model06_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model06_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model06.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model06_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model06_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model06.plot
 dev.off()
@@ -6299,13 +6299,13 @@ dev.off()
 
 # 7. Blue Mountains: Vegetation disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model07_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model07_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model07.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model07_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model07_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model07.plot
 dev.off()
@@ -6313,13 +6313,13 @@ dev.off()
 
 # 8. Blue Mountains: Post-burn herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model08_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model08_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model08.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model08_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model08_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model08.plot
 dev.off()
@@ -6330,13 +6330,13 @@ dev.off()
 
 # 9. Central BR: Aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model09_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model09_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model09.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model09_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model09_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model09.plot
 dev.off()
@@ -6344,13 +6344,13 @@ dev.off()
 
 # 10. Central BR: Drill seeding & soil disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model10_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model10_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model10.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model10_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model10_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model10.plot
 dev.off()
@@ -6358,13 +6358,13 @@ dev.off()
 
 # 11. Central BR: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model11_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model11_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model11.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model11_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model11_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model11.plot
 dev.off()
@@ -6372,13 +6372,13 @@ dev.off()
 
 # 12. Central BR: Vegetation disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model12_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model12_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model12.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model12_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model12_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model12.plot
 dev.off()
@@ -6386,13 +6386,13 @@ dev.off()
 
 # 13. Central BR: Post-burn aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model13_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model13_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model13.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model13_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model13_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model13.plot
 dev.off()
@@ -6400,13 +6400,13 @@ dev.off()
 
 # 14. Central BR: Post-burn drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model14_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model14_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model14.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model14_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model14_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model14.plot
 dev.off()
@@ -6414,13 +6414,13 @@ dev.off()
 
 # 15. Central BR: Post-burn ground seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model15_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model15_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model15.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model15_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model15_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model15.plot
 dev.off()
@@ -6428,13 +6428,13 @@ dev.off()
 
 # 16. Central BR: Post-burn herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model16_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model16_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model16.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model16_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model16_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model16.plot
 dev.off()
@@ -6445,13 +6445,13 @@ dev.off()
 
 # 17. Chihuahuan Desert: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model17_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model17_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model17.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model17_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model17_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model17.plot
 dev.off()
@@ -6461,13 +6461,13 @@ dev.off()
 
 # 18. CO Plateaus: Aerial seeding & soil disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model18_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model18_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model18.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model18_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model18_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model18.plot
 dev.off()
@@ -6475,13 +6475,13 @@ dev.off()
 
 # 19. CO Plateaus: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model19_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model19_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model19.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model19_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model19_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model19.plot
 dev.off()
@@ -6489,13 +6489,13 @@ dev.off()
 
 # 20. CO Plateaus: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model20_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model20_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model20.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model20_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model20_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model20.plot
 dev.off()
@@ -6503,13 +6503,13 @@ dev.off()
 
 # 21. CO Plateaus: Soil disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model21_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model21_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model21.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model21_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model21_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model21.plot
 dev.off()
@@ -6517,13 +6517,13 @@ dev.off()
 
 # 22. CO Plateaus: Vegetation disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model22_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model22_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model22.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model22_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model22_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model22.plot
 dev.off()
@@ -6531,13 +6531,13 @@ dev.off()
 
 # 23. CO Plateaus: Post-burn aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model23_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model23_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model23.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model23_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model23_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model23.plot
 dev.off()
@@ -6548,13 +6548,13 @@ dev.off()
 
 # 24. Middle Rockies: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model24_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model24_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model24.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model24_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model24_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model24.plot
 dev.off()
@@ -6565,13 +6565,13 @@ dev.off()
 
 # 25. Mojave BR: Post-burn aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model25_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model25_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model25.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model25_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model25_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model25.plot
 dev.off()
@@ -6582,13 +6582,13 @@ dev.off()
 
 # 26. Northern BR: Drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model26_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model26_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model26.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model26_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model26_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model26.plot
 dev.off()
@@ -6596,13 +6596,13 @@ dev.off()
 
 # 27. Northern BR: Drill seeding & soil disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model27_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model27_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model27.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model27_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model27_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model27.plot
 dev.off()
@@ -6610,13 +6610,13 @@ dev.off()
 
 # 28. Northern BR: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model28_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model28_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model28.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model28_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model28_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model28.plot
 dev.off()
@@ -6624,13 +6624,13 @@ dev.off()
 
 # 29. Northern BR: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model29_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model29_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model29.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model29_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model29_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model29.plot
 dev.off()
@@ -6638,13 +6638,13 @@ dev.off()
 
 # 30. Northern BR: Vegetation disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model30_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model30_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model30.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model30_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model30_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model30.plot
 dev.off()
@@ -6652,13 +6652,13 @@ dev.off()
 
 # 31. Northern BR: Post-burn aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model31_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model31_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model31.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model31_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model31_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model31.plot
 dev.off()
@@ -6666,13 +6666,13 @@ dev.off()
 
 # 32. Northern BR: Post-burn aerial and drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model32_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model32_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model32.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model32_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model32_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model32.plot
 dev.off()
@@ -6680,13 +6680,13 @@ dev.off()
 
 # 33. Northern BR: Post-burn closure
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model33_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model33_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model33.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model33_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model33_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model33.plot
 dev.off()
@@ -6694,13 +6694,13 @@ dev.off()
 
 # 34. Northern BR: Post-burn drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model34_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model34_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model34.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model34_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model34_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model34.plot
 dev.off()
@@ -6708,13 +6708,13 @@ dev.off()
 
 # 35. Northern BR: Post-burn herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model35_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model35_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model35.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model35_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model35_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model35.plot
 dev.off()
@@ -6722,13 +6722,13 @@ dev.off()
 
 # 36. Northern BR: Post-burn seedling planting
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model36_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model36_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model36.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model36_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model36_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model36.plot
 dev.off()
@@ -6739,13 +6739,13 @@ dev.off()
 
 # 37. NW Great Plains: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model37_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model37_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model37.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model37_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model37_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model37.plot
 dev.off()
@@ -6756,13 +6756,13 @@ dev.off()
 
 # 38. Snake River Plain: Post-burn aerial seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model38_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model38_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model38.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model38_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model38_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model38.plot
 dev.off()
@@ -6770,13 +6770,13 @@ dev.off()
 
 # 39. Snake River Plain: Post-burn aerial & drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model39_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model39_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model39.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model39_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model39_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model39.plot
 dev.off()
@@ -6784,13 +6784,13 @@ dev.off()
 
 # 40. Snake River Plain: Post-burn closure
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model40_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model40_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model40.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model40_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model40_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model40.plot
 dev.off()
@@ -6798,13 +6798,13 @@ dev.off()
 
 # 41. Snake River Plain: Post-burn drill seeding
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model41_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model41_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model41.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model41_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model41_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model41.plot
 dev.off()
@@ -6812,13 +6812,13 @@ dev.off()
 
 # 42. Snake River Plain: Post-burn herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model42_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model42_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model42.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model42_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model42_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model42.plot
 dev.off()
@@ -6829,13 +6829,13 @@ dev.off()
 
 # 43. Southern Rockies: Herbicide
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model43_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model43_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model43.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model43_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model43_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model43.plot
 dev.off()
@@ -6843,13 +6843,13 @@ dev.off()
 
 # 44. Southern Rockies: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model44_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model44_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model44.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model44_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model44_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model44.plot
 dev.off()
@@ -6857,13 +6857,13 @@ dev.off()
 
 # 45. Southern Rockies: Vegetation disturbance
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model45_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model45_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model45.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model45_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model45_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model45.plot
 dev.off()
@@ -6874,13 +6874,13 @@ dev.off()
 
 # 46. Wyoming Basin: Prescribed burn
 #   Love plot
-tiff("figures/2026-05_PSM-and-permutation-tests/model46_loveplot.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model46_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model46.loveplot
 dev.off()
 
 #   Treatment effect
-tiff("figures/2026-05_PSM-and-permutation-tests/model46_average-treatment-effect.tiff",
+tiff("figures/2026-05_PSM-and-permutation-tests-1/model46_average-treatment-effect.tiff",
      units = "in", width = 6, height = 4, res = 150)
 model46.plot
 dev.off()
