@@ -11,7 +11,7 @@ library(tidyverse)
 
 geospecies.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/geospecies.csv")
 ldc.007.raw <- read_csv("data/versions-from-R/12.3_LDC-points_v007.csv")
-load("RData/13.1_matched-data-1.RData")
+load("RData/13_matched-data-1.RData")
 
 
 ## Prepare geospecies -----------------------------------------------------
@@ -1222,8 +1222,8 @@ model43.invasive <- bind_rows(model43.invasive, model43.add0)
 # Save matched dataframes with invasive species cover
 
 save(list = ls(pattern = "\\.invasive$"), 
-     file = "RData/17_invasive-matched-data.RData")
+     file = "RData/17_invasive-matched-data-1.RData")
 
 
-save.image("RData/17_calculate-invasive-species.RData")
+save.image("RData/17_calculate-invasive-species-1.RData")
 

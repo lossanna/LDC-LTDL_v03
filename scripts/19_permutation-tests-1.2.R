@@ -1,5 +1,5 @@
 # Updated: 2026-06-01
-# Updated: 2026-06-03
+# Updated: 2026-06-04
 
 # Purpose: Run permutation tests for functional group cover, Shannon diversity,
 #   and invasive species. (For now RHEM output is on hold due to all the missing values.)
@@ -15,8 +15,8 @@ library(gridExtra)
 
 load("RData/13_matched-data.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
-all_diversity <- read_csv("data/versions-from-R/16_shannon-diversity_all-models.csv")
-load("RData/17_invasive-matched-data.RData")
+all_diversity <- read_csv("data/versions-from-R/16_shannon-diversity-1_all-models.csv")
+load("RData/17_invasive-matched-data-1.RData")
 
 
 # Data wrangling ----------------------------------------------------------
@@ -9899,7 +9899,7 @@ grid.arrange(
 ## AZ/NM Mountains --------------------------------------------------------
 
 # 1. AZ/NM Mountains: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model01_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model01_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model01.bp, model01.annforb, model01.anngrass,
@@ -9918,7 +9918,7 @@ dev.off()
 ## AZ/NM Plateau ----------------------------------------------------------
 
 # 2. AZ/NM Plateau: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model02_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model02_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model02.bp, model02.annforb, model02.anngrass,
@@ -9934,7 +9934,7 @@ grid.arrange(
 dev.off()
 
 # 3. AZ/NM Plateau: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model03_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model03_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model03.bp, model03.annforb, model03.anngrass,
@@ -9950,7 +9950,7 @@ grid.arrange(
 dev.off()
 
 # 4. AZ/NM Plateau: Seeding
-tiff("figures/2026-06_permutation-tests-2/model04_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model04_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model04.bp, model04.annforb, model04.anngrass,
@@ -9966,7 +9966,7 @@ grid.arrange(
 dev.off()
 
 # 5. AZ/NM Plateau: Soil disturbance
-tiff("figures/2026-06_permutation-tests-2/model05_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model05_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model05.bp, model05.annforb, model05.anngrass,
@@ -9985,7 +9985,7 @@ dev.off()
 ## Blue Mountains ---------------------------------------------------------
 
 # 6. Blue Mountains: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model06_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model06_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model06.bp, model06.annforb, model06.anngrass,
@@ -10001,7 +10001,7 @@ grid.arrange(
 dev.off()
 
 # 7. Blue Mountains: Vegetation disturbance
-tiff("figures/2026-06_permutation-tests-2/model07_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model07_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model07.bp, model07.annforb, model07.anngrass,
@@ -10017,7 +10017,7 @@ grid.arrange(
 dev.off()
 
 # 8. Blue Mountains: Post-burn herbicide
-tiff("figures/2026-06_permutation-tests-2/model08_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model08_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model08.bp, model08.annforb, model08.anngrass,
@@ -10036,7 +10036,7 @@ dev.off()
 ## Central Basin and Range ------------------------------------------------
 
 # 9. Central BR: Aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model09_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model09_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model09.bp, model09.annforb, model09.anngrass,
@@ -10052,7 +10052,7 @@ grid.arrange(
 dev.off()
 
 # 10. Central BR: Drill seeding & soil disturbance
-tiff("figures/2026-06_permutation-tests-2/model10_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model10_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model10.bp, model10.annforb, model10.anngrass,
@@ -10068,7 +10068,7 @@ grid.arrange(
 dev.off()
 
 # 11. Central BR: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model11_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model11_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model11.bp, model11.annforb, model11.anngrass,
@@ -10085,7 +10085,7 @@ grid.arrange(
 dev.off()
 
 # 12. Central BR: Vegetation disturbance
-tiff("figures/2026-06_permutation-tests-2/model12_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model12_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model12.bp, model12.annforb, model12.anngrass,
@@ -10101,7 +10101,7 @@ grid.arrange(
 dev.off()
 
 # 13. Central BR: Post-burn aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model13_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model13_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model13.bp, model13.annforb, model13.anngrass,
@@ -10117,7 +10117,7 @@ grid.arrange(
 dev.off()
 
 # 14. Central BR: Post-burn drill seeding
-tiff("figures/2026-06_permutation-tests-2/model14_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model14_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model14.bp, model14.annforb, model14.anngrass,
@@ -10133,7 +10133,7 @@ grid.arrange(
 dev.off()
 
 # 15. Central BR: Post-burn ground seeding
-tiff("figures/2026-06_permutation-tests-2/model15_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model15_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model15.bp, model15.annforb, model15.anngrass,
@@ -10149,7 +10149,7 @@ grid.arrange(
 dev.off()
 
 # 16. Central BR: Post-burn herbicide
-tiff("figures/2026-06_permutation-tests-2/model16_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model16_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model16.bp, model16.annforb, model16.anngrass,
@@ -10168,7 +10168,7 @@ dev.off()
 ## Chihuahuan Desert ------------------------------------------------------
 
 # 17. Chihuahuan Desert: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model17_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model17_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model17.bp, model17.annforb, model17.anngrass,
@@ -10187,7 +10187,7 @@ dev.off()
 ## Colorado Plateaus ------------------------------------------------------
 
 # 18. CO Plateaus: Aerial seeding & soil disturbance
-tiff("figures/2026-06_permutation-tests-2/model18_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model18_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model18.bp, model18.annforb, model18.anngrass,
@@ -10203,7 +10203,7 @@ grid.arrange(
 dev.off()
 
 # 19. CO Plateaus: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model19_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model19_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model19.bp, model19.annforb, model19.anngrass,
@@ -10219,7 +10219,7 @@ grid.arrange(
 dev.off()
 
 # 20. CO Plateaus: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model20_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model20_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model20.bp, model20.annforb, model20.anngrass,
@@ -10235,7 +10235,7 @@ grid.arrange(
 dev.off()
 
 # 21. CO Plateaus: Soil disturbance
-tiff("figures/2026-06_permutation-tests-2/model21_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model21_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model21.bp, model21.annforb, model21.anngrass,
@@ -10251,7 +10251,7 @@ grid.arrange(
 dev.off()
 
 # 22. CO Plateaus: Vegetation disturbance
-tiff("figures/2026-06_permutation-tests-2/model22_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model22_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model22.bp, model22.annforb, model22.anngrass,
@@ -10267,7 +10267,7 @@ grid.arrange(
 dev.off()
 
 # 23. CO Plateaus: Post-burn aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model23_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model23_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model23.bp, model23.annforb, model23.anngrass,
@@ -10286,7 +10286,7 @@ dev.off()
 ## Middle Rockies ---------------------------------------------------------
 
 # 24. Middle Rockies: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model24_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model24_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model24.bp, model24.annforb, model24.anngrass,
@@ -10305,7 +10305,7 @@ dev.off()
 ## Mojave Basin and Range -------------------------------------------------
 
 # 25. Mojave BR: Post-burn aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model25_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model25_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model25.bp, model25.annforb, model25.anngrass,
@@ -10324,7 +10324,7 @@ dev.off()
 ## Northern Basin and Range -----------------------------------------------
 
 # 26. Northern BR: Drill seeding
-tiff("figures/2026-06_permutation-tests-2/model26_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model26_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model26.bp, model26.annforb, model26.anngrass,
@@ -10340,7 +10340,7 @@ grid.arrange(
 dev.off()
 
 # 27. Northern BR: Drill seeding & soil disturbance
-tiff("figures/2026-06_permutation-tests-2/model27_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model27_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model27.bp, model27.annforb, model27.anngrass,
@@ -10356,7 +10356,7 @@ grid.arrange(
 dev.off()
 
 # 28. Northern BR: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model28_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model28_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model28.bp, model28.annforb, model28.anngrass,
@@ -10372,7 +10372,7 @@ grid.arrange(
 dev.off()
 
 # 29. Northern BR: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model29_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model29_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model29.bp, model29.annforb, model29.anngrass,
@@ -10388,7 +10388,7 @@ grid.arrange(
 dev.off()
 
 # 30. Northern BR: Vegetation disturbance
-tiff("figures/2026-06_permutation-tests-2/model30_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model30_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model30.bp, model30.annforb, model30.anngrass,
@@ -10404,7 +10404,7 @@ grid.arrange(
 dev.off()
 
 # 31. Northern BR: Post-burn aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model31_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model31_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model31.bp, model31.annforb, model31.anngrass,
@@ -10420,7 +10420,7 @@ grid.arrange(
 dev.off()
 
 # 32. Northern BR: Post-burn aerial and drill seeding
-tiff("figures/2026-06_permutation-tests-2/model32_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model32_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model32.bp, model32.annforb, model32.anngrass,
@@ -10436,7 +10436,7 @@ grid.arrange(
 dev.off()
 
 # 33. Northern BR: Post-burn closure
-tiff("figures/2026-06_permutation-tests-2/model33_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model33_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model33.bp, model33.annforb, model33.anngrass,
@@ -10452,7 +10452,7 @@ grid.arrange(
 dev.off()
 
 # 34. Northern BR: Post-burn drill seeding
-tiff("figures/2026-06_permutation-tests-2/model34_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model34_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model34.bp, model34.annforb, model34.anngrass,
@@ -10468,7 +10468,7 @@ grid.arrange(
 dev.off()
 
 # 35. Northern BR: Post-burn herbicide
-tiff("figures/2026-06_permutation-tests-2/model35_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model35_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model35.bp, model35.annforb, model35.anngrass,
@@ -10484,7 +10484,7 @@ grid.arrange(
 dev.off()
 
 # 36. Northern BR: Post-burn seedling planting
-tiff("figures/2026-06_permutation-tests-2/model36_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model36_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model36.bp, model36.annforb, model36.anngrass,
@@ -10503,7 +10503,7 @@ dev.off()
 ## Northwestern Great Plains ----------------------------------------------
 
 # 37. NW Great Plains: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model37_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model37_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model37.bp, model37.annforb, model37.anngrass,
@@ -10522,7 +10522,7 @@ dev.off()
 ## Snake River Plain ------------------------------------------------------
 
 # 38. Snake River Plain: Post-burn aerial seeding
-tiff("figures/2026-06_permutation-tests-2/model38_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model38_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model38.bp, model38.annforb, model38.anngrass,
@@ -10538,7 +10538,7 @@ grid.arrange(
 dev.off()
 
 # 39. Snake River Plain: Post-burn aerial & drill seeding
-tiff("figures/2026-06_permutation-tests-2/model39_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model39_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model39.bp, model39.annforb, model39.anngrass,
@@ -10554,7 +10554,7 @@ grid.arrange(
 dev.off()
 
 # 40. Snake River Plain: Post-burn closure
-tiff("figures/2026-06_permutation-tests-2/model40_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model40_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model40.bp, model40.annforb, model40.anngrass,
@@ -10570,7 +10570,7 @@ grid.arrange(
 dev.off()
 
 # 41. Snake River Plain: Post-burn drill seeding
-tiff("figures/2026-06_permutation-tests-2/model41_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model41_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model41.bp, model41.annforb, model41.anngrass,
@@ -10586,7 +10586,7 @@ grid.arrange(
 dev.off()
 
 # 42. Snake River Plain: Post-burn herbicide
-tiff("figures/2026-06_permutation-tests-2/model42_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model42_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model42.bp, model42.annforb, model42.anngrass,
@@ -10605,7 +10605,7 @@ dev.off()
 ## Southern Rockies -------------------------------------------------------
 
 # 43. Southern Rockies: Herbicide
-tiff("figures/2026-06_permutation-tests-2/model43_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model43_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model43.bp, model43.annforb, model43.anngrass,
@@ -10621,7 +10621,7 @@ grid.arrange(
 dev.off()
 
 # 44. Southern Rockies: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model44_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model44_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
@@ -10637,7 +10637,7 @@ grid.arrange(
 dev.off()
 
 # 45. Southern Rockies: Vegetation disturbance
-tiff("figures/2026-06_permutation-tests-2/model45_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model45_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
@@ -10656,7 +10656,7 @@ dev.off()
 ## Wyoming Basin ----------------------------------------------------------
 
 # 46. Wyoming Basin: Prescribed burn
-tiff("figures/2026-06_permutation-tests-2/model46_permutation-2.tiff",
+tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model46_permutation-1.2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model46.bp, model46.annforb, model46.anngrass,
@@ -10672,4 +10672,4 @@ grid.arrange(
 dev.off()
 
 
-save.image("RData/19_permutation-tests-2.RData")
+save.image("RData/19_permutation-tests-1.2.RData")

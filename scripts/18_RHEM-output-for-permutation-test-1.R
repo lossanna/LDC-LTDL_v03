@@ -1,5 +1,5 @@
 # Updated: 2026-06-01
-# Updated: 2026-06-01
+# Updated: 2026-06-04
 
 # Purpose: Format/gather RHEM data from geoindicators.csv for permutation test.
 
@@ -7,7 +7,7 @@ library(tidyverse)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13_matched-data.RData")
+load("RData/13_matched-data-1.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/all/geoindicators.csv")
 
 

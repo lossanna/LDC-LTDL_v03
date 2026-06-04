@@ -6198,7 +6198,7 @@ avg.comp <- avg.comp |>
 # Save matched data -------------------------------------------------------
 
 save(list = ls(pattern = "\\.matched$"), 
-     file = "RData/13.1_matched-data-1.RData")
+     file = "RData/13_matched-data-1.RData")
 
 
 
@@ -6886,4 +6886,4 @@ model46.plot
 dev.off()
 
 
-save.image("RData/13.1_propensity-score-matching-1.RData")
+save.image("RData/13_propensity-score-matching-1.RData")

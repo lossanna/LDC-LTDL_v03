@@ -12,7 +12,7 @@ library(gridExtra)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13.1_matched-data-1.RData")
+load("RData/13_matched-data-1.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
 
 

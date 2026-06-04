@@ -9,7 +9,7 @@ library(vegan)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13.1_matched-data-1.RData")
+load("RData/13_matched-data-1.RData")
 geospecies.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/geospecies.csv")
 
 
@@ -94,4 +94,4 @@ all_diversity <- bind_rows(model_list)
 # Write to CSV ------------------------------------------------------------
 
 write_csv(all_diversity,
-          file = "data/versions-from-R/16_shannon-diversity_all-models.csv")
+          file = "data/versions-from-R/16_shannon-diversity-1_all-models.csv")
