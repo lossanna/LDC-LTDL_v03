@@ -2,24 +2,7 @@
 # Updated: 2026-06-05
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data with updated
-#   numbering from PSM 1 (13.R).
-#   Additionally, 3 models have a single row removed to run Shannon diversity 
-#     permutation test 2 (23_permutation-tests-2.R) because those plots had no 
-#     cover data recorded for any species and Shannon diversity is NA for those plots). 
-
-#   These models are:
-#     - AZ/NM Plateau soil disturbance (previously model 5, now 43)
-#     - Central Basin and Range post-burn aerial seeding (previously model 13, now 29)
-#     - Central Basin and Range post-burn herbicide (previously model 16, now 32)
-
-# All other models are the same as 13_propensity-score-matching-1.R, but numbering
-#   is different.
-
-# Note that plots with no cover data for any species via geospecies.csv (and therefore have
-#   NA for Shannon diversity) were identified from 16.R and 19.R. Explanation is also
-#   added to 21_calculate-shannon-diversity-2.R so the PSM/permutation test version 2
-#   analysis pipeline can be self-contained.
-
+#   numbering from PSM 1 (results are the same as 13_propensity-score-matching-1.R).
 
 # https://kosukeimai.github.io/MatchIt/articles/MatchIt.html
 
@@ -3646,10 +3629,6 @@ plot(model29.psm, type = "qq")
 # Matched data
 model29.matched <- match_data(model29.psm)
 
-# Remove plot with no cover data for later Shannon diversity permutation
-model29.matched <- model29.matched |> 
-  filter(PrimaryKey != "NV_NV-Elko-DO-ESR-2021_ELKO-ShafterComplex-01B_V12021-09-01")
-
 # Create trt_control variable
 model29.matched <- model29.matched |>
   mutate(trt_control = if_else(trt_binary == 1, "Post-burn aerial seeding", "Post-burn control")) |>
@@ -4026,10 +4005,6 @@ plot(model32.psm, type = "qq")
 
 # Matched data
 model32.matched <- match_data(model32.psm)
-
-# Remove plot with no cover data for later Shannon diversity permutation
-model32.matched <- model32.matched |> 
-  filter(PrimaryKey != "20184945202113B2")
 
 # Create trt_control variable
 model32.matched <- model32.matched |>
@@ -5405,10 +5380,6 @@ plot(model43.psm, type = "qq")
 # Matched data
 model43.matched <- match_data(model43.psm)
 
-# Remove plot with no cover data for later Shannon diversity permutation
-model43.matched <- model43.matched |> 
-  filter(PrimaryKey != "NM_Dingell-Act-AhShiSlePah-Intensification-2021_AhShiSlePahWilderness_09_V12021-09-01")
-
 # Create trt_control variable
 model43.matched <- model43.matched |>
   mutate(trt_control = if_else(trt_binary == 1, "Soil disturbance", "Control")) |>
@@ -5965,7 +5936,7 @@ avg.comp <- avg.comp |>
 # Save matched data -------------------------------------------------------
 
 save(list = ls(pattern = "\\.matched$"), 
-     file = "RData/20_matched-data-2.RData")
+     file = "RData/20.1_matched-data-2.RData")
 
 
 
@@ -6589,7 +6560,7 @@ model42.plot
 dev.off()
 
 
-# 5. AZ/NM Plateau: Soil disturbance
+# 43. AZ/NM Plateau: Soil disturbance
 #   Love plot
 tiff("figures/2026-06_PSM-and-permutation-tests-2/model43_loveplot.tiff",
      units = "in", width = 6, height = 4, res = 150)
@@ -6655,4 +6626,4 @@ dev.off()
 
 
 
-save.image("RData/20_propensity-score-matching-2.RData")
+save.image("RData/20.1_propensity-score-matching-2.RData")
