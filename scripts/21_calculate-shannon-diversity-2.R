@@ -8,7 +8,6 @@
 #   were no cover measurements for any species for these plots. The models are 29, 32, and 43.
 
 
-
 library(tidyverse)
 library(vegan)
 
@@ -127,5 +126,10 @@ all.matched |>
 
 # Write to CSV ------------------------------------------------------------
 
+# All diversity
 write_csv(all_diversity,
-          file = "data/versions-from-R/16_shannon-diversity-1_all-models.csv")
+          file = "data/versions-from-R/21_shannon-diversity-2_all-models.csv")
+
+# Plots with missing Shannon diversity
+write_csv(filter(all.matched, PrimaryKey %in% shannon.na.key),
+          file = "data/versions-from-R/21_shannon-diversity-2_NA.csv")
