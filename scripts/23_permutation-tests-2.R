@@ -1,8 +1,8 @@
-# Created: 2026-06-01
-# Updated: 2026-06-04
+# Created: 2026-06-05
+# Updated: 2026-06-05
 
-# Purpose: Run permutation tests for functional group cover, Shannon diversity,
-#   and invasive species. (For now RHEM output is on hold due to all the missing values.)
+# Purpose: Run permutation tests 2 for functional group cover, Shannon diversity,
+#   and invasive species.
 
 
 library(tidyverse)
@@ -13,10 +13,10 @@ library(gridExtra)
 
 # Load data ---------------------------------------------------------------
 
-load("RData/13_matched-data-1.RData")
-geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
-all_diversity <- read_csv("data/versions-from-R/16_shannon-diversity-1_all-models.csv")
-load("RData/17_invasive-matched-data-1.RData")
+load("RData/20.2_matched-data-2_updated.RData")
+geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-06-01/all/geoindicators.csv")
+all_diversity <- read_csv("data/versions-from-R/21_shannon-diversity-2_all-models.csv")
+load("RData/22_invasive-matched-data-2.RData")
 
 
 # Data wrangling ----------------------------------------------------------
@@ -135,9 +135,11 @@ geoindicators.join <- geoindicators |>
 
 
 
-# Arizona/New Mexico Mountains --------------------------------------------
+# NW Forested Mts / Western Cordillera ------------------------------------
 
-## 1. Prescribed burn -----------------------------------------------------
+## Blue Mountains ---------------------------------------------------------
+
+### 1. Herbicide ----------------------------------------------------------
 
 # Join cover & shannon cols
 model01.matched2 <- model01.matched |> 
@@ -165,7 +167,7 @@ model01.matched2 <- model01.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Bromus rubens"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -174,7 +176,7 @@ model01.matched2 <- model01.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Bromus rubens")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model01.diff <- model01.matched2 |> 
@@ -212,7 +214,7 @@ p_values01 <- model01.perm |>
   inner_join(model01.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values01 # p = 0.04 for perennial forb; p = 0.02 for shannon
+p_values01
 
 # Boxplot
 model01.bp <- model01.matched2 |> 
@@ -223,17 +225,11 @@ model01.bp <- model01.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "1. AZ/NM Mountains: Prescribed burn") +
+       title = "1. Blue Mountains: Herbicide") +
   theme(legend.title = element_blank()) +
-  geom_signif(
-    y_position = 25,
-    xmin = 2.8,
-    xmax = 3.2,
-    annotations = c("*")
-  ) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Bromus rubens" = expression(italic("Bromus rubens")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model01.bp
 
@@ -275,7 +271,7 @@ model01.perforb <- model01.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb (*)") +
+       title = "Perennial forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model01.perforb
@@ -317,30 +313,30 @@ model01.shannon <- model01.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model01.shannon
 
-#   Bromus rubens
-model01.brru2 <- model01.perm |> 
-  filter(indicators == "Bromus rubens") |> 
+#   Bromus tectorum
+model01.brte <- model01.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Bromus rubens"],
+  geom_vline(xintercept = model01.diff$obs_diff[model01.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus rubens"))) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model01.brru2
+model01.brte
 
 # Combine plots
 grid.arrange(
   model01.bp, model01.annforb, model01.anngrass,
   model01.perforb, model01.pergrass, model01.shrub,
-  model01.shannon, model01.brru2,
+  model01.shannon, model01.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -350,10 +346,7 @@ grid.arrange(
 )
 
 
-
-# Arizona/New Mexico Plateau ----------------------------------------------
-
-## 2. Herbicide -----------------------------------------------------------
+### 2. Vegetation disturbance ---------------------------------------------
 
 # Join cover & shannon cols
 model02.matched2 <- model02.matched |> 
@@ -381,7 +374,7 @@ model02.matched2 <- model02.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Salsola tragus"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -390,7 +383,7 @@ model02.matched2 <- model02.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Salsola tragus")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model02.diff <- model02.matched2 |> 
@@ -439,13 +432,13 @@ model02.bp <- model02.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "2. AZ/NM Plateau: Herbicide") +
+       title = "2. Blue Mountains: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Salsola tragus" = expression(italic("Salsola tragus")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
-model01.bp
+model02.bp
 
 # Plot frequency distribution
 #   Annual forb
@@ -532,25 +525,25 @@ model02.shannon <- model02.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model02.shannon
 
-#   Salsola tragus
-model02.satr12 <- model02.perm |> 
-  filter(indicators == "Salsola tragus") |> 
+#   Bromus tectorum
+model02.brte <- model02.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Salsola tragus"],
+  geom_vline(xintercept = model02.diff$obs_diff[model02.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Salsola tragus"))) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model02.satr12
+model02.brte
 
 # Combine plots
 grid.arrange(
   model02.bp, model02.annforb, model02.anngrass,
   model02.perforb, model02.pergrass, model02.shrub,
-  model02.shannon, model02.satr12,
+  model02.shannon, model02.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -560,7 +553,7 @@ grid.arrange(
 )
 
 
-## 3. Prescribed burn -----------------------------------------------------
+### 3. Post-burn herbicide ------------------------------------------------
 
 # Join cover & shannon cols
 model03.matched2 <- model03.matched |> 
@@ -588,7 +581,7 @@ model03.matched2 <- model03.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Salsola tragus"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -597,7 +590,7 @@ model03.matched2 <- model03.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Salsola tragus")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model03.diff <- model03.matched2 |> 
@@ -646,11 +639,11 @@ model03.bp <- model03.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "3. AZ/NM Plateau: Prescribed burn") +
+       title = "3. Blue Mountains: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Salsola tragus" = expression(italic("Salsola tragus")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model03.bp
 
@@ -739,25 +732,25 @@ model03.shannon <- model03.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model03.shannon
 
-#   Salsola tragus
-model03.satr12 <- model03.perm |> 
-  filter(indicators == "Salsola tragus") |> 
+#   Bromus tectorum
+model03.brte <- model03.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Salsola tragus"],
+  geom_vline(xintercept = model03.diff$obs_diff[model03.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Salsola tragus"))) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model03.satr12
+model03.brte
 
 # Combine plots
 grid.arrange(
   model03.bp, model03.annforb, model03.anngrass,
   model03.perforb, model03.pergrass, model03.shrub,
-  model03.shannon, model03.satr12,
+  model03.shannon, model03.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -767,7 +760,10 @@ grid.arrange(
 )
 
 
-## 4. Seeding -------------------------------------------------------------
+
+## Middle Rockies ---------------------------------------------------------
+
+### 4. Herbicide ----------------------------------------------------------
 
 # Join cover & shannon cols
 model04.matched2 <- model04.matched |> 
@@ -795,7 +791,7 @@ model04.matched2 <- model04.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Salsola tragus"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -804,7 +800,7 @@ model04.matched2 <- model04.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Salsola tragus")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model04.diff <- model04.matched2 |> 
@@ -853,11 +849,11 @@ model04.bp <- model04.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "4. AZ/NM Mountains: Seeding") +
+       title = "4. Middle Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Salsola tragus" = expression(italic("Salsola tragus")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model04.bp
 
@@ -946,25 +942,25 @@ model04.shannon <- model04.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model04.shannon
 
-#   Salsola tragus
-model04.satr12 <- model04.perm |> 
-  filter(indicators == "Salsola tragus") |> 
+#   Bromus tectorum
+model04.brte <- model04.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Salsola tragus"],
+  geom_vline(xintercept = model04.diff$obs_diff[model04.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Salsola tragus"))) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model04.satr12
+model04.brte
 
 # Combine plots
 grid.arrange(
   model04.bp, model04.annforb, model04.anngrass,
   model04.perforb, model04.pergrass, model04.shrub,
-  model04.shannon, model04.satr12,
+  model04.shannon, model04.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -974,7 +970,10 @@ grid.arrange(
 )
 
 
-## 5. Soil disturbance ----------------------------------------------------
+
+## Southern Rockies -------------------------------------------------------
+
+### 5. Herbicide ----------------------------------------------------------
 
 # Join cover & shannon cols
 model05.matched2 <- model05.matched |> 
@@ -982,10 +981,7 @@ model05.matched2 <- model05.matched |>
   left_join(geoindicators.join) |> 
   left_join(model05.invasive) |> 
   left_join(filter(all_diversity, Model == "model05")) |> 
-  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n) |> 
-  filter(!is.na(Shannon)) # one row must be removed because there were no cover 
-#                             measurements for any species for this plot 
-#     (Primary key: NM_Dingell-Act-AhShiSlePah-Intensification-2021_AhShiSlePahWilderness_09_V12021-09-01)
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model05.matched2 <- model05.matched2 |> 
@@ -1005,7 +1001,7 @@ model05.matched2 <- model05.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Salsola tragus"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -1014,7 +1010,7 @@ model05.matched2 <- model05.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Salsola tragus")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model05.diff <- model05.matched2 |> 
@@ -1052,7 +1048,7 @@ p_values05 <- model05.perm |>
   inner_join(model05.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values05 # p = 0.02 for shannon
+p_values05
 
 # Boxplot
 model05.bp <- model05.matched2 |> 
@@ -1063,11 +1059,11 @@ model05.bp <- model05.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "5. AZ/NM Mountains: Soil disturbance") +
+       title = "5. Southern Rockies: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Salsola tragus" = expression(italic("Salsola tragus")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model05.bp
 
@@ -1151,30 +1147,30 @@ model05.shannon <- model05.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model05.shannon
 
-#   Salsola tragus
-model05.satr12 <- model05.perm |> 
-  filter(indicators == "Salsola tragus") |> 
+#   Bromus tectorum
+model05.brte <- model05.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Salsola tragus"],
+  geom_vline(xintercept = model05.diff$obs_diff[model05.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Salsola tragus"))) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model05.satr12
+model05.brte
 
 # Combine plots
 grid.arrange(
   model05.bp, model05.annforb, model05.anngrass,
   model05.perforb, model05.pergrass, model05.shrub,
-  model05.shannon, model05.satr12,
+  model05.shannon, model05.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -1184,10 +1180,7 @@ grid.arrange(
 )
 
 
-
-# Blue Mountains ----------------------------------------------------------
-
-## 6. Herbicide -----------------------------------------------------------
+### 6. Prescribed burn ----------------------------------------------------
 
 # Join cover & shannon cols
 model06.matched2 <- model06.matched |> 
@@ -1273,7 +1266,7 @@ model06.bp <- model06.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "6. Blue Mountains: Herbicide") +
+       title = "6. Southern Rockies: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -1394,7 +1387,7 @@ grid.arrange(
 )
 
 
-## 7. Vegetation disturbance ----------------------------------------------
+### 7. Vegetation disturbance ---------------------------------------------
 
 # Join cover & shannon cols
 model07.matched2 <- model07.matched |> 
@@ -1480,7 +1473,7 @@ model07.bp <- model07.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "7. Blue Mountains: Vegetation disturbance") +
+       title = "07. Southern Rockies: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -1601,7 +1594,13 @@ grid.arrange(
 )
 
 
-## 8. Post-burn herbicide -------------------------------------------------
+
+
+# Great Plains / West-Central Semiarid Prairies ---------------------------
+
+## Northwestern Great Plains ----------------------------------------------
+
+### 8. Prescribed burn ----------------------------------------------------
 
 # Join cover & shannon cols
 model08.matched2 <- model08.matched |> 
@@ -1676,7 +1675,7 @@ p_values08 <- model08.perm |>
   inner_join(model08.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values08
+p_values08 # p = 0.02 for shannon
 
 # Boxplot
 model08.bp <- model08.matched2 |> 
@@ -1687,7 +1686,7 @@ model08.bp <- model08.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "8. Blue Mountains: Post-burn herbicide") +
+       title = "8. Northwestern Great Plains: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -1775,7 +1774,7 @@ model08.shannon <- model08.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model08.shannon
@@ -1809,9 +1808,12 @@ grid.arrange(
 
 
 
-# Central Basin and Range -------------------------------------------------
 
-## 9. Aerial seeding ------------------------------------------------------
+# Cold Deserts ------------------------------------------------------------
+
+## Snake River Plain ------------------------------------------------------
+
+### 9. Post-burn aerial seeding -------------------------------------------
 
 # Join cover & shannon cols
 model09.matched2 <- model09.matched |> 
@@ -1886,7 +1888,8 @@ p_values09 <- model09.perm |>
   inner_join(model09.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values09 # p = 0.046 for perennial herb; p = 0.03 for shannon
+p_values09 # p = 0.01 for perennial forb; p = 0.003 for perennial grass
+#             p < 0.001 for shannon
 
 # Boxplot
 model09.bp <- model09.matched2 |> 
@@ -1897,13 +1900,20 @@ model09.bp <- model09.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "9. Central Basin and Range: Aerial seeding") +
+       title = "9. Snake River Plain: Post-burn aerial seeding") +
   geom_signif(
-    y_position = 25,
+    y_position = 50,
     xmin = 2.8,
-    xmax = 3.2,
+    xmax = 3.2, 
     annotations = c("*")
   ) +
+  geom_signif(
+    y_position = 95,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 103) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -1963,7 +1973,7 @@ model09.pergrass <- model09.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model09.pergrass
@@ -1991,7 +2001,7 @@ model09.shannon <- model09.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model09.shannon
@@ -2024,7 +2034,7 @@ grid.arrange(
 )
 
 
-## 10. Drill seeding & soil disturbance -----------------------------------
+### 10. Post-burn aerial & drill seeding ----------------------------------
 
 # Join cover & shannon cols
 model10.matched2 <- model10.matched |> 
@@ -2099,7 +2109,7 @@ p_values10 <- model10.perm |>
   inner_join(model10.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values10 # p = 0.0009 for perennial grass
+p_values10 # p = 0.04 from BRTE
 
 # Boxplot
 model10.bp <- model10.matched2 |> 
@@ -2110,18 +2120,18 @@ model10.bp <- model10.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "10. Central Basin and Range: Drill seeding & soil disturbance") +
+       title = "10. Snake River Plain: Post-burn aerial & drill seeding") +
   geom_signif(
-    y_position = 82,
-    xmin = 3.8,
-    xmax = 4.2, 
-    annotations = c("***")
+    y_position = 100,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("*")
   ) +
+  ylim(0, 108) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
     labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
-  ylim(0, 90) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model10.bp
 
@@ -2177,7 +2187,7 @@ model10.pergrass <- model10.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (***)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model10.pergrass
@@ -2219,7 +2229,7 @@ model10.brte <- model10.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(*)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model10.brte
@@ -2238,7 +2248,7 @@ grid.arrange(
 )
 
 
-## 11. Prescribed burn ----------------------------------------------------
+### 11. Post-burn closure -------------------------------------------------
 
 # Join cover & shannon cols
 model11.matched2 <- model11.matched |> 
@@ -2313,7 +2323,8 @@ p_values11 <- model11.perm |>
   inner_join(model11.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values11 # p = 0.003 for perennial grass; p = 0.001 for shannon
+p_values11 # p = 0.006 for annual grass; p = 0.0099 for perennial grass;
+#             p < 0.001 for shannon; p = 0.2 for BRTE
 
 # Boxplot
 model11.bp <- model11.matched2 |> 
@@ -2324,13 +2335,26 @@ model11.bp <- model11.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "11. Central Basin and Range: Prescribed burn") +
+       title = "11. Snake River Plain: Post-burn closure") +
   geom_signif(
-    y_position = 65,
+    y_position = 105,
+    xmin = 1.8,
+    xmax = 2.2, 
+    annotations = c("**")
+  ) +
+  geom_signif(
+    y_position = 90,
     xmin = 3.8,
     xmax = 4.2, 
     annotations = c("**")
   ) +
+  geom_signif(
+    y_position = 90,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("*")
+  ) +
+  ylim(0, 112) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -2362,7 +2386,7 @@ model11.anngrass <- model11.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass") +
+       title = "Annual grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model11.anngrass
@@ -2418,7 +2442,7 @@ model11.shannon <- model11.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (**)") +
+       title = "Shannon diversity (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model11.shannon
@@ -2432,7 +2456,7 @@ model11.brte <- model11.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(*)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model11.brte
@@ -2451,7 +2475,7 @@ grid.arrange(
 )
 
 
-## 12. Vegetation disturbance ---------------------------------------------
+### 12. Post-burn drill seeding -------------------------------------------------
 
 # Join cover & shannon cols
 model12.matched2 <- model12.matched |> 
@@ -2526,7 +2550,7 @@ p_values12 <- model12.perm |>
   inner_join(model12.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values12 # p = 0.007 for shannon
+p_values12 # p = 0.02 for shannon
 
 # Boxplot
 model12.bp <- model12.matched2 |> 
@@ -2537,7 +2561,7 @@ model12.bp <- model12.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "12. Central Basin and Range: Vegetation disturbance") +
+       title = "12. Snake River Plain: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -2625,7 +2649,7 @@ model12.shannon <- model12.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (**)") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model12.shannon
@@ -2658,7 +2682,7 @@ grid.arrange(
 )
 
 
-## 13. Post-burn aerial seeding -------------------------------------------
+### 13. Post-burn herbicide -----------------------------------------------
 
 # Join cover & shannon cols
 model13.matched2 <- model13.matched |> 
@@ -2666,10 +2690,7 @@ model13.matched2 <- model13.matched |>
   left_join(geoindicators.join) |> 
   left_join(model13.invasive) |> 
   left_join(filter(all_diversity, Model == "model13")) |> 
-  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n) |> 
-  filter(!is.na(Shannon)) # one row must be removed because there were no cover 
-#                             measurements for any species for this plot 
-#               (Primary key: NV_NV-Elko-DO-ESR-2021_ELKO-ShafterComplex-01B_V12021-09-01)
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model13.matched2 <- model13.matched2 |> 
@@ -2736,7 +2757,7 @@ p_values13 <- model13.perm |>
   inner_join(model13.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values13 # p = 0.003 for perennial forb, p < 0.001 for shannon
+p_values13
 
 # Boxplot
 model13.bp <- model13.matched2 |> 
@@ -2747,13 +2768,7 @@ model13.bp <- model13.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "13. Central Basin and Range: Post-burn aerial seeding") +
-  geom_signif(
-    y_position = 60,
-    xmin = 2.8,
-    xmax = 3.2, 
-    annotations = c("**")
-  ) +
+       title = "13. Snake River Plain: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -2799,7 +2814,7 @@ model13.perforb <- model13.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb (**)") +
+       title = "Perennial forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model13.perforb
@@ -2841,7 +2856,7 @@ model13.shannon <- model13.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (***)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model13.shannon
@@ -2874,7 +2889,10 @@ grid.arrange(
 )
 
 
-## 14. Post-burn drill seeding --------------------------------------------
+
+## Northern Basin and Range -----------------------------------------------
+
+### 14. Drill seeding -----------------------------------------------------
 
 # Join cover & shannon cols
 model14.matched2 <- model14.matched |> 
@@ -2949,7 +2967,7 @@ p_values14 <- model14.perm |>
   inner_join(model14.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values14
+p_values14 # p = 0.009 for perennial grass
 
 # Boxplot
 model14.bp <- model14.matched2 |> 
@@ -2960,7 +2978,14 @@ model14.bp <- model14.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "14. Central Basin and Range: Post-burn drill seeding") +
+       title = "14. Northern Basin and Range: Drill seeding") +
+  geom_signif(
+    y_position = 85,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 90) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -3020,7 +3045,7 @@ model14.pergrass <- model14.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model14.pergrass
@@ -3081,7 +3106,7 @@ grid.arrange(
 )
 
 
-## 15. Post-burn ground seeding -------------------------------------------
+### 15. Drill seeding & soil disturbance ----------------------------------
 
 # Join cover & shannon cols
 model15.matched2 <- model15.matched |> 
@@ -3156,7 +3181,7 @@ p_values15 <- model15.perm |>
   inner_join(model15.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values15
+p_values15 # p = 0.04 for annual forb; p = 0.02 for perennial forb; p = 0.02 for BRTE
 
 # Boxplot
 model15.bp <- model15.matched2 |> 
@@ -3167,7 +3192,26 @@ model15.bp <- model15.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "15. Central Basin and Range: Post-burn ground seeding") +
+       title = "15. Northern Basin and Range: Drill seeding & soil disturbance") +
+  geom_signif(
+    y_position = 43,
+    xmin = 0.8,
+    xmax = 1.2, 
+    annotations = c("*")
+  ) +
+  geom_signif(
+    y_position = 25,
+    xmin = 2.8,
+    xmax = 3.2, 
+    annotations = c("*")
+  ) +
+  geom_signif(
+    y_position = 95,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("*")
+  ) +
+  ylim(0, 103) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -3185,7 +3229,7 @@ model15.annforb <- model15.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual forb") +
+       title = "Annual forb (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model15.annforb
@@ -3213,7 +3257,7 @@ model15.perforb <- model15.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb") +
+       title = "Perennial forb (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model15.perforb
@@ -3269,7 +3313,7 @@ model15.brte <- model15.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(*)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model15.brte
@@ -3288,7 +3332,7 @@ grid.arrange(
 )
 
 
-## 16. Post-burn herbicide ------------------------------------------------
+### 16. Herbicide ---------------------------------------------------------
 
 # Join cover & shannon cols
 model16.matched2 <- model16.matched |> 
@@ -3296,10 +3340,7 @@ model16.matched2 <- model16.matched |>
   left_join(geoindicators.join) |> 
   left_join(model16.invasive) |> 
   left_join(filter(all_diversity, Model == "model16")) |> 
-  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n) |> 
-  filter(!is.na(Shannon)) # one row must be removed because there were no cover 
-#                             measurements for any species for this plot 
-#               (Primary key: 20184945202113B2)
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
 
 #   pivot_longer() for cover & shannon cols
 model16.matched2 <- model16.matched2 |> 
@@ -3377,7 +3418,7 @@ model16.bp <- model16.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "16. Central Basin and Range: Post-burn herbicide") +
+       title = "16. Northern Basin and Range: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -3498,10 +3539,7 @@ grid.arrange(
 )
 
 
-
-# Chihuahuan Desert -------------------------------------------------------
-
-## 17. Herbicide ----------------------------------------------------------
+### 17. Prescribed burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model17.matched2 <- model17.matched |> 
@@ -3529,7 +3567,7 @@ model17.matched2 <- model17.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Prosopis glandulosa"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -3538,7 +3576,7 @@ model17.matched2 <- model17.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Prosopis glandulosa")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model17.diff <- model17.matched2 |> 
@@ -3576,7 +3614,8 @@ p_values17 <- model17.perm |>
   inner_join(model17.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values17
+p_values17 # p = 0.03 for annual grass; p = 0.002 for perennial grass;
+#             p = 0.049 for shannon; p = 0.04 for BRTE
 
 # Boxplot
 model17.bp <- model17.matched2 |> 
@@ -3587,11 +3626,30 @@ model17.bp <- model17.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "17. Chihuahuan Desert: Herbicide") +
+       title = "17. Northern Basin and Range: Prescribed burn") +
+  geom_signif(
+    y_position = 98,
+    xmin = 1.8,
+    xmax = 2.2, 
+    annotations = c("*")
+  ) +
+  geom_signif(
+    y_position = 95,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("**")
+  ) +
+  geom_signif(
+    y_position = 98,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("*")
+  ) +
+  ylim(0, 105) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Prosopis glandulosa" = expression(italic("Prosopis glandulosa")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model17.bp
 
@@ -3619,7 +3677,7 @@ model17.anngrass <- model17.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass") +
+       title = "Annual grass (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model17.anngrass
@@ -3647,7 +3705,7 @@ model17.pergrass <- model17.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model17.pergrass
@@ -3675,30 +3733,30 @@ model17.shannon <- model17.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model17.shannon
 
-#   Prosopis glandulosa
-model17.prgl2 <- model17.perm |> 
-  filter(indicators == "Prosopis glandulosa") |> 
+#   Bromus tectorum
+model17.brte <- model17.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Prosopis glandulosa"],
+  geom_vline(xintercept = model17.diff$obs_diff[model17.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Prosopis glandulosa"))) +
+       title = expression(italic("Bromus tectorum") ~ "(*)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model17.prgl2
+model17.brte
 
 # Combine plots
 grid.arrange(
   model17.bp, model17.annforb, model17.anngrass,
   model17.perforb, model17.pergrass, model17.shrub,
-  model17.shannon, model17.prgl2,
+  model17.shannon, model17.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -3708,10 +3766,7 @@ grid.arrange(
 )
 
 
-
-# Colorado Plateaus -------------------------------------------------------
-
-## 18. Aerial seeding & soil disturbance ----------------------------------
+### 18. Vegetation disturbance --------------------------------------------
 
 # Join cover & shannon cols
 model18.matched2 <- model18.matched |> 
@@ -3786,7 +3841,7 @@ p_values18 <- model18.perm |>
   inner_join(model18.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values18 # p = 0.011 for shannon
+p_values18
 
 # Boxplot
 model18.bp <- model18.matched2 |> 
@@ -3797,7 +3852,7 @@ model18.bp <- model18.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "18. Colorado Plateaus: Aerial seeding & soil disturbance") +
+       title = "18. Northern BR: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -3885,7 +3940,7 @@ model18.shannon <- model18.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model18.shannon
@@ -3918,7 +3973,7 @@ grid.arrange(
 )
 
 
-## 19. Herbicide ----------------------------------------------------------
+### 19. Post-burn aerial seeding ------------------------------------------
 
 # Join cover & shannon cols
 model19.matched2 <- model19.matched |> 
@@ -3993,7 +4048,7 @@ p_values19 <- model19.perm |>
   inner_join(model19.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values19
+p_values19 # p = 0.008 for shannon
 
 # Boxplot
 model19.bp <- model19.matched2 |> 
@@ -4004,7 +4059,7 @@ model19.bp <- model19.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "19. Colorado Plateaus: Herbicide") +
+       title = "19. Northern Basin and Range: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -4092,7 +4147,7 @@ model19.shannon <- model19.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model19.shannon
@@ -4125,7 +4180,7 @@ grid.arrange(
 )
 
 
-## 20. Prescribed burn ----------------------------------------------------
+### 20. Post-burn aerial & drill seeding ----------------------------------
 
 # Join cover & shannon cols
 model20.matched2 <- model20.matched |> 
@@ -4211,7 +4266,7 @@ model20.bp <- model20.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "20. Colorado Plateaus: Prescribed burn") +
+       title = "20. Northern Basin and Range: Post-burn aerial & drill seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -4332,7 +4387,7 @@ grid.arrange(
 )
 
 
-## 21. Soil disturbance ---------------------------------------------------
+### 21. Post-burn closure -------------------------------------------------
 
 # Join cover & shannon cols
 model21.matched2 <- model21.matched |> 
@@ -4407,7 +4462,7 @@ p_values21 <- model21.perm |>
   inner_join(model21.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values21
+p_values21 # p < 0.001 for annual and perennial grass; p = 0.001 for BRTE
 
 # Boxplot
 model21.bp <- model21.matched2 |> 
@@ -4418,13 +4473,32 @@ model21.bp <- model21.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "21. Colorado Plateaus: Soil disturbance") +
+       title = "21. Northern Basin and Range: Post-burn closure") +
+  geom_signif(
+    y_position = 107,
+    xmin = 1.8,
+    xmax = 2.2, 
+    annotations = c("***")
+  ) +
+  geom_signif(
+    y_position = 105,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("***")
+  ) +
+  geom_signif(
+    y_position = 95,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 120) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
     labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
-model21.bp
+model21.bp 
 
 # Plot frequency distribution
 #   Annual forb
@@ -4450,7 +4524,7 @@ model21.anngrass <- model21.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass") +
+       title = "Annual grass (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model21.anngrass
@@ -4478,7 +4552,7 @@ model21.pergrass <- model21.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model21.pergrass
@@ -4520,7 +4594,7 @@ model21.brte <- model21.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(**)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model21.brte
@@ -4539,7 +4613,7 @@ grid.arrange(
 )
 
 
-## 22. Vegetation disturbance ---------------------------------------------
+### 22. Post-burn drill seeding -------------------------------------------------
 
 # Join cover & shannon cols
 model22.matched2 <- model22.matched |> 
@@ -4548,7 +4622,6 @@ model22.matched2 <- model22.matched |>
   left_join(model22.invasive) |> 
   left_join(filter(all_diversity, Model == "model22")) |> 
   select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
-
 
 #   pivot_longer() for cover & shannon cols
 model22.matched2 <- model22.matched2 |> 
@@ -4615,7 +4688,7 @@ p_values22 <- model22.perm |>
   inner_join(model22.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values22 # p = 0.002 for annual grass; p = 0.007 for BRTE
+p_values22 # p = 0.0098 for perennial forb; p = 0.001 for shannon
 
 # Boxplot
 model22.bp <- model22.matched2 |> 
@@ -4626,20 +4699,13 @@ model22.bp <- model22.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "22. Colorado Plateaus: Vegetation disturbance") +
+       title = "22. Northern Basin and Range: Post-burn drill seeding") +
   geom_signif(
-    y_position = 83,
-    xmin = 1.8,
-    xmax = 2.2, 
+    y_position = 50,
+    xmin = 2.8,
+    xmax = 3.2, 
     annotations = c("**")
   ) +
-  geom_signif(
-    y_position = 65,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("**")
-  ) +
-  ylim(0, 90) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -4671,7 +4737,7 @@ model22.anngrass <- model22.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass (**)") +
+       title = "Annual grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model22.anngrass
@@ -4685,7 +4751,7 @@ model22.perforb <- model22.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb") +
+       title = "Perennial forb (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model22.perforb
@@ -4727,7 +4793,7 @@ model22.shannon <- model22.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model22.shannon
@@ -4741,7 +4807,7 @@ model22.brte <- model22.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(**)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model22.brte
@@ -4760,7 +4826,7 @@ grid.arrange(
 )
 
 
-## 23. Post-burn aerial seeding -------------------------------------------
+### 23. Post-burn herbicide -----------------------------------------------
 
 # Join cover & shannon cols
 model23.matched2 <- model23.matched |> 
@@ -4835,7 +4901,7 @@ p_values23 <- model23.perm |>
   inner_join(model23.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values23 # p < 0.0001 for shannon 
+p_values23 # p = 0.002 for perennial grass; p = 0.005 for shannon; p = 0.002 for BRTE
 
 # Boxplot
 model23.bp <- model23.matched2 |> 
@@ -4846,7 +4912,20 @@ model23.bp <- model23.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "23. Colorado Plateaus: Post-burn aerial seeding") +
+       title = "23. Northern Basin and Range: Post-burn herbicide") +
+  geom_signif(
+    y_position = 95,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("**")
+  ) +
+  geom_signif(
+    y_position = 95,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 103) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -4906,7 +4985,7 @@ model23.pergrass <- model23.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model23.pergrass
@@ -4934,7 +5013,7 @@ model23.shannon <- model23.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (***)") +
+       title = "Shannon diversity (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model23.shannon
@@ -4948,7 +5027,7 @@ model23.brte <- model23.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(**)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model23.brte
@@ -4967,10 +5046,7 @@ grid.arrange(
 )
 
 
-
-# Middle Rockies ----------------------------------------------------------
-
-## 24. Herbicide ----------------------------------------------------------
+### 24. Post-burn seedling planting ---------------------------------------
 
 # Join cover & shannon cols
 model24.matched2 <- model24.matched |> 
@@ -5045,7 +5121,7 @@ p_values24 <- model24.perm |>
   inner_join(model24.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values24
+p_values24 # p = 0.02 for annual grass; p = 0.02 for shannon; p = 0.006 for BRTE
 
 # Boxplot
 model24.bp <- model24.matched2 |> 
@@ -5056,7 +5132,20 @@ model24.bp <- model24.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "24. Middle Rockies: Herbicide") +
+       title = "24. Northern Basin and Range: Post-burn seedling planting") +
+  geom_signif(
+    y_position = 105,
+    xmin = 1.8,
+    xmax = 2.2, 
+    annotations = c("*")
+  ) +
+  geom_signif(
+    y_position = 92,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 113) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -5088,7 +5177,7 @@ model24.anngrass <- model24.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass") +
+       title = "Annual grass (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model24.anngrass
@@ -5144,7 +5233,7 @@ model24.shannon <- model24.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model24.shannon
@@ -5158,7 +5247,7 @@ model24.brte <- model24.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(**)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model24.brte
@@ -5178,9 +5267,9 @@ grid.arrange(
 
 
 
-# Mojave Basin and Range --------------------------------------------------
+## Central Basin and Range ------------------------------------------------
 
-## 25. Post-burn aerial seeding -------------------------------------------
+### 25. Aerial seeding ----------------------------------------------------
 
 # Join cover & shannon cols
 model25.matched2 <- model25.matched |> 
@@ -5208,7 +5297,7 @@ model25.matched2 <- model25.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Bromus rubens"
+             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -5217,7 +5306,7 @@ model25.matched2 <- model25.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Bromus rubens")))
+                                        "Bromus tectorum")))
 
 # Calculate observed mean difference
 model25.diff <- model25.matched2 |> 
@@ -5255,7 +5344,7 @@ p_values25 <- model25.perm |>
   inner_join(model25.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values25 # p = 0.004 for BRRU2
+p_values25 # p = 0.046 for perennial herb; p = 0.03 for shannon
 
 # Boxplot
 model25.bp <- model25.matched2 |> 
@@ -5266,17 +5355,17 @@ model25.bp <- model25.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "25. Mojave Basin and Range: Post-burn aerial seeding") +
+       title = "9. Central Basin and Range: Aerial seeding") +
   geom_signif(
-    y_position = 80,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("**")
+    y_position = 25,
+    xmin = 2.8,
+    xmax = 3.2,
+    annotations = c("*")
   ) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Bromus rubens" = expression(italic("Bromus rubens")))) +
+    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model25.bp
 
@@ -5318,7 +5407,7 @@ model25.perforb <- model25.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb") +
+       title = "Perennial forb (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model25.perforb
@@ -5360,30 +5449,30 @@ model25.shannon <- model25.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model25.shannon
 
-#   Bromus rubens
-model25.brru2 <- model25.perm |> 
-  filter(indicators == "Bromus rubens") |> 
+#   Bromus tectorum
+model25.brte <- model25.perm |> 
+  filter(indicators == "Bromus tectorum") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Bromus rubens"],
+  geom_vline(xintercept = model25.diff$obs_diff[model25.diff$indicators == "Bromus tectorum"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus rubens") ~ "(**)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model25.brru2
+model25.brte
 
 # Combine plots
 grid.arrange(
   model25.bp, model25.annforb, model25.anngrass,
   model25.perforb, model25.pergrass, model25.shrub,
-  model25.shannon, model25.brru2,
+  model25.shannon, model25.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -5393,10 +5482,7 @@ grid.arrange(
 )
 
 
-
-# Northern Basin and Range ------------------------------------------------
-
-## 26. Drill seeding ------------------------------------------------------
+### 26. Drill seeding & soil disturbance ----------------------------------
 
 # Join cover & shannon cols
 model26.matched2 <- model26.matched |> 
@@ -5471,7 +5557,7 @@ p_values26 <- model26.perm |>
   inner_join(model26.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values26 # p = 0.009 for perennial grass
+p_values26 # p = 0.0025 for perennial grass
 
 # Boxplot
 model26.bp <- model26.matched2 |> 
@@ -5482,18 +5568,18 @@ model26.bp <- model26.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "26. Northern Basin and Range: Drill seeding") +
+       title = "26. Central Basin and Range: Drill seeding & soil disturbance") +
   geom_signif(
-    y_position = 85,
+    y_position = 82,
     xmin = 3.8,
     xmax = 4.2, 
-    annotations = c("**")
+    annotations = c("***")
   ) +
-  ylim(0, 90) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
     labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
+  ylim(0, 90) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model26.bp
 
@@ -5549,7 +5635,7 @@ model26.pergrass <- model26.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (**)") +
+       title = "Perennial grass (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model26.pergrass
@@ -5610,7 +5696,7 @@ grid.arrange(
 )
 
 
-## 27. Drill seeding & soil disturbance -----------------------------------
+### 27. Prescribed burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model27.matched2 <- model27.matched |> 
@@ -5685,7 +5771,7 @@ p_values27 <- model27.perm |>
   inner_join(model27.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values27 # p = 0.04 for annual forb; p = 0.02 for perennial forb; p = 0.02 for BRTE
+p_values27 # p = 0.003 for perennial grass; p = 0.001 for shannon
 
 # Boxplot
 model27.bp <- model27.matched2 |> 
@@ -5696,26 +5782,13 @@ model27.bp <- model27.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "27. Northern Basin and Range: Drill seeding & soil disturbance") +
+       title = "27. Central Basin and Range: Prescribed burn") +
   geom_signif(
-    y_position = 43,
-    xmin = 0.8,
-    xmax = 1.2, 
-    annotations = c("*")
+    y_position = 65,
+    xmin = 3.8,
+    xmax = 4.2, 
+    annotations = c("**")
   ) +
-  geom_signif(
-    y_position = 25,
-    xmin = 2.8,
-    xmax = 3.2, 
-    annotations = c("*")
-  ) +
-  geom_signif(
-    y_position = 95,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("*")
-  ) +
-  ylim(0, 103) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -5733,7 +5806,7 @@ model27.annforb <- model27.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual forb (*)") +
+       title = "Annual forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model27.annforb
@@ -5761,7 +5834,7 @@ model27.perforb <- model27.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb (*)") +
+       title = "Perennial forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model27.perforb
@@ -5775,7 +5848,7 @@ model27.pergrass <- model27.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass") +
+       title = "Perennial grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model27.pergrass
@@ -5803,7 +5876,7 @@ model27.shannon <- model27.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model27.shannon
@@ -5817,7 +5890,7 @@ model27.brte <- model27.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(*)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model27.brte
@@ -5836,7 +5909,7 @@ grid.arrange(
 )
 
 
-## 28. Herbicide ----------------------------------------------------------
+### 28. Vegetation disturbance --------------------------------------------
 
 # Join cover & shannon cols
 model28.matched2 <- model28.matched |> 
@@ -5911,7 +5984,7 @@ p_values28 <- model28.perm |>
   inner_join(model28.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values28
+p_values28 # p = 0.007 for shannon
 
 # Boxplot
 model28.bp <- model28.matched2 |> 
@@ -5922,7 +5995,7 @@ model28.bp <- model28.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "28. Northern Basin and Range: Herbicide") +
+       title = "28. Central Basin and Range: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -6010,7 +6083,7 @@ model28.shannon <- model28.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model28.shannon
@@ -6043,7 +6116,7 @@ grid.arrange(
 )
 
 
-## 29. Prescribed burn ----------------------------------------------------
+### 29. Post-burn aerial seeding ------------------------------------------
 
 # Join cover & shannon cols
 model29.matched2 <- model29.matched |> 
@@ -6118,8 +6191,7 @@ p_values29 <- model29.perm |>
   inner_join(model29.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values29 # p = 0.03 for annual grass; p = 0.002 for perennial grass;
-#             p = 0.049 for shannon; p = 0.04 for BRTE
+p_values29 # p = 0.003 for perennial forb, p < 0.001 for shannon
 
 # Boxplot
 model29.bp <- model29.matched2 |> 
@@ -6130,26 +6202,13 @@ model29.bp <- model29.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "29. Northern Basin and Range: Prescribed burn") +
+       title = "29. Central Basin and Range: Post-burn aerial seeding") +
   geom_signif(
-    y_position = 98,
-    xmin = 1.8,
-    xmax = 2.2, 
-    annotations = c("*")
-  ) +
-  geom_signif(
-    y_position = 95,
-    xmin = 3.8,
-    xmax = 4.2, 
+    y_position = 60,
+    xmin = 2.8,
+    xmax = 3.2, 
     annotations = c("**")
   ) +
-  geom_signif(
-    y_position = 98,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("*")
-  ) +
-  ylim(0, 105) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -6181,7 +6240,7 @@ model29.anngrass <- model29.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass (*)") +
+       title = "Annual grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model29.anngrass
@@ -6195,7 +6254,7 @@ model29.perforb <- model29.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb") +
+       title = "Perennial forb (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model29.perforb
@@ -6209,7 +6268,7 @@ model29.pergrass <- model29.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (**)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model29.pergrass
@@ -6237,7 +6296,7 @@ model29.shannon <- model29.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model29.shannon
@@ -6251,7 +6310,7 @@ model29.brte <- model29.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(*)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model29.brte
@@ -6270,7 +6329,7 @@ grid.arrange(
 )
 
 
-## 30. Vegetation disturbance ---------------------------------------------
+### 30. Post-burn drill seeding -------------------------------------------
 
 # Join cover & shannon cols
 model30.matched2 <- model30.matched |> 
@@ -6356,7 +6415,7 @@ model30.bp <- model30.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "30. Northern BR: Vegetation disturbance") +
+       title = "30. Central Basin and Range: Post-burn drill seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -6477,7 +6536,7 @@ grid.arrange(
 )
 
 
-## 31. Post-burn aerial seeding -------------------------------------------
+### 31. Post-burn ground seeding ------------------------------------------
 
 # Join cover & shannon cols
 model31.matched2 <- model31.matched |> 
@@ -6552,7 +6611,7 @@ p_values31 <- model31.perm |>
   inner_join(model31.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values31 # p = 0.008 for shannon
+p_values31
 
 # Boxplot
 model31.bp <- model31.matched2 |> 
@@ -6563,7 +6622,7 @@ model31.bp <- model31.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "31. Northern Basin and Range: Post-burn aerial seeding") +
+       title = "31. Central Basin and Range: Post-burn ground seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -6651,7 +6710,7 @@ model31.shannon <- model31.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (**)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model31.shannon
@@ -6684,7 +6743,7 @@ grid.arrange(
 )
 
 
-## 32. Post-burn aerial & drill seeding -----------------------------------
+### 32. Post-burn herbicide -----------------------------------------------
 
 # Join cover & shannon cols
 model32.matched2 <- model32.matched |> 
@@ -6770,7 +6829,7 @@ model32.bp <- model32.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "32. Northern Basin and Range: Post-burn aerial & drill seeding") +
+       title = "32. Central Basin and Range: Post-burn herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -6891,7 +6950,10 @@ grid.arrange(
 )
 
 
-## 33. Post-burn closure --------------------------------------------------
+
+## Wyoming Basin ----------------------------------------------------------
+
+### 33. Prescribed burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model33.matched2 <- model33.matched |> 
@@ -6966,7 +7028,7 @@ p_values33 <- model33.perm |>
   inner_join(model33.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values33 # p < 0.001 for annual and perennial grass; p = 0.001 for BRTE
+p_values33
 
 # Boxplot
 model33.bp <- model33.matched2 |> 
@@ -6977,32 +7039,13 @@ model33.bp <- model33.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "33. Northern Basin and Range: Post-burn closure") +
-  geom_signif(
-    y_position = 107,
-    xmin = 1.8,
-    xmax = 2.2, 
-    annotations = c("***")
-  ) +
-  geom_signif(
-    y_position = 105,
-    xmin = 3.8,
-    xmax = 4.2, 
-    annotations = c("***")
-  ) +
-  geom_signif(
-    y_position = 95,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("**")
-  ) +
-  ylim(0, 120) +
+       title = "33. Wyoming Basin: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
     labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
-model33.bp 
+model33.bp
 
 # Plot frequency distribution
 #   Annual forb
@@ -7028,7 +7071,7 @@ model33.anngrass <- model33.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass (***)") +
+       title = "Annual grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model33.anngrass
@@ -7056,7 +7099,7 @@ model33.pergrass <- model33.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (***)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model33.pergrass
@@ -7098,7 +7141,7 @@ model33.brte <- model33.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(**)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model33.brte
@@ -7117,7 +7160,10 @@ grid.arrange(
 )
 
 
-## 34. Post-burn drill seeding --------------------------------------------------
+
+## Colorado Plateaus ------------------------------------------------------
+
+### 34. Aerial seeding & soil disturbance ---------------------------------
 
 # Join cover & shannon cols
 model34.matched2 <- model34.matched |> 
@@ -7192,7 +7238,7 @@ p_values34 <- model34.perm |>
   inner_join(model34.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values34 # p = 0.0098 for perennial forb; p = 0.001 for shannon
+p_values34 # p = 0.011 for shannon
 
 # Boxplot
 model34.bp <- model34.matched2 |> 
@@ -7203,13 +7249,7 @@ model34.bp <- model34.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "34. Northern Basin and Range: Post-burn drill seeding") +
-  geom_signif(
-    y_position = 50,
-    xmin = 2.8,
-    xmax = 3.2, 
-    annotations = c("**")
-  ) +
+       title = "34. Colorado Plateaus: Aerial seeding & soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -7255,7 +7295,7 @@ model34.perforb <- model34.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb (**)") +
+       title = "Perennial forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model34.perforb
@@ -7297,7 +7337,7 @@ model34.shannon <- model34.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (**)") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model34.shannon
@@ -7330,7 +7370,7 @@ grid.arrange(
 )
 
 
-## 35. Post-burn herbicide ------------------------------------------------
+### 35. Herbicide ---------------------------------------------------------
 
 # Join cover & shannon cols
 model35.matched2 <- model35.matched |> 
@@ -7405,7 +7445,7 @@ p_values35 <- model35.perm |>
   inner_join(model35.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values35 # p = 0.002 for perennial grass; p = 0.005 for shannon; p = 0.002 for BRTE
+p_values35
 
 # Boxplot
 model35.bp <- model35.matched2 |> 
@@ -7416,20 +7456,7 @@ model35.bp <- model35.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "35. Northern Basin and Range: Post-burn herbicide") +
-  geom_signif(
-    y_position = 95,
-    xmin = 3.8,
-    xmax = 4.2, 
-    annotations = c("**")
-  ) +
-  geom_signif(
-    y_position = 95,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("**")
-  ) +
-  ylim(0, 103) +
+       title = "35. Colorado Plateaus: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -7489,7 +7516,7 @@ model35.pergrass <- model35.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (**)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model35.pergrass
@@ -7517,7 +7544,7 @@ model35.shannon <- model35.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (**)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model35.shannon
@@ -7531,7 +7558,7 @@ model35.brte <- model35.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(**)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model35.brte
@@ -7550,7 +7577,7 @@ grid.arrange(
 )
 
 
-## 36. Post-burn seedling planting ----------------------------------------
+### 36. Prescribed burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model36.matched2 <- model36.matched |> 
@@ -7625,7 +7652,7 @@ p_values36 <- model36.perm |>
   inner_join(model36.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values36 # p = 0.02 for annual grass; p = 0.02 for shannon; p = 0.006 for BRTE
+p_values36
 
 # Boxplot
 model36.bp <- model36.matched2 |> 
@@ -7636,20 +7663,7 @@ model36.bp <- model36.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "36. Northern Basin and Range: Post-burn seedling planting") +
-  geom_signif(
-    y_position = 105,
-    xmin = 1.8,
-    xmax = 2.2, 
-    annotations = c("*")
-  ) +
-  geom_signif(
-    y_position = 92,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("**")
-  ) +
-  ylim(0, 113) + 
+       title = "36. Colorado Plateaus: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -7681,7 +7695,7 @@ model36.anngrass <- model36.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass (*)") +
+       title = "Annual grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model36.anngrass
@@ -7737,7 +7751,7 @@ model36.shannon <- model36.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model36.shannon
@@ -7751,7 +7765,7 @@ model36.brte <- model36.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(**)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model36.brte
@@ -7770,10 +7784,7 @@ grid.arrange(
 )
 
 
-
-# Northwestern Great Plains -----------------------------------------------
-
-## 37. Prescribed burn ----------------------------------------------------
+### 37. Soil disturbance --------------------------------------------------
 
 # Join cover & shannon cols
 model37.matched2 <- model37.matched |> 
@@ -7848,7 +7859,7 @@ p_values37 <- model37.perm |>
   inner_join(model37.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values37 # p = 0.02 for shannon
+p_values37
 
 # Boxplot
 model37.bp <- model37.matched2 |> 
@@ -7859,7 +7870,7 @@ model37.bp <- model37.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "37. Northwestern Great Plains: Prescribed burn") +
+       title = "37. Colorado Plateaus: Soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -7947,7 +7958,7 @@ model37.shannon <- model37.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model37.shannon
@@ -7980,10 +7991,7 @@ grid.arrange(
 )
 
 
-
-# Snake River Plain -------------------------------------------------------
-
-## 38. Post-burn aerial seeding -------------------------------------------
+### 38. Vegetation disturbance --------------------------------------------
 
 # Join cover & shannon cols
 model38.matched2 <- model38.matched |> 
@@ -7992,6 +8000,7 @@ model38.matched2 <- model38.matched |>
   left_join(model38.invasive) |> 
   left_join(filter(all_diversity, Model == "model38")) |> 
   select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
+
 
 #   pivot_longer() for cover & shannon cols
 model38.matched2 <- model38.matched2 |> 
@@ -8058,8 +8067,7 @@ p_values38 <- model38.perm |>
   inner_join(model38.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values38 # p = 0.01 for perennial forb; p = 0.003 for perennial grass
-#             p < 0.001 for shannon
+p_values38 # p = 0.002 for annual grass; p = 0.007 for BRTE
 
 # Boxplot
 model38.bp <- model38.matched2 |> 
@@ -8070,20 +8078,20 @@ model38.bp <- model38.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "38. Snake River Plain: Post-burn aerial seeding") +
+       title = "38. Colorado Plateaus: Vegetation disturbance") +
   geom_signif(
-    y_position = 50,
-    xmin = 2.8,
-    xmax = 3.2, 
-    annotations = c("*")
-  ) +
-  geom_signif(
-    y_position = 95,
-    xmin = 3.8,
-    xmax = 4.2, 
+    y_position = 83,
+    xmin = 1.8,
+    xmax = 2.2, 
     annotations = c("**")
   ) +
-  ylim(0, 103) + 
+  geom_signif(
+    y_position = 65,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("**")
+  ) +
+  ylim(0, 90) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -8115,7 +8123,7 @@ model38.anngrass <- model38.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass") +
+       title = "Annual grass (**)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model38.anngrass
@@ -8129,7 +8137,7 @@ model38.perforb <- model38.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb (*)") +
+       title = "Perennial forb") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model38.perforb
@@ -8143,7 +8151,7 @@ model38.pergrass <- model38.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (**)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model38.pergrass
@@ -8171,7 +8179,7 @@ model38.shannon <- model38.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (***)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model38.shannon
@@ -8185,7 +8193,7 @@ model38.brte <- model38.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(**)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model38.brte
@@ -8204,7 +8212,7 @@ grid.arrange(
 )
 
 
-## 39. Post-burn aerial & drill seeding -----------------------------------
+### 39. Post-burn aerial seeding ------------------------------------------
 
 # Join cover & shannon cols
 model39.matched2 <- model39.matched |> 
@@ -8279,7 +8287,7 @@ p_values39 <- model39.perm |>
   inner_join(model39.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values39 # p = 0.04 from BRTE
+p_values39 # p < 0.0001 for shannon 
 
 # Boxplot
 model39.bp <- model39.matched2 |> 
@@ -8290,14 +8298,7 @@ model39.bp <- model39.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "39. Snake River Plain: Post-burn aerial & drill seeding") +
-  geom_signif(
-    y_position = 100,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("*")
-  ) +
-  ylim(0, 108) +
+       title = "39. Colorado Plateaus: Post-burn aerial seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -8385,7 +8386,7 @@ model39.shannon <- model39.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (***)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model39.shannon
@@ -8399,7 +8400,7 @@ model39.brte <- model39.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(*)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model39.brte
@@ -8418,7 +8419,10 @@ grid.arrange(
 )
 
 
-## 40. Post-burn closure --------------------------------------------------
+
+## Arizona/New Mexico Plateau ---------------------------------------------
+
+### 40. Herbicide ---------------------------------------------------------
 
 # Join cover & shannon cols
 model40.matched2 <- model40.matched |> 
@@ -8493,8 +8497,7 @@ p_values40 <- model40.perm |>
   inner_join(model40.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values40 # p = 0.006 for annual grass; p = 0.0099 for perennial grass;
-#             p < 0.001 for shannon; p = 0.2 for BRTE
+p_values40
 
 # Boxplot
 model40.bp <- model40.matched2 |> 
@@ -8505,32 +8508,13 @@ model40.bp <- model40.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "40. Snake River Plain: Post-burn closure") +
-  geom_signif(
-    y_position = 105,
-    xmin = 1.8,
-    xmax = 2.2, 
-    annotations = c("**")
-  ) +
-  geom_signif(
-    y_position = 90,
-    xmin = 3.8,
-    xmax = 4.2, 
-    annotations = c("**")
-  ) +
-  geom_signif(
-    y_position = 90,
-    xmin = 5.8,
-    xmax = 6.2, 
-    annotations = c("*")
-  ) +
-  ylim(0, 112) +
+       title = "2. AZ/NM Plateau: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
     labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
-model40.bp
+model01.bp
 
 # Plot frequency distribution
 #   Annual forb
@@ -8556,7 +8540,7 @@ model40.anngrass <- model40.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Annual grass (**)") +
+       title = "Annual grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model40.anngrass
@@ -8584,7 +8568,7 @@ model40.pergrass <- model40.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial grass (**)") +
+       title = "Perennial grass") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model40.pergrass
@@ -8612,7 +8596,7 @@ model40.shannon <- model40.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (***)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model40.shannon
@@ -8626,7 +8610,7 @@ model40.brte <- model40.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum") ~ "(*)")) +
+       title = expression(italic("Bromus tectorum"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model40.brte
@@ -8645,7 +8629,7 @@ grid.arrange(
 )
 
 
-## 41. Post-burn drill seeding --------------------------------------------------
+### 41. Prescribed burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model41.matched2 <- model41.matched |> 
@@ -8720,7 +8704,7 @@ p_values41 <- model41.perm |>
   inner_join(model41.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values41 # p = 0.02 for shannon
+p_values41
 
 # Boxplot
 model41.bp <- model41.matched2 |> 
@@ -8731,7 +8715,7 @@ model41.bp <- model41.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "41. Snake River Plain: Post-burn drill seeding") +
+       title = "3. AZ/NM Plateau: Prescribed burn") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -8819,7 +8803,7 @@ model41.shannon <- model41.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity (*)") +
+       title = "Shannon diversity") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model41.shannon
@@ -8852,7 +8836,7 @@ grid.arrange(
 )
 
 
-## 42. Post-burn herbicide ------------------------------------------------
+### 42. Seeding -----------------------------------------------------------
 
 # Join cover & shannon cols
 model42.matched2 <- model42.matched |> 
@@ -8938,7 +8922,7 @@ model42.bp <- model42.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "42. Snake River Plain: Post-burn herbicide") +
+       title = "4. AZ/NM Mountains: Seeding") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -9059,10 +9043,7 @@ grid.arrange(
 )
 
 
-
-# Southern Rockies --------------------------------------------------------
-
-## 43. Herbicide ----------------------------------------------------------
+### 43. Soil disturbance --------------------------------------------------
 
 # Join cover & shannon cols
 model43.matched2 <- model43.matched |> 
@@ -9070,7 +9051,7 @@ model43.matched2 <- model43.matched |>
   left_join(geoindicators.join) |> 
   left_join(model43.invasive) |> 
   left_join(filter(all_diversity, Model == "model43")) |> 
-  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n)
+  select(-Model, -EcoLvl3, -Species, -ScientificName, -Species_AH_n) 
 
 #   pivot_longer() for cover & shannon cols
 model43.matched2 <- model43.matched2 |> 
@@ -9137,7 +9118,7 @@ p_values43 <- model43.perm |>
   inner_join(model43.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values43
+p_values43 # p = 0.40 for shannon
 
 # Boxplot
 model43.bp <- model43.matched2 |> 
@@ -9148,7 +9129,7 @@ model43.bp <- model43.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "43. Southern Rockies: Herbicide") +
+       title = "5. AZ/NM Mountains: Soil disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -9236,7 +9217,7 @@ model43.shannon <- model43.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model43.shannon
@@ -9269,7 +9250,13 @@ grid.arrange(
 )
 
 
-## 44. Prescribed burn ----------------------------------------------------
+
+
+# Warm Deserts ------------------------------------------------------------
+
+## Mojave Basin and Range -------------------------------------------------
+
+### 44. Post-burn Aerial Seeding ------------------------------------------
 
 # Join cover & shannon cols
 model44.matched2 <- model44.matched |> 
@@ -9297,7 +9284,7 @@ model44.matched2 <- model44.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+             indicators == "SpeciesCover_AH" ~ "Bromus rubens"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -9306,7 +9293,7 @@ model44.matched2 <- model44.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Bromus tectorum")))
+                                        "Bromus rubens")))
 
 # Calculate observed mean difference
 model44.diff <- model44.matched2 |> 
@@ -9344,7 +9331,7 @@ p_values44 <- model44.perm |>
   inner_join(model44.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values44
+p_values44 # p = 0.004 for BRRU2
 
 # Boxplot
 model44.bp <- model44.matched2 |> 
@@ -9355,11 +9342,17 @@ model44.bp <- model44.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "44. Southern Rockies: Prescribed burn") +
+       title = "44. Mojave Basin and Range: Post-burn aerial seeding") +
+  geom_signif(
+    y_position = 80,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("**")
+  ) +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
+    labels = c("Bromus rubens" = expression(italic("Bromus rubens")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model44.bp
 
@@ -9448,25 +9441,25 @@ model44.shannon <- model44.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model44.shannon
 
-#   Bromus tectorum
-model44.brte <- model44.perm |> 
-  filter(indicators == "Bromus tectorum") |> 
+#   Bromus rubens
+model44.brru2 <- model44.perm |> 
+  filter(indicators == "Bromus rubens") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Bromus tectorum"],
+  geom_vline(xintercept = model44.diff$obs_diff[model44.diff$indicators == "Bromus rubens"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus rubens") ~ "(**)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model44.brte
+model44.brru2
 
 # Combine plots
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
   model44.perforb, model44.pergrass, model44.shrub,
-  model44.shannon, model44.brte,
+  model44.shannon, model44.brru2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9476,7 +9469,10 @@ grid.arrange(
 )
 
 
-## 45. Vegetation disturbance ---------------------------------------------
+
+## Chihuahuan Desert ------------------------------------------------------
+
+### 45. Herbicide ---------------------------------------------------------
 
 # Join cover & shannon cols
 model45.matched2 <- model45.matched |> 
@@ -9504,7 +9500,7 @@ model45.matched2 <- model45.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+             indicators == "SpeciesCover_AH" ~ "Prosopis glandulosa"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -9513,7 +9509,7 @@ model45.matched2 <- model45.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Bromus tectorum")))
+                                        "Prosopis glandulosa")))
 
 # Calculate observed mean difference
 model45.diff <- model45.matched2 |> 
@@ -9562,11 +9558,11 @@ model45.bp <- model45.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "45. Southern Rockies: Vegetation disturbance") +
+       title = "45. Chihuahuan Desert: Herbicide") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
+    labels = c("Prosopis glandulosa" = expression(italic("Prosopis glandulosa")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model45.bp
 
@@ -9655,25 +9651,25 @@ model45.shannon <- model45.perm |>
   theme(plot.margin = margin(10, 10, 10, 10))
 model45.shannon
 
-#   Bromus tectorum
-model45.brte <- model45.perm |> 
-  filter(indicators == "Bromus tectorum") |> 
+#   Prosopis glandulosa
+model45.prgl2 <- model45.perm |> 
+  filter(indicators == "Prosopis glandulosa") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Bromus tectorum"],
+  geom_vline(xintercept = model45.diff$obs_diff[model45.diff$indicators == "Prosopis glandulosa"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Prosopis glandulosa"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model45.brte
+model45.prgl2
 
 # Combine plots
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
   model45.perforb, model45.pergrass, model45.shrub,
-  model45.shannon, model45.brte,
+  model45.shannon, model45.prgl2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9684,9 +9680,12 @@ grid.arrange(
 
 
 
-# Wyoming Basin -----------------------------------------------------------
 
-## 46. Prescribed burn ----------------------------------------------------
+# Temperate Sierras / Upper Gila ------------------------------------------
+
+## Arizona/New Mexico Mountains -------------------------------------------
+
+### 46. Prescribed Burn ---------------------------------------------------
 
 # Join cover & shannon cols
 model46.matched2 <- model46.matched |> 
@@ -9714,7 +9713,7 @@ model46.matched2 <- model46.matched2 |>
              indicators == "PerGramCover_AH" ~ "Perennial grass",
              indicators == "ShrubCover_AH" ~ "Shrub",
              indicators == "Shannon" ~ "Shannon diversity",
-             indicators == "SpeciesCover_AH" ~ "Bromus tectorum"
+             indicators == "SpeciesCover_AH" ~ "Bromus rubens"
            )) |> 
   mutate(indicators = factor(indicators,
                              levels = c("Annual forb",
@@ -9723,7 +9722,7 @@ model46.matched2 <- model46.matched2 |>
                                         "Perennial grass",
                                         "Shrub",
                                         "Shannon diversity",
-                                        "Bromus tectorum")))
+                                        "Bromus rubens")))
 
 # Calculate observed mean difference
 model46.diff <- model46.matched2 |> 
@@ -9761,7 +9760,7 @@ p_values46 <- model46.perm |>
   inner_join(model46.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values46
+p_values46 # p = 0.04 for perennial forb; p = 0.02 for shannon
 
 # Boxplot
 model46.bp <- model46.matched2 |> 
@@ -9772,11 +9771,17 @@ model46.bp <- model46.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "46. Wyoming Basin: Prescribed burn") +
+       title = "46. AZ/NM Mountains: Prescribed burn") +
   theme(legend.title = element_blank()) +
+  geom_signif(
+    y_position = 25,
+    xmin = 2.8,
+    xmax = 3.2,
+    annotations = c("*")
+  ) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
-    labels = c("Bromus tectorum" = expression(italic("Bromus tectorum")))) +
+    labels = c("Bromus rubens" = expression(italic("Bromus rubens")))) +
   theme(plot.margin = margin(10, 10, 20, 10))
 model46.bp
 
@@ -9818,7 +9823,7 @@ model46.perforb <- model46.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Perennial forb") +
+       title = "Perennial forb (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model46.perforb
@@ -9860,30 +9865,30 @@ model46.shannon <- model46.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = "Shannon diversity") +
+       title = "Shannon diversity (*)") +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model46.shannon
 
-#   Bromus tectorum
-model46.brte <- model46.perm |> 
-  filter(indicators == "Bromus tectorum") |> 
+#   Bromus rubens
+model46.brru2 <- model46.perm |> 
+  filter(indicators == "Bromus rubens") |> 
   ggplot(aes(x = mean_diff)) +
   geom_histogram(fill = "lightblue2", color = "black") +
-  geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Bromus tectorum"],
+  geom_vline(xintercept = model46.diff$obs_diff[model46.diff$indicators == "Bromus rubens"],
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus rubens"))) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
-model46.brte
+model46.brru2
 
 # Combine plots
 grid.arrange(
   model46.bp, model46.annforb, model46.anngrass,
   model46.perforb, model46.pergrass, model46.shrub,
-  model46.shannon, model46.brte,
+  model46.shannon, model46.brru2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9896,15 +9901,15 @@ grid.arrange(
 
 # Write out figures -------------------------------------------------------
 
-## AZ/NM Mountains --------------------------------------------------------
+## Blue Mountains ---------------------------------------------------------
 
-# 1. AZ/NM Mountains: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model01_permutation-1.2.tiff",
+# 1. Blue Mountains: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model01_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model01.bp, model01.annforb, model01.anngrass,
   model01.perforb, model01.pergrass, model01.shrub,
-  model01.shannon, model01.brru2,
+  model01.shannon, model01.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9914,16 +9919,13 @@ grid.arrange(
 )
 dev.off()
 
-
-## AZ/NM Plateau ----------------------------------------------------------
-
-# 2. AZ/NM Plateau: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model02_permutation-1.2.tiff",
+# 2. Blue Mountains: Vegetation disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model02_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model02.bp, model02.annforb, model02.anngrass,
   model02.perforb, model02.pergrass, model02.shrub,
-  model02.shannon, model02.satr12,
+  model02.shannon, model02.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9933,13 +9935,13 @@ grid.arrange(
 )
 dev.off()
 
-# 3. AZ/NM Plateau: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model03_permutation-1.2.tiff",
+# 3. Blue Mountains: Post-burn herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model03_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model03.bp, model03.annforb, model03.anngrass,
   model03.perforb, model03.pergrass, model03.shrub,
-  model03.shannon, model03.satr12,
+  model03.shannon, model03.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9949,13 +9951,16 @@ grid.arrange(
 )
 dev.off()
 
-# 4. AZ/NM Plateau: Seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model04_permutation-1.2.tiff",
+
+## Middle Rockies ---------------------------------------------------------
+
+# 04. Middle Rockies: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model04_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model04.bp, model04.annforb, model04.anngrass,
   model04.perforb, model04.pergrass, model04.shrub,
-  model04.shannon, model04.satr12,
+  model04.shannon, model04.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9965,13 +9970,16 @@ grid.arrange(
 )
 dev.off()
 
-# 5. AZ/NM Plateau: Soil disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model05_permutation-1.2.tiff",
+
+## Southern Rockies -------------------------------------------------------
+
+# 5. Southern Rockies: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model05_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model05.bp, model05.annforb, model05.anngrass,
   model05.perforb, model05.pergrass, model05.shrub,
-  model05.shannon, model05.satr12,
+  model05.shannon, model05.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -9981,11 +9989,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Blue Mountains ---------------------------------------------------------
-
-# 6. Blue Mountains: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model06_permutation-1.2.tiff",
+# 6. Southern Rockies: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model06_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model06.bp, model06.annforb, model06.anngrass,
@@ -10000,8 +10005,8 @@ grid.arrange(
 )
 dev.off()
 
-# 7. Blue Mountains: Vegetation disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model07_permutation-1.2.tiff",
+# 7. Southern Rockies: Vegetation disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model07_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model07.bp, model07.annforb, model07.anngrass,
@@ -10016,8 +10021,11 @@ grid.arrange(
 )
 dev.off()
 
-# 8. Blue Mountains: Post-burn herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model08_permutation-1.2.tiff",
+
+## Northwestern Great Plains ----------------------------------------------
+
+# 8. NW Great Plains: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model08_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model08.bp, model08.annforb, model08.anngrass,
@@ -10033,10 +10041,10 @@ grid.arrange(
 dev.off()
 
 
-## Central Basin and Range ------------------------------------------------
+## Snake River Plain ------------------------------------------------------
 
-# 9. Central BR: Aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model09_permutation-1.2.tiff",
+# 09. Snake River Plain: Post-burn aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model09_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model09.bp, model09.annforb, model09.anngrass,
@@ -10051,8 +10059,8 @@ grid.arrange(
 )
 dev.off()
 
-# 10. Central BR: Drill seeding & soil disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model10_permutation-1.2.tiff",
+# 10. Snake River Plain: Post-burn aerial & drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model10_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model10.bp, model10.annforb, model10.anngrass,
@@ -10067,8 +10075,8 @@ grid.arrange(
 )
 dev.off()
 
-# 11. Central BR: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model11_permutation-1.2.tiff",
+# 11. Snake River Plain: Post-burn closure
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model11_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model11.bp, model11.annforb, model11.anngrass,
@@ -10081,11 +10089,10 @@ grid.arrange(
     c(NA, 7, 7, 8, 8, NA)
   )
 )
-
 dev.off()
 
-# 12. Central BR: Vegetation disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model12_permutation-1.2.tiff",
+# 12. Snake River Plain: Post-burn drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model12_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model12.bp, model12.annforb, model12.anngrass,
@@ -10100,8 +10107,8 @@ grid.arrange(
 )
 dev.off()
 
-# 13. Central BR: Post-burn aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model13_permutation-1.2.tiff",
+# 13. Snake River Plain: Post-burn herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model13_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model13.bp, model13.annforb, model13.anngrass,
@@ -10116,8 +10123,11 @@ grid.arrange(
 )
 dev.off()
 
-# 14. Central BR: Post-burn drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model14_permutation-1.2.tiff",
+
+## Northern Basin and Range -----------------------------------------------
+
+# 26. Northern BR: Drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model14_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model14.bp, model14.annforb, model14.anngrass,
@@ -10132,8 +10142,8 @@ grid.arrange(
 )
 dev.off()
 
-# 15. Central BR: Post-burn ground seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model15_permutation-1.2.tiff",
+# 15. Northern BR: Drill seeding & soil disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model15_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model15.bp, model15.annforb, model15.anngrass,
@@ -10148,8 +10158,8 @@ grid.arrange(
 )
 dev.off()
 
-# 16. Central BR: Post-burn herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model16_permutation-1.2.tiff",
+# 16. Northern BR: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model16_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model16.bp, model16.annforb, model16.anngrass,
@@ -10164,16 +10174,13 @@ grid.arrange(
 )
 dev.off()
 
-
-## Chihuahuan Desert ------------------------------------------------------
-
-# 17. Chihuahuan Desert: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model17_permutation-1.2.tiff",
+# 17. Northern BR: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model17_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model17.bp, model17.annforb, model17.anngrass,
   model17.perforb, model17.pergrass, model17.shrub,
-  model17.shannon, model17.prgl2,
+  model17.shannon, model17.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -10183,11 +10190,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Colorado Plateaus ------------------------------------------------------
-
-# 18. CO Plateaus: Aerial seeding & soil disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model18_permutation-1.2.tiff",
+# 18. Northern BR: Vegetation disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model18_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model18.bp, model18.annforb, model18.anngrass,
@@ -10202,8 +10206,8 @@ grid.arrange(
 )
 dev.off()
 
-# 19. CO Plateaus: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model19_permutation-1.2.tiff",
+# 19. Northern BR: Post-burn aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model19_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model19.bp, model19.annforb, model19.anngrass,
@@ -10218,8 +10222,8 @@ grid.arrange(
 )
 dev.off()
 
-# 20. CO Plateaus: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model20_permutation-1.2.tiff",
+# 20. Northern BR: Post-burn aerial and drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model20_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model20.bp, model20.annforb, model20.anngrass,
@@ -10234,8 +10238,8 @@ grid.arrange(
 )
 dev.off()
 
-# 21. CO Plateaus: Soil disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model21_permutation-1.2.tiff",
+# 21. Northern BR: Post-burn closure
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model21_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model21.bp, model21.annforb, model21.anngrass,
@@ -10250,8 +10254,8 @@ grid.arrange(
 )
 dev.off()
 
-# 22. CO Plateaus: Vegetation disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model22_permutation-1.2.tiff",
+# 22. Northern BR: Post-burn drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model22_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model22.bp, model22.annforb, model22.anngrass,
@@ -10266,8 +10270,8 @@ grid.arrange(
 )
 dev.off()
 
-# 23. CO Plateaus: Post-burn aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model23_permutation-1.2.tiff",
+# 23. Northern BR: Post-burn herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model23_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model23.bp, model23.annforb, model23.anngrass,
@@ -10282,11 +10286,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Middle Rockies ---------------------------------------------------------
-
-# 24. Middle Rockies: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model24_permutation-1.2.tiff",
+# 24. Northern BR: Post-burn seedling planting
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model24_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model24.bp, model24.annforb, model24.anngrass,
@@ -10302,15 +10303,15 @@ grid.arrange(
 dev.off()
 
 
-## Mojave Basin and Range -------------------------------------------------
+## Central Basin and Range ------------------------------------------------
 
-# 25. Mojave BR: Post-burn aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model25_permutation-1.2.tiff",
+# 25. Central BR: Aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model25_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model25.bp, model25.annforb, model25.anngrass,
   model25.perforb, model25.pergrass, model25.shrub,
-  model25.shannon, model25.brru2,
+  model25.shannon, model25.brte,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -10320,11 +10321,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Northern Basin and Range -----------------------------------------------
-
-# 26. Northern BR: Drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model26_permutation-1.2.tiff",
+# 26. Central BR: Drill seeding & soil disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model26_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model26.bp, model26.annforb, model26.anngrass,
@@ -10339,8 +10337,8 @@ grid.arrange(
 )
 dev.off()
 
-# 27. Northern BR: Drill seeding & soil disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model27_permutation-1.2.tiff",
+# 27. Central BR: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model27_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model27.bp, model27.annforb, model27.anngrass,
@@ -10353,10 +10351,11 @@ grid.arrange(
     c(NA, 7, 7, 8, 8, NA)
   )
 )
+
 dev.off()
 
-# 28. Northern BR: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model28_permutation-1.2.tiff",
+# 28. Central BR: Vegetation disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model28_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model28.bp, model28.annforb, model28.anngrass,
@@ -10371,8 +10370,8 @@ grid.arrange(
 )
 dev.off()
 
-# 29. Northern BR: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model29_permutation-1.2.tiff",
+# 29. Central BR: Post-burn aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model29_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model29.bp, model29.annforb, model29.anngrass,
@@ -10387,8 +10386,8 @@ grid.arrange(
 )
 dev.off()
 
-# 30. Northern BR: Vegetation disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model30_permutation-1.2.tiff",
+# 30. Central BR: Post-burn drill seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model30_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model30.bp, model30.annforb, model30.anngrass,
@@ -10403,8 +10402,8 @@ grid.arrange(
 )
 dev.off()
 
-# 31. Northern BR: Post-burn aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model31_permutation-1.2.tiff",
+# 31. Central BR: Post-burn ground seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model31_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model31.bp, model31.annforb, model31.anngrass,
@@ -10419,8 +10418,8 @@ grid.arrange(
 )
 dev.off()
 
-# 32. Northern BR: Post-burn aerial and drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model32_permutation-1.2.tiff",
+# 32. Central BR: Post-burn herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model32_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model32.bp, model32.annforb, model32.anngrass,
@@ -10435,8 +10434,11 @@ grid.arrange(
 )
 dev.off()
 
-# 33. Northern BR: Post-burn closure
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model33_permutation-1.2.tiff",
+
+## Wyoming Basin ----------------------------------------------------------
+
+# 33. Wyoming Basin: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model33_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model33.bp, model33.annforb, model33.anngrass,
@@ -10451,8 +10453,11 @@ grid.arrange(
 )
 dev.off()
 
-# 34. Northern BR: Post-burn drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model34_permutation-1.2.tiff",
+
+## Colorado Plateaus ------------------------------------------------------
+
+# 34. CO Plateaus: Aerial seeding & soil disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model34_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model34.bp, model34.annforb, model34.anngrass,
@@ -10467,8 +10472,8 @@ grid.arrange(
 )
 dev.off()
 
-# 35. Northern BR: Post-burn herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model35_permutation-1.2.tiff",
+# 35. CO Plateaus: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model35_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model35.bp, model35.annforb, model35.anngrass,
@@ -10483,8 +10488,8 @@ grid.arrange(
 )
 dev.off()
 
-# 36. Northern BR: Post-burn seedling planting
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model36_permutation-1.2.tiff",
+# 36. CO Plateaus: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model36_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model36.bp, model36.annforb, model36.anngrass,
@@ -10499,11 +10504,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Northwestern Great Plains ----------------------------------------------
-
-# 37. NW Great Plains: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model37_permutation-1.2.tiff",
+# 37. CO Plateaus: Soil disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model37_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model37.bp, model37.annforb, model37.anngrass,
@@ -10518,11 +10520,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Snake River Plain ------------------------------------------------------
-
-# 38. Snake River Plain: Post-burn aerial seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model38_permutation-1.2.tiff",
+# 38. CO Plateaus: Vegetation disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model38_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model38.bp, model38.annforb, model38.anngrass,
@@ -10537,8 +10536,8 @@ grid.arrange(
 )
 dev.off()
 
-# 39. Snake River Plain: Post-burn aerial & drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model39_permutation-1.2.tiff",
+# 39. CO Plateaus: Post-burn aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model39_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model39.bp, model39.annforb, model39.anngrass,
@@ -10553,8 +10552,11 @@ grid.arrange(
 )
 dev.off()
 
-# 40. Snake River Plain: Post-burn closure
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model40_permutation-1.2.tiff",
+
+## AZ/NM Plateau ----------------------------------------------------------
+
+# 40. AZ/NM Plateau: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model40_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model40.bp, model40.annforb, model40.anngrass,
@@ -10569,8 +10571,8 @@ grid.arrange(
 )
 dev.off()
 
-# 41. Snake River Plain: Post-burn drill seeding
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model41_permutation-1.2.tiff",
+# 41. AZ/NM Plateau: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model41_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model41.bp, model41.annforb, model41.anngrass,
@@ -10585,8 +10587,8 @@ grid.arrange(
 )
 dev.off()
 
-# 42. Snake River Plain: Post-burn herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model42_permutation-1.2.tiff",
+# 42. AZ/NM Plateau: Seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model42_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model42.bp, model42.annforb, model42.anngrass,
@@ -10601,11 +10603,8 @@ grid.arrange(
 )
 dev.off()
 
-
-## Southern Rockies -------------------------------------------------------
-
-# 43. Southern Rockies: Herbicide
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model43_permutation-1.2.tiff",
+# 43. AZ/NM Plateau: Soil disturbance
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model43_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model43.bp, model43.annforb, model43.anngrass,
@@ -10620,13 +10619,16 @@ grid.arrange(
 )
 dev.off()
 
-# 44. Southern Rockies: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model44_permutation-1.2.tiff",
+
+## Mojave Basin and Range -------------------------------------------------
+
+# 44. Mojave BR: Post-burn aerial seeding
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model44_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model44.bp, model44.annforb, model44.anngrass,
   model44.perforb, model44.pergrass, model44.shrub,
-  model44.shannon, model44.brte,
+  model44.shannon, model44.brru2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -10634,15 +10636,15 @@ grid.arrange(
     c(NA, 7, 7, 8, 8, NA)
   )
 )
-dev.off()
+## Chihuahuan Desert ------------------------------------------------------
 
-# 45. Southern Rockies: Vegetation disturbance
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model45_permutation-1.2.tiff",
+# 45. Chihuahuan Desert: Herbicide
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model45_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model45.bp, model45.annforb, model45.anngrass,
   model45.perforb, model45.pergrass, model45.shrub,
-  model45.shannon, model45.brte,
+  model45.shannon, model45.prgl2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -10650,18 +10652,17 @@ grid.arrange(
     c(NA, 7, 7, 8, 8, NA)
   )
 )
-dev.off()
 
 
-## Wyoming Basin ----------------------------------------------------------
+## AZ/NM Mountains --------------------------------------------------------
 
-# 46. Wyoming Basin: Prescribed burn
-tiff("figures/2026-06_PSM-and-permutation-tests-1.2/model46_permutation-1.2.tiff",
+# 46. AZ/NM Mountains: Prescribed burn
+tiff("figures/2026-06_PSM-and-permutation-tests-2/model46_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
   model46.bp, model46.annforb, model46.anngrass,
   model46.perforb, model46.pergrass, model46.shrub,
-  model46.shannon, model46.brte,
+  model46.shannon, model46.brru2,
   layout_matrix = rbind(
     c(1, 1, 1, 1, 1, 1),
     c(NA, 2, 2, 3, 3, NA),
@@ -10669,7 +10670,6 @@ grid.arrange(
     c(NA, 7, 7, 8, 8, NA)
   )
 )
-dev.off()
 
 
-save.image("RData/19_permutation-tests-1.2.RData")
+save.image("RData/23_permutation-tests.RData")

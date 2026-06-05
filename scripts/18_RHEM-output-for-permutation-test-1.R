@@ -1,4 +1,4 @@
-# Updated: 2026-06-01
+# Created: 2026-06-01
 # Updated: 2026-06-04
 
 # Purpose: Format/gather RHEM data from geoindicators.csv for permutation test.
