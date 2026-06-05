@@ -15,7 +15,6 @@ library(ggsignif)
 # Load data ---------------------------------------------------------------
 
 ldc.007.raw <- read_csv("data/versions-from-R/12.3_LDC-points_v007.csv")
-level3.trt30 <- read_csv("data/versions-from-R/12.3_eco3-trt30_count-table.csv")
 
 
 # Data wrangling ----------------------------------------------------------
@@ -5839,104 +5838,23 @@ model46.plot
 
 
 
-# Summarize ---------------------------------------------------------------
-
-## Count table ------------------------------------------------------------
-
-# Bind rows
-gcomp.pred <- bind_rows(mget(ls(pattern = "\\.pred$")))
-
-# Reformat level3.trt30 table
-count.table0 <- level3.trt30 |> 
-  select(EcoLvl3, Category, Trt_Type_Sub) |> 
-  arrange(Trt_Type_Sub) |> 
-  arrange(Category) |> 
-  arrange(EcoLvl3) |> 
-  mutate(Model = c(1:46), .before = EcoLvl3) 
-
-# Add sample sizes from PSM
-count.table.psm <- count.table0 |> 
-  mutate(
-    Treated_n = c(
-      summary(model01.psm)[[2]][4, 2], summary(model02.psm)[[2]][4, 2],
-      summary(model03.psm)[[2]][4, 2], summary(model04.psm)[[2]][4, 2],
-      summary(model05.psm)[[2]][4, 2], summary(model06.psm)[[2]][4, 2],
-      summary(model07.psm)[[2]][4, 2], summary(model08.psm)[[2]][4, 2],
-      summary(model09.psm)[[2]][4, 2], summary(model10.psm)[[2]][4, 2],
-      summary(model11.psm)[[2]][4, 2], summary(model12.psm)[[2]][4, 2],
-      summary(model13.psm)[[2]][4, 2], summary(model14.psm)[[2]][4, 2],
-      summary(model15.psm)[[2]][4, 2], summary(model16.psm)[[2]][4, 2],
-      summary(model17.psm)[[2]][4, 2], summary(model18.psm)[[2]][4, 2],
-      summary(model19.psm)[[2]][4, 2], summary(model20.psm)[[2]][4, 2],
-      summary(model21.psm)[[2]][4, 2], summary(model22.psm)[[2]][4, 2],
-      summary(model23.psm)[[2]][4, 2], summary(model24.psm)[[2]][4, 2],
-      summary(model25.psm)[[2]][4, 2], summary(model26.psm)[[2]][4, 2],
-      summary(model27.psm)[[2]][4, 2], summary(model28.psm)[[2]][4, 2],
-      summary(model29.psm)[[2]][4, 2], summary(model30.psm)[[2]][4, 2],
-      summary(model31.psm)[[2]][4, 2], summary(model32.psm)[[2]][4, 2],
-      summary(model33.psm)[[2]][4, 2], summary(model34.psm)[[2]][4, 2],
-      summary(model35.psm)[[2]][4, 2], summary(model36.psm)[[2]][4, 2],
-      summary(model37.psm)[[2]][4, 2], summary(model38.psm)[[2]][4, 2],
-      summary(model39.psm)[[2]][4, 2], summary(model11.psm)[[2]][4, 2],
-      summary(model41.psm)[[2]][4, 2], summary(model42.psm)[[2]][4, 2],
-      summary(model43.psm)[[2]][4, 2], summary(model44.psm)[[2]][4, 2],
-      summary(model45.psm)[[2]][4, 2], summary(model46.psm)[[2]][4, 2]
-    )
-  ) |> 
-  mutate(Control_n = Treated_n * 2)
-
-
-
-## G computation ----------------------------------------------------------
-
-# Bind rows
-gcomp.pred <- bind_rows(mget(ls(pattern = "\\.pred$")))
-
-# Add other cols
-gcomp.pred <- gcomp.pred |> 
-  left_join(count.table0)
-gcomp.pred <- gcomp.pred[, c(1, 11:13, 2:10)]
-
-# Add significance stars
-gcomp.pred <- gcomp.pred |> 
-  mutate(sig = case_when(
-    p.value < 0.001 ~ "***",
-    p.value < 0.01  ~ "**",
-    p.value < 0.05  ~ "*",
-    TRUE            ~ ""
-  ), .before = s.value)
-
-# Add back-transformation for estimate
-gcomp.pred <- gcomp.pred |> 
-  mutate(estimate_bt = exp(estimate),
-         .after = estimate)
-
-
-
-## Average treatment effect -----------------------------------------------
-
-avg.comp <- bind_rows(mget(ls(pattern = "\\.comp$")))
-
-# Add other cols
-avg.comp <- count.table0 |> 
-  left_join(avg.comp)
-
-# Add significance stars
-avg.comp <- avg.comp |> 
-  mutate(sig = case_when(
-    p.value < 0.001 ~ "***",
-    p.value < 0.01  ~ "**",
-    p.value < 0.05  ~ "*",
-    TRUE            ~ ""
-  ), .before = s.value)
-
-
-
-
 # Save matched data -------------------------------------------------------
 
+# Matched data
 save(list = ls(pattern = "\\.matched$"), 
      file = "RData/20.1_matched-data-2.RData")
+
+# PSM
+save(list = ls(pattern = "\\.psm$"), 
+     file = "RData/20.1_PSM-2.RData")
+
+# G computation
+save(list = ls(pattern = "\\.pred$"), 
+     file = "RData/20.1_g-computation-2.RData")
+
+# Average treatment effect
+save(list = ls(pattern = "\\.comp$"), 
+     file = "RData/20.1_average-treatment-effect-2.RData")
 
 
 

@@ -1,11 +1,12 @@
-# Created: 2026-06-04
+# Created: 2026-06-05
 # Updated: 2026-06-05
 
 # Purpose: Recalculate g computation and average treatment effect for models 29, 32,
 #   and 43 after removing rows of plots with NA Shannon diversity values (NA because
-#   no cover measurements for any species were recorded in the plots) and saved updated
-#   set of matched data (for all 46 models). Recreate control/treated figures 
-#   for the three affected models (love plots stay the same).
+#   no cover measurements for any species were recorded in the plots) and saved 
+#   updated set of matched data, g computation, and average treatment effect 
+#   (for all 46 models). Recreate control/treated figures for the three affected 
+#   models (love plots stay the same).
 
 # Plots with NA Shannon diversity values must be removed for permutation tests
 #   (23_permutation-tests-2.R). The relevant primary keys/plots were identified
@@ -26,6 +27,9 @@ library(ggsignif)
 # Load data ---------------------------------------------------------------
 
 load("RData/20.1_matched-data-2.RData")
+load("RData/20.1_PSM-2.RData")
+load("RData/20.1_g-computation-2.RData")
+load("RData/20.1_average-treatment-effect-2.RData")
 ldc.007.raw <- read_csv("data/versions-from-R/12.3_LDC-points_v007.csv")
 shannon.na <- read_csv("data/versions-from-R/21_shannon-diversity-2_NA.csv")
 
@@ -443,8 +447,21 @@ model43.plot
 
 # Save matched data -------------------------------------------------------
 
+# Matched data
 save(list = ls(pattern = "\\.matched$"), 
      file = "RData/20.2_matched-data-2_updated.RData")
+
+# PSM
+save(list = ls(pattern = "\\.psm$"), 
+     file = "RData/20.2_PSM-2_updated.RData")
+
+# G computation
+save(list = ls(pattern = "\\.pred$"), 
+     file = "RData/20.2_g-computation-2_updated.RData")
+
+# Average treatment effect
+save(list = ls(pattern = "\\.comp$"), 
+     file = "RData/20.2_average-treatment-effect-2_updated.RData")
 
 
 
@@ -476,3 +493,4 @@ tiff("figures/2026-06_PSM-and-permutation-tests-2/model43_average-treatment-effe
      units = "in", width = 6, height = 4, res = 150)
 model43.plot
 dev.off()
+
