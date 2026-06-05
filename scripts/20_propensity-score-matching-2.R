@@ -1,10 +1,10 @@
 # Created: 2026-06-04
-# Updated: 2026-06-04
+# Updated: 2026-06-05
 
 # Purpose: Propensity score matching incorporating CETWI and SOLUS data with updated
 #   numbering from PSM 1 (13.R).
 #   Additionally, 3 models have a single row removed to run Shannon diversity 
-#     permutation test 2 (19_permutation-tests-2.R) because those plots had no 
+#     permutation test 2 (23_permutation-tests-2.R) because those plots had no 
 #     cover data recorded for any species and Shannon diversity is NA for those plots). 
 
 #   These models are:
@@ -14,6 +14,11 @@
 
 # All other models are the same as 13_propensity-score-matching-1.R, but numbering
 #   is different.
+
+# Note that plots with no cover data for any species via geospecies.csv (and therefore have
+#   NA for Shannon diversity) were identified from 16.R and 19.R. Explanation is also
+#   added to 21_calculate-shannon-diversity-2.R so the PSM/permutation test version 2
+#   analysis pipeline can be self-contained.
 
 
 # https://kosukeimai.github.io/MatchIt/articles/MatchIt.html
@@ -6650,4 +6655,4 @@ dev.off()
 
 
 
-save.image("RData/13.2_propensity-score-matching-2.RData")
+save.image("RData/20_propensity-score-matching-2.RData")
