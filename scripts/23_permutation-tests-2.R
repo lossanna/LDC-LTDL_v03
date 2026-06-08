@@ -2967,7 +2967,7 @@ p_values14 <- model14.perm |>
   inner_join(model14.diff, by = "indicators") |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
-p_values14 # p = 0.009 for perennial grass
+p_values14 # p = 0.009 for perennial grass, p = 0.02 from BRTE
 
 # Boxplot
 model14.bp <- model14.matched2 |> 
@@ -2985,7 +2985,13 @@ model14.bp <- model14.matched2 |>
     xmax = 4.2, 
     annotations = c("**")
   ) +
-  ylim(0, 90) + 
+  geom_signif(
+    y_position = 90,
+    xmin = 5.8,
+    xmax = 6.2, 
+    annotations = c("*")
+  ) +
+  ylim(0, 98) + 
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -3087,7 +3093,7 @@ model14.brte <- model14.perm |>
              color = "red", linetype = "dashed", linewidth = 1) +
   labs(x = "Difference in means",
        y = "Frequency",
-       title = expression(italic("Bromus tectorum"))) +
+       title = expression(italic("Bromus tectorum") ~ "(*)")) +
   theme_bw(base_size = 10) +
   theme(plot.margin = margin(10, 10, 10, 10))
 model14.brte
@@ -10126,7 +10132,7 @@ dev.off()
 
 ## Northern Basin and Range -----------------------------------------------
 
-# 26. Northern BR: Drill seeding
+# 14. Northern BR: Drill seeding
 tiff("figures/2026-06_PSM-and-permutation-tests-2/model14_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
