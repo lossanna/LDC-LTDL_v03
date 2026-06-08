@@ -1,5 +1,5 @@
 # Created: 2026-06-05
-# Updated: 2026-06-05
+# Updated: 2026-06-08
 
 # Purpose: Run permutation tests 2 for functional group cover, Shannon diversity,
 #   and invasive species.
@@ -1473,7 +1473,7 @@ model07.bp <- model07.matched2 |>
   theme_bw() +
   labs(y = "Cover (%)",
        x = NULL,
-       title = "07. Southern Rockies: Vegetation disturbance") +
+       title = "7. Southern Rockies: Vegetation disturbance") +
   theme(legend.title = element_blank()) +
   theme(axis.text.x = element_text(color = "black")) +
   scale_x_discrete(
@@ -2324,7 +2324,7 @@ p_values11 <- model11.perm |>
   group_by(indicators) |>
   summarize(p_value = mean(abs(mean_diff) >= abs(obs_diff[1])))
 p_values11 # p = 0.006 for annual grass; p = 0.0099 for perennial grass;
-#             p < 0.001 for shannon; p = 0.2 for BRTE
+#             p < 0.001 for shannon; p = 0.02 for BRTE
 
 # Boxplot
 model11.bp <- model11.matched2 |> 
@@ -10043,7 +10043,7 @@ dev.off()
 
 ## Snake River Plain ------------------------------------------------------
 
-# 09. Snake River Plain: Post-burn aerial seeding
+# 9. Snake River Plain: Post-burn aerial seeding
 tiff("figures/2026-06_PSM-and-permutation-tests-2/model09_permutation-2.tiff",
      units = "in", width = 10, height = 9, res = 150)
 grid.arrange(
