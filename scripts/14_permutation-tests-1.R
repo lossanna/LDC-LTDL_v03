@@ -14,6 +14,7 @@ library(gridExtra)
 
 load("RData/13_matched-data-1.RData")
 geoindicators.raw <- read_csv("data/raw/downloaded/ldc-data-2026-03-11/geoindicators.csv")
+ldc.007 <- read_csv("data/versions-from-R/12.3_LDC-points_v007.csv")
 
 
 # Data wrangling ----------------------------------------------------------
@@ -7836,8 +7837,27 @@ grid.arrange(
 
 
 
-# Write out figures -------------------------------------------------------
+# Save data as LDC v008 ---------------------------------------------------
 
+# Combine matched data
+all.matched <- mget(ls(pattern = "\\.matched2$")) |>
+  bind_rows(.id = "Model") |> 
+  select(-indicators, -pct_cover) |> 
+  distinct(.keep_all = TRUE)
+all.matched$Model <- paste("Model", as.integer(str_extract(all.matched$Model, "\\d+")))
+
+# Add other LDC cols
+ldc.008 <- all.matched |> 
+  left_join(ldc.007) 
+
+# Write to CSV
+write_csv(ldc.008,
+          file = "data/versions-from-R/14_LDC-points_v008.csv",
+          na = "")
+
+
+
+# Write out figures -------------------------------------------------------
 
 ## AZ/NM Mountains --------------------------------------------------------
 

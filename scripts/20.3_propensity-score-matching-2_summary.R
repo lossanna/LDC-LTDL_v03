@@ -2,7 +2,7 @@
 # Updated: 2026-06-05
 
 # Purpose: Create summary tables of the 46 models (with updated data that removes NA
-#   Shannon divesrity plots for the three relevant models).
+#   Shannon diversity plots for the three relevant models).
 
 
 library(tidyverse)
